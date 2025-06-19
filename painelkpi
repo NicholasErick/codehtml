@@ -460,7 +460,7 @@
             const renderCurrentMonthKPIs = (data, year, month) => {
                 const currentServicesInScope = [...new Set(initialFilterData.filter(d =>
                     (!kpiCategoriaSelect.value || d.cr9ff_categoria === kpiCategoriaSelect.value) &&
-                    (!kpiResponsavelSelect.value || d.cr9ff_responsvel === kpiResponsavelSelect.value)
+                    (!kpiResponsavelSelect.value || d.cr9ff_responsavel === kpiResponsavelSelect.value)
                 ).map(item => item.cr9ff_servico).filter(Boolean))];
 
                 const kpis = calculateKpisForMonth(data, year, month, currentServicesInScope);
@@ -654,7 +654,7 @@
                                 <span>${formatDate(getValue('cr9ff_data'))}</span>
                                 <span class="font-bold text-gray-800 dark:text-white">${getValue('cr9ff_percentual', '0.00')}%</span>
                             </div>
-                            <h3 class="text-lg font-bold text-gray-900 dark:text-white incident-title truncate" title="${getValue('cr9ff_servico')}">${getValue('cr9ff_servico')}</h3>
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white incident-title truncate" title="${getValue('cr9ff_servio')}">${getValue('cr9ff_servio')}</h3>
                             ${event.cr9ff_servicocritico ? `<span class="inline-block bg-yellow-200 dark:bg-yellow-700 text-yellow-800 dark:text-yellow-100 text-xs font-semibold px-2.5 py-0.5 rounded-full mb-2">Serviço Crítico: ${getValue('cr9ff_servicocritico')}</span>` : ''}
                             <p class="text-gray-700 dark:text-gray-300 text-sm">
                                 <strong>Resp.:</strong> ${getValue('cr9ff_responsvel')}<br>
@@ -759,7 +759,7 @@
                         item.className = 'border-b pb-2 last:border-b-0 text-sm';
                         const inicio = new Date(ev.cr9ff_horadeinicio);
                         const time = isNaN(inicio) ? 'N/A' : inicio.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
-                        const servico = ev.cr9ff_servico || 'N/A';
+                        const servico = ev.cr9ff_servio || 'N/A';
                         const problema = ev.cr9ff_problema || 'N/A';
                         item.innerHTML = `
                             <div class="text-gray-600 dark:text-gray-400">${time}</div>
@@ -828,11 +828,11 @@
                 const selectedCategory = kpiCategoriaSelect.value;
                 let filteredByCat = initialFilterData.filter(d => !selectedCategory || d.cr9ff_categoria === selectedCategory);
 
-                populateFilter(kpiResponsavelSelect, filteredByCat, 'cr9ff_responsvel', 'Todos os Responsáveis');
+                populateFilter(kpiResponsavelSelect, filteredByCat, 'cr9ff_responsavel', 'Todos os Responsáveis');
 
                 const selectedResponsible = kpiResponsavelSelect.value;
-                let filteredByCatAndResp = filteredByCat.filter(d => !selectedResponsible || d.cr9ff_responsvel === selectedResponsible);
-                populateFilter(kpiServicoSelect, filteredByCatAndResp, 'cr9ff_servio', 'Todos os Serviços');
+                let filteredByCatAndResp = filteredByCat.filter(d => !selectedResponsible || d.cr9ff_responsavel === selectedResponsible);
+                populateFilter(kpiServicoSelect, filteredByCatAndResp, 'cr9ff_servico', 'Todos os Serviços');
             };
 
             // --- INITIALIZATION ---
