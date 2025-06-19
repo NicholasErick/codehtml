@@ -62,6 +62,33 @@
         .incident-card.critical .incident-title {
             @apply text-yellow-800 dark:text-yellow-200;
         }
+
+        /* Calendar styles */
+        #calendar {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            gap: 0.5rem;
+        }
+        .calendar-cell {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+            text-align: center;
+            border: 1px solid rgb(229 231 235);
+            border-radius: 0.5rem;
+            cursor: pointer;
+        }
+        .dark .calendar-cell {
+            border-color: rgb(55 65 81);
+        }
+        .calendar-dot {
+            width: 0.5rem;
+            height: 0.5rem;
+            border-radius: 9999px;
+            margin-top: 0.25rem;
+        }
     </style>
 </head>
 <body class="dark:bg-gray-900">
@@ -123,6 +150,21 @@
                     <h2 class="text-lg font-medium text-gray-500 dark:text-gray-400">Ocorrências Resolvidas</h2>
                     <p id="incidentes-value" class="text-4xl font-bold text-gray-800 dark:text-white mt-2">--</p>
                 </div>
+            </div>
+        </div>
+
+        <!-- Calendar Section - NEW -->
+        <div class="kpi-card !p-4">
+            <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Calendário de Ocorrências</h2>
+            <div id="calendar"></div>
+        </div>
+
+        <!-- Modal for Calendar Day - NEW -->
+        <div id="calendar-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-20">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 max-w-md w-full">
+                <h3 id="calendar-modal-title" class="text-lg font-semibold text-gray-800 dark:text-white mb-2"></h3>
+                <div id="calendar-modal-content" class="space-y-2 max-h-96 overflow-y-auto"></div>
+                <button id="calendar-modal-close" class="mt-4 px-4 py-2 rounded-lg bg-blue-500 text-white">Fechar</button>
             </div>
         </div>
 
@@ -214,6 +256,13 @@
             const prevCardBtn = document.getElementById('prev-card-btn');
             const nextCardBtn = document.getElementById('next-card-btn');
             const cardPaginationInfo = document.getElementById('card-pagination-info');
+
+            // Calendar elements - NEW
+            const calendarContainer = document.getElementById('calendar');
+            const calendarModal = document.getElementById('calendar-modal');
+            const calendarModalTitle = document.getElementById('calendar-modal-title');
+            const calendarModalContent = document.getElementById('calendar-modal-content');
+            const calendarModalClose = document.getElementById('calendar-modal-close');
 
 
             // --- ESTADO INICIAL ---
@@ -672,6 +721,83 @@
                 }
             });
 
+            // Renders the calendar grid based on filtered incidents - NEW
+            const renderCalendar = () => {
+                if (!calendarContainer) return;
+                calendarContainer.innerHTML = '';
+
+                const year = currentDate.getFullYear();
+                const month = currentDate.getMonth();
+                const firstDay = new Date(year, month, 1).getDay();
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+                const incidentsByDay = {};
+                filteredRcaEvents.forEach(ev => {
+                    const d = new Date(ev.cr9ff_horadeinicio);
+                    if (d.getFullYear() === year && d.getMonth() === month) {
+                        const day = d.getDate();
+                        if (!incidentsByDay[day]) incidentsByDay[day] = [];
+                        incidentsByDay[day].push(ev);
+                    }
+                });
+
+                for (let i = 0; i < firstDay; i++) {
+                    calendarContainer.appendChild(document.createElement('div'));
+                }
+
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'calendar-cell';
+                    cell.dataset.date = `${year}-${String(month + 1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+
+                    const label = document.createElement('span');
+                    label.textContent = day;
+                    const dot = document.createElement('div');
+                    dot.className = 'calendar-dot ' + (incidentsByDay[day] ? 'bg-red-500' : 'bg-green-500');
+
+                    cell.appendChild(label);
+                    cell.appendChild(dot);
+
+                    cell.addEventListener('click', () => showDayDetails(cell.dataset.date, incidentsByDay[day] || []));
+
+                    calendarContainer.appendChild(cell);
+                }
+            };
+
+            // Displays incidents for a selected day in a modal - NEW
+            const showDayDetails = (dateStr, events) => {
+                if (!calendarModal) return;
+                calendarModalTitle.textContent = new Date(dateStr).toLocaleDateString('pt-BR');
+                calendarModalContent.innerHTML = '';
+
+                if (events.length === 0) {
+                    const p = document.createElement('p');
+                    p.className = 'text-center text-gray-600 dark:text-gray-400';
+                    p.textContent = 'Nenhuma ocorrência para este dia.';
+                    calendarModalContent.appendChild(p);
+                } else {
+                    events.forEach(ev => {
+                        const item = document.createElement('div');
+                        item.className = 'border-b pb-2 last:border-b-0 text-sm';
+                        const inicio = new Date(ev.cr9ff_horadeinicio);
+                        const time = isNaN(inicio) ? 'N/A' : inicio.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+                        const servico = ev.cr9ff_servico || 'N/A';
+                        const problema = ev.cr9ff_problema || 'N/A';
+                        item.innerHTML = `
+                            <div class="text-gray-600 dark:text-gray-400">${time}</div>
+                            <div class="text-gray-800 dark:text-white font-medium">${servico}</div>
+                            <div class="text-gray-700 dark:text-gray-300">${problema}</div>
+                        `;
+                        calendarModalContent.appendChild(item);
+                    });
+                }
+
+                calendarModal.classList.remove('hidden');
+            };
+
+            calendarModalClose.addEventListener('click', () => calendarModal.classList.add('hidden'));
+            calendarModal.addEventListener('click', (e) => { if (e.target === calendarModal) calendarModal.classList.add('hidden'); });
+
 
             // Main function to fetch all necessary data and render the dashboard
             const fetchAndRenderAll = async () => {
@@ -696,6 +822,7 @@
                     // Reset pagination index and render first batch of cards
                     currentCardPageIndex = 0;
                     renderIncidentCards(filteredRcaEvents);
+                    renderCalendar();
 
                 } catch (error) {
                     console.error("Falha ao buscar dados para o painel:", error);
