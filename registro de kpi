@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Painel de Indicadores de TI</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { darkMode: 'class' }</script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    /* (Mantive o CSS aprimorado que combinamos antes) */
+    body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;font-family:'Inter',sans-serif;background-color:#f3f4f6;}
+    .dark body{background-color:#111827;}
+    .kpi-card{@apply bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-1;}
+    .skeleton{@apply bg-gray-200 dark:bg-gray-700 rounded-md animate-pulse;}
+    .form-input{@apply w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:focus:ring-blue-500;}
+    .kpi-table{@apply w-full text-sm text-left text-gray-500 dark:text-gray-400 table-fixed border-collapse;}
+    .kpi-table thead{@apply text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400;position:sticky;top:0;z-index:10;}
+    .kpi-table th, .kpi-table td{@apply px-4 py-2 align-top leading-snug font-mono break-words;border:1px solid #e5e7eb;white-space:normal;}
+    .kpi-table th:first-child, .kpi-table td:first-child{position:sticky;left:0;z-index:20;background-color:inherit;}
+    .kpi-table tbody tr:nth-child(odd){@apply bg-gray-50 dark:bg-gray-900;}
+    .kpi-table tbody tr:nth-child(even){@apply bg-white dark:bg-gray-800;}
+    .kpi-table tbody tr:hover{@apply bg-blue-50 dark:bg-gray-700;}
+    .kpi-table tbody tr.table-row-critical{@apply bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 font-semibold;}
+    .kpi-table tbody tr.table-row-critical:nth-child(even){@apply bg-yellow-50 dark:bg-yellow-800;}
+    .kpi-table tbody tr:last-of-type{@apply border-b-0;}
+  </style>
+</head>
+<body class="dark:bg-gray-900">
+  <div class="p-4 md:p-8 max-w-7xl mx-auto space-y-8">
+    <!-- HEADER + FILTERS (mesma estrutura já vista) -->
+    <!-- SKIP por brevidade, mas supondo que o HTML de filtros está aqui -->
+    ...
+    <!-- TABELA dentro do overflow -->
+    <div class="overflow-auto relative">
+      <table class="kpi-table">
+        <thead>
+          <tr>
+            <th class="cursor-pointer">Data <i data-lucide="chevrons-up-down" class="inline w-4 h-4"></i></th>
+            <th>Início</th>
+            <th>Fim</th>
+            <th>Serviço</th>
+            <th>Serviço Crítico</th>
+            <th>Responsável</th>
+            <th>Categoria</th>
+            <th>Problema</th>
+            <th>Causa</th>
+            <th>Impacto (%)</th>
+          </tr>
+        </thead>
+        <tbody id="incidents-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide) lucide.createIcons();
+
+      // ELEMENTOS DE TABELA E FILTROS
+      const incidentsTableBody = document.getElementById('incidents-table-body');
+      const selects = {
+        categoria: document.getElementById('kpi-categoria-select'),
+        responsavel: document.getElementById('kpi-responsavel-select'),
+        servico: document.getElementById('kpi-servico-select'),
+      };
+
+      // (Seu código de configuração inicial, variáveis, charts, etc...)
+      // vou pular para funções principais
+
+      // Função para renderizar a tabela com tooltips
+      function renderDetailedIncidentsTable(rcaEvents) {
+        incidentsTableBody.innerHTML = '';
+        if (!rcaEvents.length) {
+          const r = incidentsTableBody.insertRow();
+          const c = r.insertCell();
+          c.colSpan = 10;
+          c.className = 'text-center py-4 text-gray-500 dark:text-gray-400';
+          c.textContent = 'Nenhuma ocorrência encontrada.';
+          return;
+        }
+        rcaEvents.forEach(evt => {
+          const row = incidentsTableBody.insertRow();
+          if (evt.cr9ff_servicocritico) row.classList.add('table-row-critical');
+          const vals = [
+            new Date(evt.cr9ff_data).toLocaleDateString('pt-BR'),
+            new Date(evt.cr9ff_horadeinicio).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}),
+            new Date(evt.cr9ff_horadefim).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}),
+            evt.cr9ff_servio||'N/A',
+            evt.cr9ff_servicocritico||'N/A',
+            evt.cr9ff_responsvel||'N/A',
+            evt.cr9ff_categoria||'N/A',
+            evt.cr9ff_problema||'N/A',
+            evt.cr9ff_causa||'N/A',
+            (parseFloat(evt.cr9ff_percentual)||0).toFixed(2)+'%'
+          ];
+          vals.forEach((v,i)=>{
+            const c = row.insertCell();
+            c.textContent = v;
+            if (i >=7) c.title = v;
+          });
+        });
+      }
+
+      // Funções renderCurrentMonthKPIs, processRcaDataForCharts, renderVolumetricCharts, etc.
+      // Sem alterações, copie do seu código original.
+
+      // fetchFromApi(), fetchAndRenderAll(), initialize() – tudo tal qual
+
+      // Inicia tudo
+      initialize();
+    });
+  </script>
+</body>
+</html>
