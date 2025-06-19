@@ -12,8 +12,8 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
-        body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-family: 'Inter', sans-serif; user-select: none; }
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-family: 'Inter', sans-serif; user-select: none; }
         .transition-all-ease { transition: all 0.3s ease-in-out; }
         .active-btn { transform: scale(0.95); }
         input[type='number']::-webkit-inner-spin-button, input[type='number']::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
@@ -25,7 +25,7 @@
         /* Estilos para a área de texto com auto-resize */
         .autoresize-textarea {
             min-height: 8rem; /* Altura inicial maior (128px) */
-            resize: vertical;   /* Permite redimensionamento vertical pelo usuário */
+            resize: vertical;    /* Permite redimensionamento vertical pelo usuário */
             overflow-y: hidden; /* Oculta a barra de rolagem até ser necessária */
         }
 
@@ -54,14 +54,14 @@
             
             <!-- Formulário de Filtros -->
             <div id="mapping-form" class="hidden space-y-4">
-                 <div>
+                <div>
                     <label for="categoria-select" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Categoria*</label>
                     <div class="relative">
                         <select id="categoria-select" class="w-full pl-4 pr-10 py-3 text-base text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-700/50 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 transition-all-ease" style="appearance: none; -webkit-appearance: none; -moz-appearance: none;" required>
                             <option value="">Selecione uma Categoria</option>
                         </select>
                         <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 dark:text-gray-400">
-                           <i data-lucide="chevron-down" class="h-5 w-5"></i>
+                            <i data-lucide="chevron-down" class="h-5 w-5"></i>
                         </div>
                     </div>
                 </div>
@@ -69,10 +69,10 @@
                     <label for="responsavel-select" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Responsável*</label>
                     <div class="relative">
                         <select id="responsavel-select" class="w-full pl-4 pr-10 py-3 text-base text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-700/50 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 transition-all-ease" style="appearance: none; -webkit-appearance: none; -moz-appearance: none;" required>
-                             <option value="">Selecione um Responsável</option>
+                                <option value="">Selecione um Responsável</option>
                         </select>
                         <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 dark:text-gray-400">
-                           <i data-lucide="chevron-down" class="h-5 w-5"></i>
+                            <i data-lucide="chevron-down" class="h-5 w-5"></i>
                         </div>
                     </div>
                 </div>
@@ -83,7 +83,7 @@
                             <option value="">Todos os Serviços</option>
                         </select>
                         <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 dark:text-gray-400">
-                           <i data-lucide="chevron-down" class="h-5 w-5"></i>
+                            <i data-lucide="chevron-down" class="h-5 w-5"></i>
                         </div>
                     </div>
                 </div>
@@ -187,39 +187,39 @@
                     <h4 class="font-semibold mb-4">Etapa 1: Período e Impacto</h4>
                      <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-4">
                         <div>
-                            <label for="rca-inicio-time" class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Hora de Início*</label>
+                            <label for="rca-inicio-time" class="form-label">Hora de Início*</label>
                             <div class="flex items-center space-x-2 p-2 bg-gray-100 dark:bg-gray-700/50 rounded-md">
                                 <span id="rca-inicio-date" class="font-medium text-gray-600 dark:text-gray-300 whitespace-nowrap"></span>
-                                <input type="time" id="rca-inicio-time" class="w-full px-3 py-2 text-gray-700 bg-gray-50 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:focus:ring-blue-500" required>
+                                <input type="time" id="rca-inicio-time" class="form-input" required>
                             </div>
                             <p class="error-message hidden">Hora de início é obrigatória.</p>
                         </div>
                         <div>
-                            <label for="rca-fim-time" class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Hora de Fim*</label>
+                            <label for="rca-fim-time" class="form-label">Hora de Fim*</label>
                             <div class="flex items-center space-x-2 p-2 bg-gray-100 dark:bg-gray-700/50 rounded-md">
                                 <span id="rca-fim-date" class="font-medium text-gray-600 dark:text-gray-300 whitespace-nowrap"></span>
-                                <input type="time" id="rca-fim-time" class="w-full px-3 py-2 text-gray-700 bg-gray-50 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:focus:ring-blue-500" required>
+                                <input type="time" id="rca-fim-time" class="form-input" required>
                             </div>
                             <p class="error-message hidden">Hora de fim é obrigatória.</p>
                         </div>
                         <div>
-                            <label for="rca-problema-num" class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Nº do Problema</label>
-                            <input type="text" id="rca-problema-num" placeholder="PRB0123456" class="w-full px-3 py-2 text-gray-700 bg-gray-50 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:focus:ring-blue-500">
+                            <label for="rca-problema-num" class="form-label">Nº do Problema</label>
+                            <input type="text" id="rca-problema-num" placeholder="PRB0123456" class="form-input">
                             <p class="error-message hidden">Formato inválido. Use PRB0123456.</p>
                         </div>
                          <div>
-                            <label for="rca-incidente-num" class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Nº do Incidente</label>
-                            <input type="text" id="rca-incidente-num" placeholder="INC0123456" class="w-full px-3 py-2 text-gray-700 bg-gray-50 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:focus:ring-blue-500">
+                            <label for="rca-incidente-num" class="form-label">Nº do Incidente</label>
+                            <input type="text" id="rca-incidente-num" placeholder="INC0123456" class="form-input">
                             <p class="error-message hidden">Formato inválido. Use INC0123456.</p>
                         </div>
                         <div>
-                            <label for="rca-impacto" class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Impacto (%)*</label>
-                            <input type="number" id="rca-impacto" step="0.1" class="w-full px-3 py-2 text-gray-700 bg-gray-50 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:focus:ring-blue-500" required>
+                            <label for="rca-impacto" class="form-label">Impacto (%)*</label>
+                            <input type="number" id="rca-impacto" step="0.1" class="form-input" required>
                             <p class="error-message hidden">Valor deve estar entre 0 e 100.</p>
                         </div>
                         <div>
-                            <label for="rca-racional" class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Racional do Impacto*</label>
-                            <select id="rca-racional" class="w-full px-3 py-2 text-gray-700 bg-gray-50 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:focus:ring-blue-500" required>
+                            <label for="rca-racional" class="form-label">Racional do Impacto*</label>
+                            <select id="rca-racional" class="form-input" required>
                                 <!-- As opções serão preenchidas dinamicamente -->
                             </select>
                              <p class="error-message hidden">Campo obrigatório.</p>
@@ -233,30 +233,30 @@
                         </label>
                     </div>
                     <div id="rca-servico-critico-section" class="mt-4 hidden">
-                        <label for="rca-servico-critico" class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Serviço Crítico Afetado*</label>
-                        <select id="rca-servico-critico" class="w-full px-3 py-2 text-gray-700 bg-gray-50 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:focus:ring-blue-500">
+                        <label for="rca-servico-critico" class="form-label">Serviço Crítico Afetado*</label>
+                        <select id="rca-servico-critico" class="form-input">
                             <option value="">Selecione um serviço...</option>
                         </select>
                         <p class="error-message hidden">Campo obrigatório.</p>
                     </div>
                 </div>
-                <!-- Etapa 2 (antiga Etapa 3): Análise -->
+                 <!-- Etapa 2 (antiga Etapa 3): Análise -->
                 <div id="rca-step-2" class="rca-step hidden">
                     <h4 class="font-semibold mb-4">Etapa 2: Análise e Descrições</h4>
                      <div class="space-y-4">
                         <div>
-                            <label for="rca-problema-desc" class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Qual foi o problema observado?*</label>
-                            <textarea id="rca-problema-desc" class="w-full px-3 py-2 text-gray-700 bg-gray-50 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:focus:ring-blue-500 autoresize-textarea" required data-autoresize placeholder="Descreva o problema observado aqui..."></textarea>
+                            <label for="rca-problema-desc" class="form-label">Qual foi o problema observado?*</label>
+                            <textarea id="rca-problema-desc" class="form-input autoresize-textarea" required data-autoresize placeholder="Descreva o problema observado aqui..."></textarea>
                             <p class="error-message hidden">Campo obrigatório.</p>
                         </div>
                         <div>
-                            <label for="rca-causa" class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Qual foi a causa raiz identificada?*</label>
-                            <textarea id="rca-causa" class="w-full px-3 py-2 text-gray-700 bg-gray-50 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:focus:ring-blue-500 autoresize-textarea" required data-autoresize placeholder="Descreva a causa raiz aqui..."></textarea>
+                            <label for="rca-causa" class="form-label">Qual foi a causa raiz identificada?*</label>
+                            <textarea id="rca-causa" class="form-input autoresize-textarea" required data-autoresize placeholder="Descreva a causa raiz aqui..."></textarea>
                              <p class="error-message hidden">Campo obrigatório.</p>
                         </div>
                         <div>
-                            <label for="rca-resolucao" class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Qual foi a ação de contorno/resolução realizada?*</label>
-                            <textarea id="rca-resolucao" class="w-full px-3 py-2 text-gray-700 bg-gray-50 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:focus:ring-blue-500 autoresize-textarea" required data-autoresize placeholder="Descreva a ação de contorno ou resolução realizada aqui..."></textarea>
+                            <label for="rca-resolucao" class="form-label">Qual foi a ação de contorno/resolução realizada?*</label>
+                            <textarea id="rca-resolucao" class="form-input autoresize-textarea" required data-autoresize placeholder="Descreva a ação de contorno ou resolução realizada aqui..."></textarea>
                              <p class="error-message hidden">Campo obrigatório.</p>
                         </div>
                     </div>
@@ -285,31 +285,114 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // --- ELEMENTOS DO DOM (abreviado) ---
-            const calendarGrid = document.getElementById('calendar-grid'), monthYearTitle = document.getElementById('month-year-title'), prevMonthBtn = document.getElementById('prev-month-btn'), nextMonthBtn = document.getElementById('next-month-btn'), todayBtn = document.getElementById('today-btn'), themeToggleBtn = document.getElementById('theme-toggle-btn'), themeIcon = document.getElementById('theme-icon'), daysOfWeekContainer = document.getElementById('days-of-week'), monthView = document.getElementById('month-view'), yearView = document.getElementById('year-view'), yearGrid = document.getElementById('year-grid'), prevYearChunkBtn = document.getElementById('prev-year-chunk-btn'), nextYearChunkBtn = document.getElementById('next-year-chunk-btn'), calendarLegend = document.getElementById('calendar-legend'), initialMappingScreen = document.getElementById('initial-mapping-screen'), calendarContainer = document.getElementById('calendar-container'), showCalendarBtn = document.getElementById('show-calendar-btn'), categoriaSelect = document.getElementById('categoria-select'), responsavelSelect = document.getElementById('responsavel-select'), servicoSelect = document.getElementById('servico-select'), loadingIndicator = document.getElementById('loading-indicator'), mappingForm = document.getElementById('mapping-form'), activeFiltersContainer = document.getElementById('active-filters-container'), filterTags = document.getElementById('filter-tags'), changeFiltersBtn = document.getElementById('change-filters-btn'), initialFiltersError = document.getElementById('initial-filters-error');
-            const actionsModal = document.getElementById('actions-modal'), cancelModalBtn = document.getElementById('cancel-modal-btn'), applyModalBtn = document.getElementById('apply-modal-btn'), imbativelSection = document.getElementById('imbativel-section'), imbativelCheckbox = document.getElementById('imbativel-checkbox'), semOcorrenciaRadio = document.getElementById('sem-ocorrencia-radio'), rcaRadio = document.getElementById('rca-radio'), rcaOptionContainer = document.getElementById('rca-option-container');
-            const rcaWizardModal = document.getElementById('rca-wizard-modal'), rcaForm = document.getElementById('rca-form'), rcaErrorSummary = document.getElementById('rca-error-summary'), rcaStepIndicator = document.getElementById('rca-step-indicator'), rcaPrevBtn = document.getElementById('rca-prev-btn'), rcaNextBtn = document.getElementById('rca-next-btn'), rcaSaveBtn = document.getElementById('rca-save-btn'), rcaCancelBtn = document.getElementById('rca-cancel-btn');
-            const rcaCriticoToggle = document.getElementById('rca-critico-toggle'), rcaServicoCriticoSection = document.getElementById('rca-servico-critico-section'), rcaImpactoInput = document.getElementById('rca-impacto'), rcaRacionalSelect = document.getElementById('rca-racional');
-            const toast = document.getElementById('toast-notification'), toastMessage = document.getElementById('toast-message'), toastIcon = document.getElementById('toast-icon');
-            const calendarLoadingOverlay = document.getElementById('calendar-loading-overlay');
+            // --- CONSTANTES E URLs ---
+            const API_ENDPOINTS = {
+                initialData: 'https://prod-96.westus.logic.azure.com:443/workflows/0fa3bd3693404e0784ac54c5384ffce6/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=RZJjoPihCDjQogYqzHJLRBoQeOxGprDNjyWZxR8DJZM',
+                monthData: 'https://prod-13.westus.logic.azure.com:443/workflows/99be8b0c613047a498ac7f9b2bcfe2ca/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=DOoibAcjA_KJM0_kv2pkiM33ajFy7HsvJG2Ih8zNdGs',
+                save: 'https://prod-126.westus.logic.azure.com:443/workflows/1457a62308f64bbabb597499c9bb4618/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=Kg5fzqa7buSQaV0TxVsvfeUbq-ICMobfxiQFRzbf1Wk',
+                servicosCriticos: 'https://prod-119.westus.logic.azure.com:443/workflows/d2e495e96af548acaa70318d74c07596/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=n4FxWDTe1al2x_30knYpYLxxjT1YmzqRUmEyoHF6oJ4',
+            };
+            
+            const BUSINESS_START = '06:00';
+            const BUSINESS_END = '23:00';
+
+            const STATUS_CODES = {
+                RCA: 867770000,
+                SEM_OCORRENCIA: 867770001,
+            };
+
+            const MONTH_NAMES = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+            
+            const MARKER_TYPES = {
+                rca: { label: 'RCA Registado', color: 'bg-red-500', icon: null },
+                sem_ocorrencia: { label: 'Sem Ocorrência', color: 'bg-green-500', icon: null },
+                imbativel: { label: 'Dia Imbatível', color: 'text-orange-500', icon: 'star' }
+            };
+
+            // --- ELEMENTOS DO DOM ---
+            const dom = {
+                calendarGrid: document.getElementById('calendar-grid'),
+                monthYearTitle: document.getElementById('month-year-title'),
+                prevMonthBtn: document.getElementById('prev-month-btn'),
+                nextMonthBtn: document.getElementById('next-month-btn'),
+                todayBtn: document.getElementById('today-btn'),
+                themeToggleBtn: document.getElementById('theme-toggle-btn'),
+                themeIcon: document.getElementById('theme-icon'),
+                daysOfWeekContainer: document.getElementById('days-of-week'),
+                monthView: document.getElementById('month-view'),
+                yearView: document.getElementById('year-view'),
+                yearGrid: document.getElementById('year-grid'),
+                prevYearChunkBtn: document.getElementById('prev-year-chunk-btn'),
+                nextYearChunkBtn: document.getElementById('next-year-chunk-btn'),
+                calendarLegend: document.getElementById('calendar-legend'),
+                initialMappingScreen: document.getElementById('initial-mapping-screen'),
+                calendarContainer: document.getElementById('calendar-container'),
+                showCalendarBtn: document.getElementById('show-calendar-btn'),
+                categoriaSelect: document.getElementById('categoria-select'),
+                responsavelSelect: document.getElementById('responsavel-select'),
+                servicoSelect: document.getElementById('servico-select'),
+                loadingIndicator: document.getElementById('loading-indicator'),
+                mappingForm: document.getElementById('mapping-form'),
+                activeFiltersContainer: document.getElementById('active-filters-container'),
+                filterTags: document.getElementById('filter-tags'),
+                changeFiltersBtn: document.getElementById('change-filters-btn'),
+                initialFiltersError: document.getElementById('initial-filters-error'),
+                calendarLoadingOverlay: document.getElementById('calendar-loading-overlay'),
+                actionsModal: {
+                    modal: document.getElementById('actions-modal'),
+                    cancelBtn: document.getElementById('cancel-modal-btn'),
+                    applyBtn: document.getElementById('apply-modal-btn'),
+                    imbativelSection: document.getElementById('imbativel-section'),
+                    imbativelCheckbox: document.getElementById('imbativel-checkbox'),
+                    semOcorrenciaRadio: document.getElementById('sem-ocorrencia-radio'),
+                    rcaRadio: document.getElementById('rca-radio'),
+                    rcaOptionContainer: document.getElementById('rca-option-container'),
+                },
+                rcaWizard: {
+                    modal: document.getElementById('rca-wizard-modal'),
+                    form: document.getElementById('rca-form'),
+                    errorSummary: document.getElementById('rca-error-summary'),
+                    stepIndicator: document.getElementById('rca-step-indicator'),
+                    prevBtn: document.getElementById('rca-prev-btn'),
+                    nextBtn: document.getElementById('rca-next-btn'),
+                    saveBtn: document.getElementById('rca-save-btn'),
+                    cancelBtn: document.getElementById('rca-cancel-btn'),
+                    criticoToggle: document.getElementById('rca-critico-toggle'),
+                    servicoCriticoSection: document.getElementById('rca-servico-critico-section'),
+                    servicoCriticoSelect: document.getElementById('rca-servico-critico'),
+                    impactoInput: document.getElementById('rca-impacto'),
+                    racionalSelect: document.getElementById('rca-racional'),
+                },
+                toast: {
+                    notification: document.getElementById('toast-notification'),
+                    message: document.getElementById('toast-message'),
+                    icon: document.getElementById('toast-icon'),
+                }
+            };
 
             // --- ESTADO DA APLICAÇÃO ---
-            let currentDate = new Date(), currentView = 'days', selectionStartDate = null, selectionEndDate = null, isDragging = false, rcaCurrentStep = 1, yearViewStart;
-            let initialData = [];
-            let currentUserName = '';
-            const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-            const markerTypes = { 
-                rca: { label: 'RCA Registado', color: 'bg-red-500', icon: null }, 
-                sem_ocorrencia: { label: 'Sem Ocorrência', color: 'bg-green-500', icon: null }, 
-                imbativel: { label: 'Dia Imbatível', color: 'text-orange-500', icon: 'star' } 
+            let state = {
+                currentDate: new Date(),
+                currentView: 'days', // 'days', 'months', 'years'
+                selectionStartDate: null,
+                selectionEndDate: null,
+                isDragging: false,
+                rcaCurrentStep: 1,
+                yearViewStart: null,
+                initialData: [],
+                currentUserName: 'Utilizador Desconhecido',
+                dailyMarkers: {}, // Ex: { "2025-06-20": ["rca", "imbativel"] }
+                rcaDataStore: {},
             };
-            let dailyMarkers = {}; // Dados de exemplo removidos
-            let rcaDataStore = {};
 
-            // --- FUNÇÕES DE RENDERIZAÇÃO DO CALENDÁRIO ---
+            // --- FUNÇÕES DE RENDERIZAÇÃO E UI ---
+
+            /**
+             * Renderiza a legenda do calendário com base nos tipos de marcadores definidos.
+             */
             const renderLegend = () => {
-                calendarLegend.innerHTML = '';
-                Object.entries(markerTypes).forEach(([key, {label, color, icon}]) => {
+                dom.calendarLegend.innerHTML = '';
+                Object.entries(MARKER_TYPES).forEach(([key, { label, color, icon }]) => {
                     const legendItem = document.createElement('div');
                     legendItem.className = 'flex items-center text-xs text-gray-600 dark:text-gray-400';
                     
@@ -322,77 +405,170 @@
                     
                     legendItem.appendChild(visual);
                     legendItem.append(label);
-                    calendarLegend.appendChild(legendItem);
+                    dom.calendarLegend.appendChild(legendItem);
                 });
                 lucide.createIcons();
             };
-
+            
+            /**
+             * Controla a visibilidade das diferentes vistas do calendário (dias, meses, anos).
+             * @param {...HTMLElement} elementsToShow - Os elementos da vista a serem mostrados.
+             */
             const showView = (...elementsToShow) => {
-                [calendarGrid, daysOfWeekContainer, monthView, yearView].forEach(el => el.classList.add('hidden'));
+                [dom.calendarGrid, dom.daysOfWeekContainer, dom.monthView, dom.yearView].forEach(el => el.classList.add('hidden'));
                 elementsToShow.forEach(el => el.classList.remove('hidden'));
             };
 
+            /**
+             * Atualiza o título do calendário (ex: "Junho 2025") com base na vista atual.
+             */
             const updateTitle = () => {
-                 if (currentView === 'days') {
-                    monthYearTitle.textContent = `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
-                } else if (currentView === 'months') {
-                    monthYearTitle.textContent = `${currentDate.getFullYear()}`;
+                if (state.currentView === 'days') {
+                    dom.monthYearTitle.textContent = `${MONTH_NAMES[state.currentDate.getMonth()]} ${state.currentDate.getFullYear()}`;
+                } else if (state.currentView === 'months') {
+                    dom.monthYearTitle.textContent = `${state.currentDate.getFullYear()}`;
                 } else {
-                    monthYearTitle.textContent = `${yearViewStart} - ${yearViewStart + 11}`;
+                    dom.monthYearTitle.textContent = `${state.yearViewStart} - ${state.yearViewStart + 11}`;
                 }
             };
-            
+
+            /**
+             * Renderiza a grelha de meses para seleção.
+             */
             const renderMonthView = () => {
-                monthView.innerHTML = '';
-                monthNames.forEach((name, index) => {
+                dom.monthView.innerHTML = '';
+                MONTH_NAMES.forEach((name, index) => {
                     const monthCell = document.createElement('div');
                     monthCell.textContent = name;
                     monthCell.className = 'flex items-center justify-center h-16 rounded-lg cursor-pointer text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all-ease';
-                    if (index === currentDate.getMonth()) {
+                    if (index === state.currentDate.getMonth()) {
                         monthCell.classList.add('bg-blue-500', 'text-white', 'font-semibold');
                     }
                     monthCell.addEventListener('click', () => {
-                        currentDate.setMonth(index);
-                        currentView = 'days';
-                        fetchAndDisplayMonthData();
+                        state.currentDate.setMonth(index);
+                        state.currentView = 'days';
+                        fetchAndDisplayMonthData(); // Isso já chama o renderCalendar
                     });
-                    monthView.appendChild(monthCell);
+                    dom.monthView.appendChild(monthCell);
                 });
             };
 
+            /**
+             * Renderiza a grelha de anos para seleção.
+             */
             const renderYearView = () => {
-                if (!yearViewStart) yearViewStart = currentDate.getFullYear() - 5;
-                yearGrid.innerHTML = '';
+                if (!state.yearViewStart) state.yearViewStart = state.currentDate.getFullYear() - 5;
+                dom.yearGrid.innerHTML = '';
                 for (let i = 0; i < 12; i++) {
-                    const year = yearViewStart + i;
+                    const year = state.yearViewStart + i;
                     const yearCell = document.createElement('div');
                     yearCell.textContent = year;
                     yearCell.className = 'flex items-center justify-center h-16 rounded-lg cursor-pointer text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all-ease';
-                    if (year === currentDate.getFullYear()) {
+                    if (year === state.currentDate.getFullYear()) {
                         yearCell.classList.add('bg-blue-500', 'text-white', 'font-semibold');
                     }
                     yearCell.addEventListener('click', () => {
-                        currentDate.setFullYear(year);
-                        currentView = 'months';
+                        state.currentDate.setFullYear(year);
+                        state.currentView = 'months';
                         renderCalendar();
                     });
-                    yearGrid.appendChild(yearCell);
+                    dom.yearGrid.appendChild(yearCell);
                 }
             };
 
+            /**
+             * Renderiza a grelha de dias do mês atual.
+             */
+            const renderDayGrid = () => {
+                dom.calendarGrid.innerHTML = '';
+                const year = state.currentDate.getFullYear();
+                const month = state.currentDate.getMonth();
+                const firstDayOfMonth = new Date(year, month, 1);
+                const firstDayOfWeek = firstDayOfMonth.getDay(); // 0 (Sun) - 6 (Sat)
+                const startDate = new Date(firstDayOfMonth);
+                startDate.setDate(startDate.getDate() - firstDayOfWeek);
+
+                // Renderiza 6 semanas (42 dias) para uma altura de grelha consistente
+                for (let i = 0; i < 42; i++) {
+                    const day = new Date(startDate);
+                    day.setDate(day.getDate() + i);
+                    const cell = document.createElement('div');
+                    cell.dataset.date = toISODateString(day);
+                    const dayNumber = document.createElement('span');
+                    dayNumber.textContent = day.getDate();
+                    cell.appendChild(dayNumber);
+                    const markersContainer = document.createElement('div');
+                    markersContainer.className = 'absolute bottom-1 left-1/2 -translate-x-1/2 flex items-center justify-center space-x-1';
+                    cell.appendChild(markersContainer);
+                    applyDayStyles(cell, day);
+                    dom.calendarGrid.appendChild(cell);
+                }
+                lucide.createIcons();
+            };
+
+            /**
+             * Aplica estilos a uma célula de dia individual (cor, marcadores, seleção, etc.).
+             * @param {HTMLElement} cell - O elemento da célula do dia.
+             * @param {Date} day - O objeto Date para esta célula.
+             */
+            const applyDayStyles = (cell, day) => {
+                const dayString = cell.dataset.date;
+                const isToday = isSameDay(day, new Date());
+                const isCurrentMonth = day.getMonth() === state.currentDate.getMonth();
+                const isSelected = isDayInRange(day, state.selectionStartDate, state.selectionEndDate);
+                
+                cell.className = 'relative flex items-center justify-center h-12 w-12 text-sm rounded-lg cursor-pointer transition-all-ease';
+                
+                if (isCurrentMonth) {
+                    cell.classList.add('text-gray-700', 'dark:text-gray-200', 'hover:bg-gray-100', 'dark:hover:bg-gray-700');
+                } else {
+                    cell.classList.add('text-gray-300', 'dark:text-gray-600');
+                }
+                
+                if (isSelected) {
+                    cell.classList.add('bg-blue-100', 'dark:bg-blue-900/50', 'border', 'border-blue-300');
+                    cell.classList.remove('hover:bg-gray-100', 'dark:hover:bg-gray-700');
+                }
+                
+                if (isToday) {
+                    cell.querySelector('span').classList.add('h-7', 'w-7', 'flex', 'items-center', 'justify-center', 'font-bold', 'bg-blue-500', 'text-white', 'rounded-full');
+                }
+                
+                const markersContainer = cell.querySelector('div');
+                markersContainer.innerHTML = '';
+                const markers = state.dailyMarkers[dayString] || [];
+                markers.forEach(key => {
+                    const info = MARKER_TYPES[key];
+                    if (!info) return;
+                    if (info.icon) {
+                        const icon = document.createElement('i');
+                        icon.setAttribute('data-lucide', info.icon);
+                        icon.className = `h-3.5 w-3.5 ${info.color}`;
+                        markersContainer.appendChild(icon);
+                    } else {
+                        const dot = document.createElement('div');
+                        dot.className = `h-1.5 w-1.5 rounded-full ${info.color}`;
+                        markersContainer.appendChild(dot);
+                    }
+                });
+            };
+
+            /**
+             * Ponto de entrada principal para renderizar qualquer vista do calendário.
+             */
             const renderCalendar = () => {
                 updateThemeIcon();
-                switch (currentView) {
+                switch (state.currentView) {
                     case 'days':
-                        showView(calendarGrid, daysOfWeekContainer);
+                        showView(dom.calendarGrid, dom.daysOfWeekContainer);
                         renderDayGrid();
                         break;
                     case 'months':
-                        showView(monthView);
+                        showView(dom.monthView);
                         renderMonthView();
                         break;
                     case 'years':
-                        showView(yearView);
+                        showView(dom.yearView);
                         renderYearView();
                         break;
                 }
@@ -400,25 +576,57 @@
                 lucide.createIcons();
             };
 
-            const renderDayGrid = () => { calendarGrid.innerHTML = ''; const year = currentDate.getFullYear(), month = currentDate.getMonth(), firstDayOfMonth = new Date(year, month, 1), firstDayOfWeek = firstDayOfMonth.getDay(); const startDate = new Date(firstDayOfMonth); startDate.setDate(startDate.getDate() - firstDayOfWeek); for (let i = 0; i < 42; i++) { const day = new Date(startDate); day.setDate(day.getDate() + i); const cell = document.createElement('div'); cell.dataset.date = toISODateString(day); const dayNumber = document.createElement('span'); dayNumber.textContent = day.getDate(); cell.appendChild(dayNumber); const markersContainer = document.createElement('div'); markersContainer.className = 'absolute bottom-1 left-1/2 -translate-x-1/2 flex items-center justify-center space-x-1'; cell.appendChild(markersContainer); applyDayStyles(cell, day); calendarGrid.appendChild(cell); } lucide.createIcons(); };
-            const applyDayStyles = (cell, day) => { const dayString = cell.dataset.date, isToday = isSameDay(day, new Date()), isCurrentMonth = day.getMonth() === currentDate.getMonth(), isSelected = isDayInRange(day, selectionStartDate, selectionEndDate); cell.className = 'relative flex items-center justify-center h-12 w-12 text-sm rounded-lg cursor-pointer transition-all-ease'; if (isCurrentMonth) cell.classList.add('text-gray-700', 'dark:text-gray-200', 'hover:bg-gray-100', 'dark:hover:bg-gray-700'); else cell.classList.add('text-gray-300', 'dark:text-gray-600'); if (isSelected) { cell.classList.add('bg-blue-100', 'dark:bg-blue-900/50', 'border', 'border-blue-300'); cell.classList.remove('hover:bg-gray-100', 'dark:hover:bg-gray-700'); } if (isToday) cell.querySelector('span').classList.add('h-7', 'w-7', 'flex', 'items-center', 'justify-center', 'font-bold', 'bg-blue-500', 'text-white', 'rounded-full'); const markersContainer = cell.querySelector('div'); markersContainer.innerHTML = ''; const markers = dailyMarkers[dayString] || []; markers.forEach(key => { const info = markerTypes[key]; if (info.icon) { const icon = document.createElement('i'); icon.setAttribute('data-lucide', info.icon); icon.className = `h-3.5 w-3.5 ${info.color}`; markersContainer.appendChild(icon); } else { const dot = document.createElement('div'); dot.className = `h-1.5 w-1.5 rounded-full ${info.color}`; markersContainer.appendChild(dot); } }); };
-            const updateSelectionStyles = () => { calendarGrid.querySelectorAll('[data-date]').forEach(cell => { applyDayStyles(cell, new Date(cell.dataset.date + 'T00:00:00')); }); lucide.createIcons(); };
-
-            // --- LÓGICA DO MODAL DE AÇÕES ---
-            const openActionsModal = () => { const range = getOrderedDateRange(); if (!range) return; const isSingleDay = isSameDay(range.start, range.end); imbativelSection.style.display = isSingleDay ? 'flex' : 'none'; imbativelCheckbox.checked = false; semOcorrenciaRadio.checked = false; rcaRadio.checked = false; 
-                
-                const isServicoSelected = !!servicoSelect.value;
-                rcaRadio.disabled = !isServicoSelected;
-                rcaOptionContainer.classList.toggle('opacity-50', !isServicoSelected);
-                rcaOptionContainer.classList.toggle('cursor-not-allowed', !isServicoSelected);
-                rcaOptionContainer.title = isServicoSelected ? '' : 'Selecione um Serviço no filtro inicial para registar um RCA.';
-
-                if (isSingleDay) { const markers = dailyMarkers[toISODateString(range.start)] || []; imbativelCheckbox.checked = markers.includes('imbativel'); if (markers.includes('sem_ocorrencia')) semOcorrenciaRadio.checked = true; if (markers.includes('rca')) rcaRadio.checked = true; } 
-                toggleModal(actionsModal, true); 
+            /**
+             * Re-aplica estilos a todas as células do dia, útil após a seleção mudar.
+             */
+            const updateSelectionStyles = () => {
+                dom.calendarGrid.querySelectorAll('[data-date]').forEach(cell => {
+                    const cellDate = new Date(cell.dataset.date + 'T00:00:00'); // Garante que a data é tratada como local
+                    applyDayStyles(cell, cellDate);
+                });
+                lucide.createIcons();
             };
-
-            const closeActionsModal = () => toggleModal(actionsModal, false);
             
+            // --- LÓGICA DE MODAIS E AÇÕES ---
+
+            /**
+             * Abre o modal de ações e preenche com base na seleção atual.
+             */
+            const openActionsModal = () => {
+                const range = getOrderedDateRange();
+                if (!range) return;
+
+                const isSingleDay = isSameDay(range.start, range.end);
+                dom.actionsModal.imbativelSection.style.display = isSingleDay ? 'flex' : 'none';
+                dom.actionsModal.imbativelCheckbox.checked = false;
+                dom.actionsModal.semOcorrenciaRadio.checked = false;
+                dom.actionsModal.rcaRadio.checked = false;
+
+                // Ativa a opção RCA apenas se um serviço específico for selecionado
+                const isServicoSelected = !!dom.servicoSelect.value;
+                dom.actionsModal.rcaRadio.disabled = !isServicoSelected;
+                dom.actionsModal.rcaOptionContainer.classList.toggle('opacity-50', !isServicoSelected);
+                dom.actionsModal.rcaOptionContainer.classList.toggle('cursor-not-allowed', !isServicoSelected);
+                dom.actionsModal.rcaOptionContainer.title = isServicoSelected ? '' : 'Selecione um Serviço no filtro inicial para registar um RCA.';
+
+                // Se for um único dia, pré-seleciona as ações existentes
+                if (isSingleDay) {
+                    const markers = state.dailyMarkers[toISODateString(range.start)] || [];
+                    dom.actionsModal.imbativelCheckbox.checked = markers.includes('imbativel');
+                    if (markers.includes('sem_ocorrencia')) dom.actionsModal.semOcorrenciaRadio.checked = true;
+                    if (markers.includes('rca')) dom.actionsModal.rcaRadio.checked = true;
+                }
+                toggleModal(dom.actionsModal.modal, true);
+            };
+            
+            /**
+             * Fecha o modal de ações.
+             */
+            const closeActionsModal = () => toggleModal(dom.actionsModal.modal, false);
+
+            /**
+             * Lida com a aplicação das ações do modal (exceto RCA).
+             */
             const handleApplyActions = async () => {
                 const ocorrenciaValue = document.querySelector('input[name="ocorrencia_tipo"]:checked')?.value;
                 if (ocorrenciaValue === 'rca') {
@@ -426,54 +634,59 @@
                     openRcaWizard();
                     return;
                 }
-                const range = getOrderedDateRange(); if (!range) return;
-                const applyImbativel = imbativelCheckbox.checked;
-
-                if (!ocorrenciaValue && !applyImbativel) {
+                const range = getOrderedDateRange();
+                if (!range) return;
+                const applyImbativel = dom.actionsModal.imbativelCheckbox.checked;
+                if (!ocorrenciaValue && !applyImbativel && isSameDay(range.start, range.end)) {
                     showToast("Nenhuma ação selecionada.", "error");
                     return;
                 }
 
-                toggleButtonLoading(applyModalBtn, true, 'A gravar...');
+                toggleButtonLoading(dom.actionsModal.applyBtn, true, 'A gravar...');
+                const originalMarkers = JSON.parse(JSON.stringify(state.dailyMarkers)); // Backup para reverter em caso de falha
 
                 let payloadParaEnviar = [];
-                const categoria = categoriaSelect.value;
-                const responsavel = responsavelSelect.value;
-                const selectedServico = servicoSelect.value;
-
-                const nonRcaPayloadData = {
-                    status: null,
-                    imbativel: 0,
-                    area: categoria,
-                    componente: null, // Será definido no loop
-                    inicio: null, fim: null, problemaNum: null, incidenteNum: null,
-                    impacto: null, racional: null, critico: false, servicoCritico: null,
-                    problemaDesc: null, causa: null, resolucao: null,
-                    registradoPor: currentUserName
-                };
-
+                const categoria = dom.categoriaSelect.value;
+                const responsavel = dom.responsavelSelect.value;
+                const selectedServico = dom.servicoSelect.value;
+                
+                // Determina quais serviços serão afetados
                 let servicesToProcess = [];
                 if (selectedServico) {
                     servicesToProcess.push(selectedServico);
                 } else {
-                    const filteredData = initialData.filter(item => item.cr9ff_categoria === categoria && item.cr9ff_responsavel === responsavel);
+                    const filteredData = state.initialData.filter(item => item.cr9ff_categoria === categoria && item.cr9ff_responsavel === responsavel);
                     servicesToProcess = [...new Set(filteredData.map(item => item.cr9ff_servico).filter(Boolean))];
                 }
 
+                // Itera sobre cada dia no intervalo selecionado
                 for (let day = new Date(range.start); day <= range.end; day.setDate(day.getDate() + 1)) {
                     const dayString = toISODateString(day);
                     
+                    // Itera sobre cada serviço a ser processado
                     for(const servico of servicesToProcess) {
                         const chave = `${categoria}#${servico}#${responsavel}#${dayString}`;
-                        let registro = { chave: chave, componente: servico, ...nonRcaPayloadData };
-                        let markers = new Set(dailyMarkers[dayString] || []);
-                        
+                        let registro = {
+                            chave: chave,
+                            componente: servico,
+                            status: null,
+                            imbativel: 0,
+                            area: categoria,
+                            inicio: null, fim: null, problemaNum: null, incidenteNum: null,
+                            impacto: null, racional: null, critico: false, servicoCritico: null,
+                            problemaDesc: null, causa: null, resolucao: null,
+                            registradoPor: state.currentUserName
+                        };
+
+                        // Atualiza o estado da UI otimisticamente
+                        let markers = new Set(state.dailyMarkers[dayString] || []);
                         if (ocorrenciaValue === 'sem_ocorrencia') {
-                            registro.status = 867770001; // Código para Sem Ocorrência
+                            registro.status = STATUS_CODES.SEM_OCORRENCIA;
                             markers.add('sem_ocorrencia');
                             markers.delete('rca');
                         }
                         
+                        // Ação "Imbatível" só se aplica a um único dia
                         if (isSameDay(range.start, range.end)) {
                             registro.imbativel = applyImbativel ? 1 : 0;
                             if (applyImbativel) markers.add('imbativel');
@@ -481,63 +694,68 @@
                         }
 
                         payloadParaEnviar.push(registro);
-                        
-                        if (markers.size > 0) { dailyMarkers[dayString] = [...markers]; }
-                        else { delete dailyMarkers[dayString]; }
+                        state.dailyMarkers[dayString] = [...markers];
                     }
                 }
                 
+                closeActionsModal();
+                renderDayGrid(); // Atualiza a UI imediatamente (otimista)
+
                 if(payloadParaEnviar.length > 0) {
                      try {
-                        const response = await fetch('https://prod-126.westus.logic.azure.com:443/workflows/1457a62308f64bbabb597499c9bb4618/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=Kg5fzqa7buSQaV0TxVsvfeUbq-ICMobfxiQFRzbf1Wk', {
+                        const response = await fetch(API_ENDPOINTS.save, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(payloadParaEnviar)
                         });
-                        if (!response.ok) { throw new Error(`HTTP error! status: ${response.status}`); }
+                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                         showToast('Dados gravados com sucesso!');
                     } catch (error) {
                         showToast('Falha ao gravar os dados.', 'error');
                         console.error("Falha ao gravar dados:", error);
+                        state.dailyMarkers = originalMarkers; // Reverte o estado em caso de erro
+                        renderDayGrid(); // Re-renderiza para mostrar o estado revertido
                     } finally {
-                        toggleButtonLoading(applyModalBtn, false, 'Aplicar');
+                        toggleButtonLoading(dom.actionsModal.applyBtn, false, 'Aplicar');
                     }
+                } else {
+                    toggleButtonLoading(dom.actionsModal.applyBtn, false, 'Aplicar');
                 }
-
-                closeActionsModal();
-                renderDayGrid();
             };
-            
 
             // --- LÓGICA DO ASSISTENTE RCA ---
+
             const openRcaWizard = () => {
-                rcaCurrentStep = 1;
-                rcaForm.reset();
-                rcaErrorSummary.classList.add('hidden');
-                rcaForm.querySelectorAll('.error-message').forEach(el => el.classList.add('hidden'));
-                rcaCriticoToggle.checked = false;
-                rcaServicoCriticoSection.classList.add('hidden');
+                state.rcaCurrentStep = 1;
+                dom.rcaWizard.form.reset();
+                dom.rcaWizard.errorSummary.classList.add('hidden');
+                dom.rcaWizard.form.querySelectorAll('.error-message').forEach(el => el.classList.add('hidden'));
+                dom.rcaWizard.criticoToggle.checked = false;
+                dom.rcaWizard.servicoCriticoSection.classList.add('hidden');
                 updateRacionalImpactoOptions(null);
                 
                 const range = getOrderedDateRange();
                 if (range) {
-                    rcaWizardModal.dataset.startDate = toISODateString(range.start);
-                    rcaWizardModal.dataset.endDate = toISODateString(range.end);
+                    dom.rcaWizard.modal.dataset.startDate = toISODateString(range.start);
+                    dom.rcaWizard.modal.dataset.endDate = toISODateString(range.end);
                     const dateOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
                     document.getElementById('rca-inicio-date').textContent = range.start.toLocaleDateString('pt-BR', dateOptions);
                     document.getElementById('rca-fim-date').textContent = range.end.toLocaleDateString('pt-BR', dateOptions);
+                    
+                    // CORREÇÃO: Remove o pré-preenchimento para permitir que o usuário insira o horário desejado.
+                    // A lógica `getTimeRangeForDay` cuidará da completude para múltiplos dias.
                     document.getElementById('rca-inicio-time').value = '';
                     document.getElementById('rca-fim-time').value = '';
                 }
 
-                showRcaStep(rcaCurrentStep);
-                toggleModal(rcaWizardModal, true);
+                showRcaStep(state.rcaCurrentStep);
+                toggleModal(dom.rcaWizard.modal, true);
             };
 
-            const closeRcaWizard = () => toggleModal(rcaWizardModal, false);
-            
+            const closeRcaWizard = () => toggleModal(dom.rcaWizard.modal, false);
+
             const triggerAutoresize = () => {
-                rcaForm.querySelectorAll('textarea[data-autoresize]').forEach(textarea => {
+                dom.rcaWizard.form.querySelectorAll('textarea[data-autoresize]').forEach(textarea => {
                     textarea.style.height = 'auto';
                     textarea.style.height = `${textarea.scrollHeight}px`;
                 });
@@ -548,30 +766,24 @@
                 const currentStepEl = document.getElementById(`rca-step-${step}`);
                 if (currentStepEl) currentStepEl.classList.remove('hidden');
                 
-                const stepIndicatorEl = rcaStepIndicator;
-                if (stepIndicatorEl) {
-                    const rcaCurrentStepSpan = stepIndicatorEl.querySelector('span');
-                    if (rcaCurrentStepSpan) rcaCurrentStepSpan.textContent = step;
-                }
+                dom.rcaWizard.stepIndicator.querySelector('span').textContent = step;
                 
-                rcaPrevBtn.classList.toggle('hidden', step === 1);
-                rcaNextBtn.classList.toggle('hidden', step === 2);
-                rcaSaveBtn.classList.toggle('hidden', step !== 2);
+                dom.rcaWizard.prevBtn.classList.toggle('hidden', step === 1);
+                dom.rcaWizard.nextBtn.classList.toggle('hidden', step === 2);
+                dom.rcaWizard.saveBtn.classList.toggle('hidden', step !== 2);
                 if (step === 2) {
                     triggerAutoresize();
                 }
             };
-
+            
             const validateRcaStep = (step) => {
                 let isValid = true;
                 let errors = [];
                 const stepContainer = document.getElementById(`rca-step-${step}`);
-            
+                
                 const toggleError = (input, show, message) => {
-                    const label = document.querySelector(`label[for="${input.id}"]`);
-                    // O container é o elemento pai da label, ou o div mais próximo se a label não existir (para os campos de tempo)
-                    const fieldContainer = label ? label.parentElement : input.closest('div');
-                    const errorMsg = fieldContainer.querySelector('.error-message');
+                    const fieldContainer = input.closest('div.grid > div') || input.closest('div');
+                    const errorMsg = fieldContainer?.querySelector('.error-message');
                     if (errorMsg) {
                         errorMsg.textContent = message;
                         errorMsg.classList.toggle('hidden', !show);
@@ -582,8 +794,8 @@
                     if (!input.closest('.hidden') && !input.value) {
                         isValid = false;
                         const labelElement = document.querySelector(`label[for="${input.id}"]`);
-                        const label = labelElement ? labelElement.textContent.trim() : 'Este campo';
-                        const errorText = `${label.replace('*','')} é obrigatório.`;
+                        const label = labelElement ? labelElement.textContent.trim().replace('*', '') : 'Este campo';
+                        const errorText = `${label} é obrigatório.`;
                         toggleError(input, true, errorText);
                         errors.push(errorText);
                     } else {
@@ -591,240 +803,228 @@
                     }
                 });
 
-                if (isValid && step === 1) { // Só executa validações de formato se os campos obrigatórios estiverem preenchidos
+                if (isValid && step === 1) {
                     const problemaNumInput = document.getElementById('rca-problema-num');
                     if (problemaNumInput.value && !/^PRB\d{7}$/i.test(problemaNumInput.value)) { isValid = false; const msg = 'Formato inválido. Use PRB0123456.'; toggleError(problemaNumInput, true, msg); errors.push(msg); }
                     
                     const incidenteNumInput = document.getElementById('rca-incidente-num');
                     if (incidenteNumInput.value && !/^INC\d{7}$/i.test(incidenteNumInput.value)) { isValid = false; const msg = 'Formato inválido. Use INC0123456.'; toggleError(incidenteNumInput, true, msg); errors.push(msg); }
                     
-                    const impactoValue = parseFloat(rcaImpactoInput.value);
-                    if (rcaImpactoInput.value !== '' && (isNaN(impactoValue) || impactoValue < 0 || impactoValue > 100)) { isValid = false; const msg = 'Valor deve estar entre 0 e 100.'; toggleError(rcaImpactoInput, true, msg); errors.push(msg); }
+                    const impactoValue = parseFloat(dom.rcaWizard.impactoInput.value);
+                    if (dom.rcaWizard.impactoInput.value !== '' && (isNaN(impactoValue) || impactoValue < 0 || impactoValue > 100)) { isValid = false; const msg = 'Valor deve estar entre 0 e 100.'; toggleError(dom.rcaWizard.impactoInput, true, msg); errors.push(msg); }
 
                     const startTimeStr = document.getElementById('rca-inicio-time').value;
                     const endTimeStr = document.getElementById('rca-fim-time').value;
                     if (startTimeStr && endTimeStr) {
-                         const inicio = new Date(`${rcaWizardModal.dataset.startDate}T${startTimeStr}`);
-                         const fim = new Date(`${rcaWizardModal.dataset.endDate}T${endTimeStr}`);
+                         const inicio = new Date(`${dom.rcaWizard.modal.dataset.startDate}T${startTimeStr}`);
+                         const fim = new Date(`${dom.rcaWizard.modal.dataset.endDate}T${endTimeStr}`);
                          if (fim < inicio) { isValid = false; const msg = 'A hora de fim não pode ser anterior à de início.'; toggleError(document.getElementById('rca-fim-time'), true, msg); errors.push(msg); }
+                         if (!isTimeWithinBusinessHours(startTimeStr)) { isValid = false; const msg = `Hora de início fora do horário comercial (${BUSINESS_START} - ${BUSINESS_END}).`; toggleError(document.getElementById('rca-inicio-time'), true, msg); errors.push(msg); }
+                         if (!isTimeWithinBusinessHours(endTimeStr)) { isValid = false; const msg = `Hora de fim fora do horário comercial (${BUSINESS_START} - ${BUSINESS_END}).`; toggleError(document.getElementById('rca-fim-time'), true, msg); errors.push(msg); }
                     }
                 }
 
-                rcaErrorSummary.innerHTML = errors.map(e => `<p>- ${e}</p>`).join('');
-                rcaErrorSummary.classList.toggle('hidden', isValid);
+                dom.rcaWizard.errorSummary.innerHTML = errors.map(e => `<p>- ${e}</p>`).join('');
+                dom.rcaWizard.errorSummary.classList.toggle('hidden', isValid);
                 
                 return isValid;
             };
 
-            const handleRcaNext = () => { if (validateRcaStep(rcaCurrentStep)) { rcaCurrentStep++; showRcaStep(rcaCurrentStep); } };
-            const handleRcaPrev = () => { rcaCurrentStep--; showRcaStep(rcaCurrentStep); };
+            const handleRcaNext = () => { if (validateRcaStep(state.rcaCurrentStep)) { state.rcaCurrentStep++; showRcaStep(state.rcaCurrentStep); } };
+            const handleRcaPrev = () => { state.rcaCurrentStep--; showRcaStep(state.rcaCurrentStep); };
+            
             const handleRcaSave = async () => {
-                if (!validateRcaStep(2)) return;
+                if (!validateRcaStep(1) || !validateRcaStep(2)) return;
                 
-                toggleButtonLoading(rcaSaveBtn, true, 'A gravar...');
-
-                const range = getOrderedDateRange(); if(!range) return;
+                toggleButtonLoading(dom.rcaWizard.saveBtn, true, 'A gravar...');
+                const originalMarkers = JSON.parse(JSON.stringify(state.dailyMarkers)); // Backup
                 
-                const categoria = categoriaSelect.value;
-                const responsavel = responsavelSelect.value;
-                const servico = servicoSelect.value;
+                const range = getOrderedDateRange();
+                if(!range) return;
 
-                const rcaData = {
-                    status: 867770000,
+                const startTimeInput = document.getElementById('rca-inicio-time').value;
+                const endTimeInput = document.getElementById('rca-fim-time').value;
+
+                const rcaDataBase = {
+                    status: STATUS_CODES.RCA,
                     imbativel: 0,
-                    area: categoria,
-                    componente: servico,
-                    inicio: `${rcaWizardModal.dataset.startDate}T${document.getElementById('rca-inicio-time').value}`,
-                    fim: `${rcaWizardModal.dataset.endDate}T${document.getElementById('rca-fim-time').value}`,
+                    area: dom.categoriaSelect.value,
+                    componente: dom.servicoSelect.value,
                     problemaNum: document.getElementById('rca-problema-num').value,
                     incidenteNum: document.getElementById('rca-incidente-num').value,
-                    impacto: rcaImpactoInput.value,
-                    racional: rcaRacionalSelect.value,
-                    critico: rcaCriticoToggle.checked,
-                    servicoCritico: rcaCriticoToggle.checked ? document.getElementById('rca-servico-critico').value : null,
+                    impacto: dom.rcaWizard.impactoInput.value,
+                    racional: dom.rcaWizard.racionalSelect.value,
+                    critico: dom.rcaWizard.criticoToggle.checked,
+                    servicoCritico: dom.rcaWizard.criticoToggle.checked ? dom.rcaWizard.servicoCriticoSelect.value : null,
                     problemaDesc: document.getElementById('rca-problema-desc').value,
                     causa: document.getElementById('rca-causa').value,
                     resolucao: document.getElementById('rca-resolucao').value,
-                    registradoPor: currentUserName
+                    registradoPor: state.currentUserName
                 };
                 
                 let payloadParaEnviar = [];
                 for (let day = new Date(range.start); day <= range.end; day.setDate(day.getDate() + 1)) {
                     const dayString = toISODateString(day);
-                    const chave = `${categoria}#${servico}#${responsavel}#${dayString}`;
-                    const registro = { chave: chave, ...rcaData };
+                    const chave = `${dom.categoriaSelect.value}#${dom.servicoSelect.value}#${dom.responsavelSelect.value}#${dayString}`;
+                    const { inicio, fim } = getTimeRangeForDay(day, range.start, range.end, startTimeInput, endTimeInput);
+                    const registro = { chave, inicio, fim, ...rcaDataBase };
                     payloadParaEnviar.push(registro);
 
-                    let markers = new Set(dailyMarkers[dayString] || []);
+                    // Optimistic UI update
+                    let markers = new Set(state.dailyMarkers[dayString] || []);
                     markers.add('rca');
                     markers.delete('sem_ocorrencia');
-                    dailyMarkers[dayString] = [...markers];
-                    rcaDataStore[dayString] = rcaData;
+                    state.dailyMarkers[dayString] = [...markers];
+                    state.rcaDataStore[dayString] = registro;
                 }
                 
-                 try {
-                    const response = await fetch('https://prod-126.westus.logic.azure.com:443/workflows/1457a62308f64bbabb597499c9bb4618/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=Kg5fzqa7buSQaV0TxVsvfeUbq-ICMobfxiQFRzbf1Wk', {
+                closeRcaWizard();
+                renderDayGrid();
+
+                try {
+                    const response = await fetch(API_ENDPOINTS.save, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payloadParaEnviar)
                     });
-                     if (!response.ok) { throw new Error(`HTTP error! status: ${response.status}`); }
-                     showToast("RCA gravado com sucesso!");
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    showToast("RCA gravado com sucesso!");
                 } catch(error) {
                     showToast("Falha ao gravar o RCA.", 'error');
                     console.error("Falha ao gravar dados do RCA:", error);
+                    state.dailyMarkers = originalMarkers; // Revert on failure
+                    renderDayGrid();
                 } finally {
-                     toggleButtonLoading(rcaSaveBtn, false, 'Salvar RCA');
+                    toggleButtonLoading(dom.rcaWizard.saveBtn, false, 'Salvar RCA');
                 }
-
-                closeRcaWizard();
-                renderDayGrid();
             };
             
             const updateRacionalImpactoOptions = (impacto) => {
-                rcaRacionalSelect.innerHTML = '';
+                dom.rcaWizard.racionalSelect.innerHTML = '';
                 let options = [ 'Impacto Geográfico', 'Duração da Indisponibilidade', 'Impacto sobre Transações', 'Intermitência e Performance Degradada', 'Criticidade do Serviço para a Operação', 'Volume de Chamados Associados' ];
                 
                 if (impacto === 0) {
                     options = ['Sem impacto'];
                 }
                 
-                rcaRacionalSelect.appendChild(new Option('Selecione um racional...', ''));
-                options.forEach(opt => rcaRacionalSelect.appendChild(new Option(opt, opt)));
+                dom.rcaWizard.racionalSelect.appendChild(new Option('Selecione um racional...', ''));
+                options.forEach(opt => dom.rcaWizard.racionalSelect.appendChild(new Option(opt, opt)));
                 
                 if (impacto === 0) {
-                    rcaRacionalSelect.value = 'Sem impacto';
+                    dom.rcaWizard.racionalSelect.value = 'Sem impacto';
                 }
             };
 
-            // --- LÓGICA DE EVENTOS ---
-            window.addEventListener('mouseup', () => { if(isDragging) { isDragging = false; openActionsModal(); }});
-            calendarGrid.addEventListener('mousedown', e => { const cell = e.target.closest('[data-date]'); if (!cell) return; isDragging = true; const date = new Date(cell.dataset.date + 'T00:00:00'); selectionStartDate = date; selectionEndDate = date; updateSelectionStyles(); });
-            calendarGrid.addEventListener('mouseover', e => { if (isDragging) { const cell = e.target.closest('[data-date]'); if (!cell) return; selectionEndDate = new Date(cell.dataset.date + 'T00:00:00'); updateSelectionStyles(); }});
-            applyModalBtn.addEventListener('click', handleApplyActions);
-            cancelModalBtn.addEventListener('click', closeActionsModal);
-            rcaNextBtn.addEventListener('click', handleRcaNext);
-            rcaPrevBtn.addEventListener('click', handleRcaPrev);
-            rcaSaveBtn.addEventListener('click', handleRcaSave);
-            rcaCancelBtn.addEventListener('click', closeRcaWizard);
-            
-            rcaImpactoInput.addEventListener('input', (e) => updateRacionalImpactoOptions(parseFloat(e.target.value)));
-
-            rcaCriticoToggle.addEventListener('change', async (e) => {
-                const isChecked = e.target.checked;
-                const servicoCriticoSelect = document.getElementById('rca-servico-critico');
-                rcaServicoCriticoSection.classList.toggle('hidden', !isChecked);
-                servicoCriticoSelect.required = isChecked;
-                if (!isChecked) {
-                     servicoCriticoSelect.innerHTML = '<option value="">Selecione um serviço...</option>';
-                     servicoCriticoSelect.value = '';
-                } else {
-                    servicoCriticoSelect.innerHTML = '<option value="">A carregar...</option>';
-                     try {
-                        const response = await fetch('https://prod-119.westus.logic.azure.com:443/workflows/d2e495e96af548acaa70318d74c07596/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=n4FxWDTe1al2x_30knYpYLxxjT1YmzqRUmEyoHF6oJ4', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({})
-                        });
-                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                        const data = await response.json();
-                        populateSelect(servicoCriticoSelect, data.value || [], 'cr9ff_itpf', 'Selecione um serviço crítico...');
-
-                     } catch (error) {
-                        console.error("Falha ao carregar serviços críticos:", error);
-                        servicoCriticoSelect.innerHTML = '<option value="">Erro ao carregar</option>';
-                     }
-                }
-            });
-
-            rcaForm.addEventListener('input', (e) => {
-                if (e.target.matches('[data-autoresize]')) {
-                    triggerAutoresize();
-                }
-            });
-
             // --- FUNÇÕES UTILITÁRIAS E DE INICIALIZAÇÃO ---
+
             const showToast = (message, type = 'success') => {
-                toastMessage.textContent = message;
-                toast.classList.remove('bg-green-500', 'bg-red-500');
+                dom.toast.message.textContent = message;
+                dom.toast.notification.classList.remove('bg-green-500', 'bg-red-500');
                 if (type === 'success') {
-                    toast.classList.add('bg-green-500');
-                    toastIcon.innerHTML = `<i data-lucide="check-circle" class="h-5 w-5"></i>`;
+                    dom.toast.notification.classList.add('bg-green-500');
+                    dom.toast.icon.innerHTML = `<i data-lucide="check-circle" class="h-5 w-5"></i>`;
                 } else {
-                    toast.classList.add('bg-red-500');
-                    toastIcon.innerHTML = `<i data-lucide="x-circle" class="h-5 w-5"></i>`;
+                    dom.toast.notification.classList.add('bg-red-500');
+                    dom.toast.icon.innerHTML = `<i data-lucide="x-circle" class="h-5 w-5"></i>`;
                 }
                 lucide.createIcons();
-                toast.classList.remove('opacity-0', 'translate-y-2');
+                dom.toast.notification.classList.remove('opacity-0', 'translate-y-2');
                 setTimeout(() => {
-                    toast.classList.add('opacity-0', 'translate-y-2');
+                    dom.toast.notification.classList.add('opacity-0', 'translate-y-2');
                 }, 4000);
             };
 
-            const toggleModal = (modal, show) => { if (show) { modal.classList.remove('hidden'); setTimeout(() => { modal.classList.add('opacity-100'); modal.querySelector('div:first-child').classList.remove('scale-95'); }, 10); } else { modal.classList.remove('opacity-100'); modal.querySelector('div:first-child').classList.add('scale-95'); setTimeout(() => modal.classList.add('hidden'), 300); }};
+            const toggleModal = (modal, show) => {
+                if (show) {
+                    modal.classList.remove('hidden');
+                    setTimeout(() => {
+                        modal.classList.add('opacity-100');
+                        modal.querySelector('div:first-child').classList.remove('scale-95');
+                    }, 10);
+                } else {
+                    modal.classList.remove('opacity-100');
+                    modal.querySelector('div:first-child').classList.add('scale-95');
+                    setTimeout(() => modal.classList.add('hidden'), 300);
+                }
+            };
+
+            const toggleButtonLoading = (button, isLoading, text) => {
+                button.disabled = isLoading;
+                if (isLoading) {
+                    button.dataset.originalHtml = button.innerHTML;
+                    button.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span>${text}</span>`;
+                } else {
+                    button.innerHTML = text || button.dataset.originalHtml;
+                }
+            };
+
             const toISODateString = (date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
             const isSameDay = (d1, d2) => d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate();
-            const getOrderedDateRange = () => { if (!selectionStartDate || !selectionEndDate) return null; const start = selectionStartDate < selectionEndDate ? selectionStartDate : selectionEndDate; const end = selectionStartDate > selectionEndDate ? selectionStartDate : selectionEndDate; return { start, end }; };
-            const isDayInRange = (day, start, end) => { if (!start || !end) return false; const range = getOrderedDateRange(); const d = new Date(day); d.setHours(0,0,0,0); return d >= range.start && d <= range.end; };
-            
-            const populateSelect = (selectElement, options, key, placeholder) => {
-                selectElement.innerHTML = `<option value="">${placeholder}</option>`;
-                const uniqueOptions = [...new Set(options.map(item => item[key]).filter(Boolean))];
-                uniqueOptions.sort();
-                uniqueOptions.forEach(optionText => {
-                   const option = document.createElement('option');
-                   option.value = optionText;
-                   option.textContent = optionText;
-                   selectElement.appendChild(option);
-               });
-           };
-
-            const updateDependentFilters = () => {
-                const selectedCategory = categoriaSelect.value;
-                const selectedResponsavel = responsavelSelect.value;
-                let filteredData = initialData;
-
-                if (selectedCategory) {
-                    filteredData = filteredData.filter(item => item.cr9ff_categoria === selectedCategory);
-                }
-                if(selectedResponsavel) {
-                    filteredData = filteredData.filter(item => item.cr9ff_responsavel === selectedResponsavel);
-                }
-                
-                populateSelect(servicoSelect, filteredData, 'cr9ff_servico', 'Todos os Serviços');
-
-                if(!selectedCategory) {
-                     populateSelect(responsavelSelect, initialData, 'cr9ff_responsavel', 'Todos os Responsáveis');
-                } else if (!selectedResponsavel) {
-                    populateSelect(responsavelSelect, initialData.filter(item => item.cr9ff_categoria === selectedCategory), 'cr9ff_responsavel', 'Todos os Responsáveis');
-                }
-                 checkInitialFilters();
+            const getOrderedDateRange = () => {
+                if (!state.selectionStartDate || !state.selectionEndDate) return null;
+                const start = state.selectionStartDate < state.selectionEndDate ? state.selectionStartDate : state.selectionEndDate;
+                const end = state.selectionStartDate > state.selectionEndDate ? state.selectionStartDate : state.selectionEndDate;
+                return { start, end };
             };
-            
+            const isDayInRange = (day, start, end) => {
+                if (!start || !end) return false;
+                const range = getOrderedDateRange();
+                const d = new Date(day);
+                d.setHours(0,0,0,0);
+                return d >= range.start && d <= range.end;
+            };
+
+            const isTimeWithinBusinessHours = (t) => t >= BUSINESS_START && t <= BUSINESS_END;
+
+            const getTimeRangeForDay = (day, startDay, endDay, startTime, endTime) => {
+                const dateStr = toISODateString(day);
+                if (isSameDay(startDay, endDay)) {
+                    return { inicio: `${dateStr}T${startTime}`, fim: `${dateStr}T${endTime}` };
+                }
+                if (isSameDay(day, startDay)) {
+                    return { inicio: `${dateStr}T${startTime}`, fim: `${dateStr}T${BUSINESS_END}` };
+                }
+                if (isSameDay(day, endDay)) {
+                    return { inicio: `${dateStr}T${BUSINESS_START}`, fim: `${dateStr}T${endTime}` };
+                }
+                return { inicio: `${dateStr}T${BUSINESS_START}`, fim: `${dateStr}T${BUSINESS_END}` };
+            };
+
+            const populateSelect = (selectElement, options, key, placeholder) => {
+                const currentValue = selectElement.value; // Guardar o valor atual
+                selectElement.innerHTML = `<option value="">${placeholder}</option>`;
+                const uniqueOptions = [...new Set(options.map(item => item[key]).filter(Boolean))].sort();
+                uniqueOptions.forEach(optionText => {
+                    const option = new Option(optionText, optionText);
+                    // Restaurar a seleção se o valor ainda existir na nova lista
+                    if (optionText === currentValue) {
+                        option.selected = true;
+                    }
+                    selectElement.appendChild(option);
+                });
+            };
+
             const checkInitialFilters = () => {
-                const isReady = categoriaSelect.value && responsavelSelect.value;
-                showCalendarBtn.disabled = !isReady;
-                initialFiltersError.classList.toggle('hidden', isReady);
+                const isReady = dom.categoriaSelect.value && dom.responsavelSelect.value;
+                dom.showCalendarBtn.disabled = !isReady;
+                dom.initialFiltersError.classList.toggle('hidden', isReady);
             };
             
             async function main() {
-                loadingIndicator.classList.remove('hidden');
-                mappingForm.classList.add('hidden');
+                dom.loadingIndicator.classList.remove('hidden');
+                dom.mappingForm.classList.add('hidden');
                 
                 try {
                     const Xrm = parent.Xrm;
                     if (typeof Xrm !== "undefined" && Xrm.Utility) {
-                        currentUserName = Xrm.Utility.getGlobalContext().userSettings.userName;
-                    } else {
-                        currentUserName = "Utilizador Desconhecido";
+                        state.currentUserName = Xrm.Utility.getGlobalContext().userSettings.userName;
                     }
                 } catch(e) {
                     console.warn("Não foi possível obter o contexto do Power Apps. Usando utilizador padrão.");
-                    currentUserName = "Utilizador Desconhecido";
                 }
 
                 try {
-                    const response = await fetch('https://prod-96.westus.logic.azure.com:443/workflows/0fa3bd3693404e0784ac54c5384ffce6/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=RZJjoPihCDjQogYqzHJLRBoQeOxGprDNjyWZxR8DJZM', {
+                    const response = await fetch(API_ENDPOINTS.initialData, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({})
@@ -832,56 +1032,46 @@
                     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                     
                     const data = await response.json();
-                    initialData = data.value || []; 
+                    state.initialData = data.value || [];
 
-                    populateSelect(categoriaSelect, initialData, 'cr9ff_categoria', 'Todas as Categorias');
-                    updateDependentFilters();
+                    populateSelect(dom.categoriaSelect, state.initialData, 'cr9ff_categoria', 'Selecione uma Categoria');
+                    // Inicialmente popula com todas as opções
+                    populateSelect(dom.responsavelSelect, state.initialData, 'cr9ff_responsavel', 'Selecione um Responsável');
+                    populateSelect(dom.servicoSelect, state.initialData, 'cr9ff_servico', 'Todos os Serviços');
 
                 } catch (error) {
                     console.error("Falha ao carregar dados iniciais:", error);
-                    loadingIndicator.innerHTML = '<p class="text-red-500 text-center">Falha ao carregar dados. Por favor, tente novamente mais tarde.</p>';
+                    dom.loadingIndicator.innerHTML = '<p class="text-red-500 text-center">Falha ao carregar dados. Por favor, tente novamente mais tarde.</p>';
                     return;
                 }
 
-                loadingIndicator.classList.add('hidden');
-                mappingForm.classList.remove('hidden');
+                dom.loadingIndicator.classList.add('hidden');
+                dom.mappingForm.classList.remove('hidden');
                 lucide.createIcons();
             }
 
-            const initializeCalendar = () => { 
-                const theme = localStorage.getItem('calendarTheme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); 
-                applyTheme(theme); 
-                renderCalendar(); 
+            const initializeCalendar = () => {
+                const theme = localStorage.getItem('calendarTheme') || (window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                applyTheme(theme);
                 renderLegend();
                 fetchAndDisplayMonthData();
             };
 
-            const toggleButtonLoading = (button, isLoading, loadingText, originalText) => {
-                button.disabled = isLoading;
-                if(isLoading){
-                    button.dataset.originalText = button.innerHTML;
-                    button.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span>${loadingText}</span>`;
-                } else {
-                    button.innerHTML = originalText || button.dataset.originalText;
-                }
-            };
-
             const fetchAndDisplayMonthData = async () => {
-                calendarLoadingOverlay.classList.remove('hidden');
-
-                const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-                const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+                dom.calendarLoadingOverlay.classList.remove('hidden');
+                const firstDay = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth(), 1);
+                const lastDay = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth() + 1, 0);
 
                 const payload = {
                     startDate: toISODateString(firstDay),
                     endDate: toISODateString(lastDay),
-                    categoria: categoriaSelect.value,
-                    responsavel: responsavelSelect.value,
-                    servico: servicoSelect.value,
+                    categoria: dom.categoriaSelect.value,
+                    responsavel: dom.responsavelSelect.value,
+                    servico: dom.servicoSelect.value,
                 };
                 
                 try {
-                    const response = await fetch('https://prod-13.westus.logic.azure.com:443/workflows/99be8b0c613047a498ac7f9b2bcfe2ca/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=DOoibAcjA_KJM0_kv2pkiM33ajFy7HsvJG2Ih8zNdGs', {
+                    const response = await fetch(API_ENDPOINTS.monthData, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
@@ -889,82 +1079,174 @@
                     if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
                     
                     const data = await response.json();
-                    dailyMarkers = {}; // Limpa os marcadores existentes
+                    state.dailyMarkers = {}; // Limpa marcadores existentes
                     (data || []).forEach(record => {
                         const date = record.cr9ff_data;
-                        if(!dailyMarkers[date]) dailyMarkers[date] = new Set();
+                        if(!state.dailyMarkers[date]) state.dailyMarkers[date] = new Set();
 
-                        if (record.cr9ff_validacao === 867770000) dailyMarkers[date].add('rca');
-                        if (record.cr9ff_validacao === 867770001) dailyMarkers[date].add('sem_ocorrencia');
-                        if (record.cr9ff_imbativel) dailyMarkers[date].add('imbativel');
+                        if (record.cr9ff_validacao === STATUS_CODES.RCA) state.dailyMarkers[date].add('rca');
+                        if (record.cr9ff_validacao === STATUS_CODES.SEM_OCORRENCIA) state.dailyMarkers[date].add('sem_ocorrencia');
+                        if (record.cr9ff_imbativel) state.dailyMarkers[date].add('imbativel');
                     });
-                     // Converte Sets para Arrays para o resto da aplicação
-                    Object.keys(dailyMarkers).forEach(key => {
-                        dailyMarkers[key] = [...dailyMarkers[key]];
+                    // Converte Sets para Arrays para consistência
+                    Object.keys(state.dailyMarkers).forEach(key => {
+                        state.dailyMarkers[key] = [...state.dailyMarkers[key]];
                     });
 
                 } catch (error) {
                     console.error("Falha ao carregar dados de eventos:", error);
                     showToast("Falha ao carregar eventos do mês.", "error");
                 } finally {
-                    calendarLoadingOverlay.classList.add('hidden');
-                    renderCalendar(); // Corrigido para redesenhar o calendário completo
+                    dom.calendarLoadingOverlay.classList.add('hidden');
+                    renderCalendar();
                 }
             };
             
-            showCalendarBtn.addEventListener('click', () => {
-                if(showCalendarBtn.disabled) return;
-                initialMappingScreen.classList.add('hidden');
-                calendarContainer.classList.remove('hidden');
-                activeFiltersContainer.classList.remove('hidden');
+            const applyTheme = (theme) => {
+                document.documentElement.classList.toggle('dark', theme === 'dark');
+                localStorage.setItem('calendarTheme', theme);
+                updateThemeIcon();
+            };
+            const updateThemeIcon = () => {
+                const isDark = document.documentElement.classList.contains('dark');
+                dom.themeIcon.setAttribute('data-lucide', isDark ? 'moon' : 'sun');
+                lucide.createIcons();
+            };
 
-                filterTags.innerHTML = '';
+            // --- EVENT LISTENERS ---
+            
+            // Navegação e UI principal
+            dom.prevMonthBtn.addEventListener('click', () => { state.currentDate.setMonth(state.currentDate.getMonth() - 1); fetchAndDisplayMonthData(); });
+            dom.nextMonthBtn.addEventListener('click', () => { state.currentDate.setMonth(state.currentDate.getMonth() + 1); fetchAndDisplayMonthData(); });
+            dom.todayBtn.addEventListener('click', () => { state.currentDate = new Date(); state.currentView = 'days'; state.selectionStartDate = null; state.selectionEndDate = null; fetchAndDisplayMonthData(); });
+            dom.monthYearTitle.addEventListener('click', () => {
+                if (state.currentView === 'days') state.currentView = 'months';
+                else if (state.currentView === 'months') state.currentView = 'years';
+                else if (state.currentView === 'years') state.currentView = 'days';
+                renderCalendar();
+            });
+            dom.themeToggleBtn.addEventListener('click', () => { applyTheme(document.documentElement.classList.contains('dark') ? 'light' : 'dark'); });
+            dom.prevYearChunkBtn.addEventListener('click', () => { state.yearViewStart -= 12; renderYearView(); updateTitle(); });
+            dom.nextYearChunkBtn.addEventListener('click', () => { state.yearViewStart += 12; renderYearView(); updateTitle(); });
+
+            // Seleção de dias (Drag & Drop)
+            dom.calendarGrid.addEventListener('mousedown', e => {
+                const cell = e.target.closest('[data-date]');
+                if (!cell) return;
+                state.isDragging = true;
+                const date = new Date(cell.dataset.date + 'T00:00:00');
+                state.selectionStartDate = date;
+                state.selectionEndDate = date;
+                updateSelectionStyles();
+            });
+            dom.calendarGrid.addEventListener('mouseover', e => {
+                if (state.isDragging) {
+                    const cell = e.target.closest('[data-date]');
+                    if (!cell) return;
+                    state.selectionEndDate = new Date(cell.dataset.date + 'T00:00:00');
+                    updateSelectionStyles();
+                }
+            });
+            window.addEventListener('mouseup', () => {
+                if (state.isDragging) {
+                    state.isDragging = false;
+                    openActionsModal();
+                }
+            });
+            
+            // --- FILTROS INICIAIS (LÓGICA CORRIGIDA) ---
+            dom.showCalendarBtn.addEventListener('click', () => {
+                if(dom.showCalendarBtn.disabled) return;
+                dom.initialMappingScreen.classList.add('hidden');
+                dom.calendarContainer.classList.remove('hidden');
+                dom.activeFiltersContainer.classList.remove('hidden');
+
+                dom.filterTags.innerHTML = '';
                 const filters = {
-                    'Categoria': categoriaSelect.value,
-                    'Responsável': responsavelSelect.value,
-                    'Serviço': servicoSelect.value
+                    'Categoria': dom.categoriaSelect.value,
+                    'Responsável': dom.responsavelSelect.value,
+                    'Serviço': dom.servicoSelect.value
                 };
 
                 const userTag = document.createElement('span');
                 userTag.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
-                userTag.innerHTML = `<i data-lucide="user-circle" class="h-4 w-4 mr-1.5"></i>${currentUserName}`;
-                filterTags.appendChild(userTag);
-                lucide.createIcons();
+                userTag.innerHTML = `<i data-lucide="user-circle" class="h-4 w-4 mr-1.5"></i>${state.currentUserName}`;
+                dom.filterTags.appendChild(userTag);
 
                 Object.entries(filters).forEach(([key, value]) => {
                     if(value) {
                         const tag = document.createElement('span');
                         tag.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
                         tag.textContent = `${key}: ${value}`;
-                        filterTags.appendChild(tag);
+                        dom.filterTags.appendChild(tag);
                     }
                 });
-
+                lucide.createIcons();
                 initializeCalendar();
             });
-            
-            categoriaSelect.addEventListener('change', updateDependentFilters);
-            responsavelSelect.addEventListener('change', updateDependentFilters);
 
-            changeFiltersBtn.addEventListener('click', () => {
-                 initialMappingScreen.classList.remove('hidden');
-                 calendarContainer.classList.add('hidden');
-                 activeFiltersContainer.classList.add('hidden');
+            dom.categoriaSelect.addEventListener('change', () => {
+                const selectedCategory = dom.categoriaSelect.value;
+                const dataForResponsavel = selectedCategory ? state.initialData.filter(item => item.cr9ff_categoria === selectedCategory) : state.initialData;
+                populateSelect(dom.responsavelSelect, dataForResponsavel, 'cr9ff_responsavel', 'Selecione um Responsável');
+                // Ao mudar a categoria, também filtramos o serviço
+                populateSelect(dom.servicoSelect, dataForResponsavel, 'cr9ff_servico', 'Todos os Serviços');
+                checkInitialFilters();
+            });
+            
+            dom.responsavelSelect.addEventListener('change', () => {
+                const selectedCategory = dom.categoriaSelect.value;
+                const selectedResponsavel = dom.responsavelSelect.value;
+                let dataForServico = selectedCategory ? state.initialData.filter(item => item.cr9ff_categoria === selectedCategory) : state.initialData;
+                if (selectedResponsavel) {
+                    dataForServico = dataForServico.filter(item => item.cr9ff_responsavel === selectedResponsavel);
+                }
+                populateSelect(dom.servicoSelect, dataForServico, 'cr9ff_servico', 'Todos os Serviços');
+                checkInitialFilters();
             });
 
+            dom.changeFiltersBtn.addEventListener('click', () => {
+                dom.initialMappingScreen.classList.remove('hidden');
+                dom.calendarContainer.classList.add('hidden');
+                dom.activeFiltersContainer.classList.add('hidden');
+            });
+            
+            // Modal de Ações
+            dom.actionsModal.applyBtn.addEventListener('click', handleApplyActions);
+            dom.actionsModal.cancelBtn.addEventListener('click', closeActionsModal);
 
-            const applyTheme = (theme) => { if (theme === 'dark') document.documentElement.classList.add('dark'); else document.documentElement.classList.remove('dark'); localStorage.setItem('calendarTheme', theme); updateThemeIcon(); };
-            const updateThemeIcon = () => { const isDark = document.documentElement.classList.contains('dark'); themeIcon.setAttribute('data-lucide', isDark ? 'moon' : 'sun'); lucide.createIcons(); };
-            
-            // --- EVENTOS DE NAVEGAÇÃO DO CALENDÁRIO ---
-            prevMonthBtn.addEventListener('click', () => { currentDate.setMonth(currentDate.getMonth() - 1); fetchAndDisplayMonthData(); });
-            nextMonthBtn.addEventListener('click', () => { currentDate.setMonth(currentDate.getMonth() + 1); fetchAndDisplayMonthData(); });
-            todayBtn.addEventListener('click', () => { currentDate = new Date(); selectionStartDate = new Date(); selectionStartDate.setHours(0,0,0,0); selectionEndDate = selectionStartDate; currentView = 'days'; fetchAndDisplayMonthData(); });
-            monthYearTitle.addEventListener('click', () => { if (currentView === 'days') currentView = 'months'; else if (currentView === 'months') currentView = 'years'; else if (currentView === 'years') currentView = 'days'; renderCalendar(); });
-            themeToggleBtn.addEventListener('click', () => { const isDark = document.documentElement.classList.contains('dark'); applyTheme(isDark ? 'light' : 'dark'); });
-            prevYearChunkBtn.addEventListener('click', () => { yearViewStart -= 12; renderYearView(); updateTitle(); });
-            nextYearChunkBtn.addEventListener('click', () => { yearViewStart += 12; renderYearView(); updateTitle(); });
-            
+            // Assistente RCA
+            dom.rcaWizard.nextBtn.addEventListener('click', handleRcaNext);
+            dom.rcaWizard.prevBtn.addEventListener('click', handleRcaPrev);
+            dom.rcaWizard.saveBtn.addEventListener('click', handleRcaSave);
+            dom.rcaWizard.cancelBtn.addEventListener('click', closeRcaWizard);
+            dom.rcaWizard.impactoInput.addEventListener('input', (e) => updateRacionalImpactoOptions(parseFloat(e.target.value)));
+            dom.rcaWizard.criticoToggle.addEventListener('change', async (e) => {
+                const isChecked = e.target.checked;
+                dom.rcaWizard.servicoCriticoSection.classList.toggle('hidden', !isChecked);
+                dom.rcaWizard.servicoCriticoSelect.required = isChecked;
+                if (!isChecked) {
+                    dom.rcaWizard.servicoCriticoSelect.innerHTML = '<option value="">Selecione um serviço...</option>';
+                } else {
+                    dom.rcaWizard.servicoCriticoSelect.innerHTML = '<option value="">A carregar...</option>';
+                    try {
+                        const response = await fetch(API_ENDPOINTS.servicosCriticos, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
+                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                        const data = await response.json();
+                        populateSelect(dom.rcaWizard.servicoCriticoSelect, data.value || [], 'cr9ff_itpf', 'Selecione um serviço crítico...');
+                   } catch (error) {
+                        console.error("Falha ao carregar serviços críticos:", error);
+                        dom.rcaWizard.servicoCriticoSelect.innerHTML = '<option value="">Erro ao carregar</option>';
+                   }
+                }
+            });
+            dom.rcaWizard.form.addEventListener('input', (e) => {
+                if (e.target.matches('[data-autoresize]')) {
+                    triggerAutoresize();
+                }
+            });
+
+            // Inicia a aplicação
             main();
         });
     </script>
