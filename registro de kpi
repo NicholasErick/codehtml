@@ -1,116 +1,972 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Painel de Indicadores de TI</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>tailwind.config = { darkMode: 'class' }</script>
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    /* (Mantive o CSS aprimorado que combinamos antes) */
-    body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;font-family:'Inter',sans-serif;background-color:#f3f4f6;}
-    .dark body{background-color:#111827;}
-    .kpi-card{@apply bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-1;}
-    .skeleton{@apply bg-gray-200 dark:bg-gray-700 rounded-md animate-pulse;}
-    .form-input{@apply w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:focus:ring-blue-500;}
-    .kpi-table{@apply w-full text-sm text-left text-gray-500 dark:text-gray-400 table-fixed border-collapse;}
-    .kpi-table thead{@apply text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400;position:sticky;top:0;z-index:10;}
-    .kpi-table th, .kpi-table td{@apply px-4 py-2 align-top leading-snug font-mono break-words;border:1px solid #e5e7eb;white-space:normal;}
-    .kpi-table th:first-child, .kpi-table td:first-child{position:sticky;left:0;z-index:20;background-color:inherit;}
-    .kpi-table tbody tr:nth-child(odd){@apply bg-gray-50 dark:bg-gray-900;}
-    .kpi-table tbody tr:nth-child(even){@apply bg-white dark:bg-gray-800;}
-    .kpi-table tbody tr:hover{@apply bg-blue-50 dark:bg-gray-700;}
-    .kpi-table tbody tr.table-row-critical{@apply bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 font-semibold;}
-    .kpi-table tbody tr.table-row-critical:nth-child(even){@apply bg-yellow-50 dark:bg-yellow-800;}
-    .kpi-table tbody tr:last-of-type{@apply border-b-0;}
-  </style>
-</head>
-<body class="dark:bg-gray-900">
-  <div class="p-4 md:p-8 max-w-7xl mx-auto space-y-8">
-    <!-- HEADER + FILTERS (mesma estrutura já vista) -->
-    <!-- SKIP por brevidade, mas supondo que o HTML de filtros está aqui -->
-    ...
-    <!-- TABELA dentro do overflow -->
-    <div class="overflow-auto relative">
-      <table class="kpi-table">
-        <thead>
-          <tr>
-            <th class="cursor-pointer">Data <i data-lucide="chevrons-up-down" class="inline w-4 h-4"></i></th>
-            <th>Início</th>
-            <th>Fim</th>
-            <th>Serviço</th>
-            <th>Serviço Crítico</th>
-            <th>Responsável</th>
-            <th>Categoria</th>
-            <th>Problema</th>
-            <th>Causa</th>
-            <th>Impacto (%)</th>
-          </tr>
-        </thead>
-        <tbody id="incidents-table-body"></tbody>
-      </table>
-    </div>
-  </div>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendário Interativo com Ações</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = { darkMode: 'class' }
+    </script>
+    <script src="https://unpkg.com/lucide@latest"></script>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      if (window.lucide) lucide.createIcons();
-
-      // ELEMENTOS DE TABELA E FILTROS
-      const incidentsTableBody = document.getElementById('incidents-table-body');
-      const selects = {
-        categoria: document.getElementById('kpi-categoria-select'),
-        responsavel: document.getElementById('kpi-responsavel-select'),
-        servico: document.getElementById('kpi-servico-select'),
-      };
-
-      // (Seu código de configuração inicial, variáveis, charts, etc...)
-      // vou pular para funções principais
-
-      // Função para renderizar a tabela com tooltips
-      function renderDetailedIncidentsTable(rcaEvents) {
-        incidentsTableBody.innerHTML = '';
-        if (!rcaEvents.length) {
-          const r = incidentsTableBody.insertRow();
-          const c = r.insertCell();
-          c.colSpan = 10;
-          c.className = 'text-center py-4 text-gray-500 dark:text-gray-400';
-          c.textContent = 'Nenhuma ocorrência encontrada.';
-          return;
+    <style>
+        body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-family: 'Inter', sans-serif; user-select: none; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        .transition-all-ease { transition: all 0.3s ease-in-out; }
+        .active-btn { transform: scale(0.95); }
+        input[type='number']::-webkit-inner-spin-button, input[type='number']::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type='number'] { -moz-appearance: textfield; }
+        .form-input { @apply w-full px-3 py-2 text-gray-700 bg-gray-50 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:focus:ring-blue-500; }
+        .form-label { @apply block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1; }
+        .error-message { @apply text-red-500 text-xs mt-1; }
+        
+        /* Estilos para a área de texto com auto-resize */
+        .autoresize-textarea {
+            min-height: 8rem; /* Altura inicial maior (128px) */
+            resize: vertical;   /* Permite redimensionamento vertical pelo usuário */
+            overflow-y: hidden; /* Oculta a barra de rolagem até ser necessária */
         }
-        rcaEvents.forEach(evt => {
-          const row = incidentsTableBody.insertRow();
-          if (evt.cr9ff_servicocritico) row.classList.add('table-row-critical');
-          const vals = [
-            new Date(evt.cr9ff_data).toLocaleDateString('pt-BR'),
-            new Date(evt.cr9ff_horadeinicio).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}),
-            new Date(evt.cr9ff_horadefim).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}),
-            evt.cr9ff_servio||'N/A',
-            evt.cr9ff_servicocritico||'N/A',
-            evt.cr9ff_responsvel||'N/A',
-            evt.cr9ff_categoria||'N/A',
-            evt.cr9ff_problema||'N/A',
-            evt.cr9ff_causa||'N/A',
-            (parseFloat(evt.cr9ff_percentual)||0).toFixed(2)+'%'
-          ];
-          vals.forEach((v,i)=>{
-            const c = row.insertCell();
-            c.textContent = v;
-            if (i >=7) c.title = v;
-          });
+
+        /* Estilos para a notificação (toast) */
+        #toast-notification {
+            transition: opacity 0.3s, transform 0.3s;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    
+    <!-- Ecrã de Mapeamento Inicial -->
+    <div id="initial-mapping-screen" class="p-4 md:p-6 max-w-2xl mx-auto">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+            <h2 class="text-2xl font-semibold text-gray-800 dark:text-white mb-4">Filtros Iniciais</h2>
+            <p class="text-gray-600 dark:text-gray-400 mb-6">Por favor, selecione os filtros para visualizar o calendário.</p>
+
+            <!-- Indicador de Carregamento -->
+            <div id="loading-indicator" class="flex justify-center items-center py-8">
+                <svg class="animate-spin -ml-1 mr-3 h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span class="text-lg font-medium text-gray-700 dark:text-gray-300">A carregar dados...</span>
+            </div>
+            
+            <!-- Formulário de Filtros -->
+            <div id="mapping-form" class="hidden space-y-4">
+                 <div>
+                    <label for="categoria-select" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Categoria*</label>
+                    <div class="relative">
+                        <select id="categoria-select" class="w-full pl-4 pr-10 py-3 text-base text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-700/50 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 transition-all-ease" style="appearance: none; -webkit-appearance: none; -moz-appearance: none;" required>
+                            <option value="">Selecione uma Categoria</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 dark:text-gray-400">
+                           <i data-lucide="chevron-down" class="h-5 w-5"></i>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <label for="responsavel-select" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Responsável*</label>
+                    <div class="relative">
+                        <select id="responsavel-select" class="w-full pl-4 pr-10 py-3 text-base text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-700/50 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 transition-all-ease" style="appearance: none; -webkit-appearance: none; -moz-appearance: none;" required>
+                             <option value="">Selecione um Responsável</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 dark:text-gray-400">
+                           <i data-lucide="chevron-down" class="h-5 w-5"></i>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <label for="servico-select" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Serviço</label>
+                     <div class="relative">
+                        <select id="servico-select" class="w-full pl-4 pr-10 py-3 text-base text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-700/50 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 transition-all-ease" style="appearance: none; -webkit-appearance: none; -moz-appearance: none;">
+                            <option value="">Todos os Serviços</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 dark:text-gray-400">
+                           <i data-lucide="chevron-down" class="h-5 w-5"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="pt-4">
+                    <button id="show-calendar-btn" class="w-full flex justify-center items-center bg-blue-600 text-white font-semibold text-base py-3 px-4 rounded-lg hover:bg-blue-700 transition-all-ease active-btn focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-900 disabled:bg-blue-400 disabled:cursor-not-allowed">
+                        <span class="mr-2">Ver Calendário</span>
+                        <i data-lucide="arrow-right" class="h-5 w-5"></i>
+                    </button>
+                    <p id="initial-filters-error" class="text-center text-red-500 text-sm mt-2 hidden">Por favor, selecione Categoria e Responsável.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="calendar-container" class="p-4 md:p-6 max-w-2xl mx-auto hidden">
+        <!-- Secção de Filtros Ativos -->
+        <div id="active-filters-container" class="mb-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 hidden">
+            <div class="flex flex-wrap justify-between items-center gap-4">
+                 <div id="filter-tags" class="flex flex-wrap gap-2 items-center">
+                    <!-- Tags de filtro serão inseridas aqui -->
+                </div>
+                <button id="change-filters-btn" class="text-sm text-blue-600 dark:text-blue-400 hover:underline whitespace-nowrap">Alterar Filtros</button>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 transition-colors duration-300 relative">
+             <!-- Overlay de Carregamento para o Calendário -->
+            <div id="calendar-loading-overlay" class="absolute inset-0 bg-white/50 dark:bg-gray-800/50 z-10 flex justify-center items-center rounded-lg hidden">
+                <svg class="animate-spin h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </div>
+            <!-- Cabeçalho do Calendário -->
+            <div id="calendar-header" class="flex items-center justify-between mb-4">
+                <h2 id="month-year-title" class="text-xl md:text-2xl font-semibold text-gray-800 dark:text-white cursor-pointer hover:text-blue-600 dark:hover:text-blue-400">Junho 2025</h2>
+                <div class="flex items-center space-x-2">
+                    <button id="today-btn" class="px-3 py-1 text-sm font-medium rounded-md active-btn transition-all-ease">Hoje</button>
+                    <button id="prev-month-btn" class="p-2 rounded-full active-btn transition-all-ease"><i data-lucide="chevron-left" class="h-5 w-5"></i></button>
+                    <button id="next-month-btn" class="p-2 rounded-full active-btn transition-all-ease"><i data-lucide="chevron-right" class="h-5 w-5"></i></button>
+                    <button id="theme-toggle-btn" class="p-2 rounded-full active-btn transition-all-ease"><i id="theme-icon" data-lucide="sun" class="h-5 w-5"></i></button>
+                </div>
+            </div>
+
+            <!-- Grelhas do Calendário -->
+            <div id="days-of-week" class="grid grid-cols-7 gap-1 text-center text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">
+                <div>Dom</div> <div>Seg</div> <div>Ter</div> <div>Qua</div> <div>Qui</div> <div>Sex</div> <div>Sáb</div>
+            </div>
+            <div id="calendar-grid" class="grid grid-cols-7 gap-1"></div>
+            <div id="month-view" class="grid grid-cols-3 gap-2 hidden"></div>
+            <div id="year-view" class="hidden items-center justify-center">
+                 <div class="flex items-center justify-center space-x-2">
+                    <button id="prev-year-chunk-btn" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-all-ease active-btn"><i data-lucide="chevron-left" class="h-5 w-5 text-gray-600 dark:text-gray-400"></i></button>
+                    <div id="year-grid" class="grid grid-cols-4 gap-2"></div>
+                    <button id="next-year-chunk-btn" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-all-ease active-btn"><i data-lucide="chevron-right" class="h-5 w-5 text-gray-600 dark:text-gray-400"></i></button>
+                </div>
+            </div>
+            <!-- Legenda -->
+            <div id="calendar-legend" class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex flex-wrap gap-x-4 gap-y-2">
+                <!-- A legenda será inserida aqui via JS -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de Ações -->
+    <div id="actions-modal" class="fixed inset-0 bg-gray-900/50 flex items-center justify-center p-4 hidden opacity-0 transition-all-ease">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md p-6 scale-95 transition-all-ease">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Ações para o Período</h3>
+            <div class="space-y-4">
+                <div id="imbativel-section" class="flex items-center p-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                    <input id="imbativel-checkbox" type="checkbox" class="h-4 w-4 rounded text-orange-500 border-gray-300 focus:ring-orange-500">
+                    <label for="imbativel-checkbox" class="ml-3 text-sm font-medium">Marcar como Dia Imbatível</label>
+                    <i data-lucide="star" class="h-4 w-4 ml-auto text-orange-400"></i>
+                </div>
+                <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+                    <div class="p-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700/50"><input id="sem-ocorrencia-radio" name="ocorrencia_tipo" type="radio" value="sem_ocorrencia" class="h-4 w-4 text-green-600 focus:ring-green-500"><label for="sem-ocorrencia-radio" class="ml-3 text-sm font-medium">Marcar como Sem Ocorrência</label></div>
+                    <div id="rca-option-container" class="p-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700/50"><input id="rca-radio" name="ocorrencia_tipo" type="radio" value="rca" class="h-4 w-4 text-red-600 focus:ring-red-500"><label for="rca-radio" class="ml-3 text-sm font-medium">Registar RCA</label></div>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end space-x-3">
+                <button id="cancel-modal-btn" class="px-4 py-2 text-sm font-medium rounded-md shadow-sm border">Cancelar</button>
+                <button id="apply-modal-btn" class="flex justify-center items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-400 disabled:cursor-not-allowed">Aplicar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal do Assistente RCA -->
+    <div id="rca-wizard-modal" data-start-date="" data-end-date="" class="fixed inset-0 bg-gray-900/50 flex items-center justify-center p-4 hidden opacity-0 transition-all-ease">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl scale-95 transition-all-ease">
+            <div class="p-6 border-b">
+                <h3 class="text-lg font-semibold">Registo de RCA (Análise de Causa Raiz)</h3>
+                <p class="text-sm text-gray-500" id="rca-step-indicator">Passo <span id="rca-current-step">1</span> de 2</p>
+            </div>
+            
+            <div id="rca-error-summary" class="p-4 bg-red-50 border-l-4 border-red-400 hidden mx-6 rounded"></div>
+
+            <form id="rca-form" class="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
+                 <!-- Etapa 1 (antiga Etapa 2): Período e Impacto -->
+                <div id="rca-step-1" class="rca-step">
+                    <h4 class="font-semibold mb-4">Etapa 1: Período e Impacto</h4>
+                     <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-4">
+                        <div>
+                            <label for="rca-inicio-time" class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Hora de Início*</label>
+                            <div class="flex items-center space-x-2 p-2 bg-gray-100 dark:bg-gray-700/50 rounded-md">
+                                <span id="rca-inicio-date" class="font-medium text-gray-600 dark:text-gray-300 whitespace-nowrap"></span>
+                                <input type="time" id="rca-inicio-time" class="w-full px-3 py-2 text-gray-700 bg-gray-50 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:focus:ring-blue-500" required>
+                            </div>
+                            <p class="error-message hidden">Hora de início é obrigatória.</p>
+                        </div>
+                        <div>
+                            <label for="rca-fim-time" class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Hora de Fim*</label>
+                            <div class="flex items-center space-x-2 p-2 bg-gray-100 dark:bg-gray-700/50 rounded-md">
+                                <span id="rca-fim-date" class="font-medium text-gray-600 dark:text-gray-300 whitespace-nowrap"></span>
+                                <input type="time" id="rca-fim-time" class="w-full px-3 py-2 text-gray-700 bg-gray-50 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:focus:ring-blue-500" required>
+                            </div>
+                            <p class="error-message hidden">Hora de fim é obrigatória.</p>
+                        </div>
+                        <div>
+                            <label for="rca-problema-num" class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Nº do Problema</label>
+                            <input type="text" id="rca-problema-num" placeholder="PRB0123456" class="w-full px-3 py-2 text-gray-700 bg-gray-50 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:focus:ring-blue-500">
+                            <p class="error-message hidden">Formato inválido. Use PRB0123456.</p>
+                        </div>
+                         <div>
+                            <label for="rca-incidente-num" class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Nº do Incidente</label>
+                            <input type="text" id="rca-incidente-num" placeholder="INC0123456" class="w-full px-3 py-2 text-gray-700 bg-gray-50 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:focus:ring-blue-500">
+                            <p class="error-message hidden">Formato inválido. Use INC0123456.</p>
+                        </div>
+                        <div>
+                            <label for="rca-impacto" class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Impacto (%)*</label>
+                            <input type="number" id="rca-impacto" step="0.1" class="w-full px-3 py-2 text-gray-700 bg-gray-50 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:focus:ring-blue-500" required>
+                            <p class="error-message hidden">Valor deve estar entre 0 e 100.</p>
+                        </div>
+                        <div>
+                            <label for="rca-racional" class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Racional do Impacto*</label>
+                            <select id="rca-racional" class="w-full px-3 py-2 text-gray-700 bg-gray-50 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:focus:ring-blue-500" required>
+                                <!-- As opções serão preenchidas dinamicamente -->
+                            </select>
+                             <p class="error-message hidden">Campo obrigatório.</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 border-t pt-4">
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" id="rca-critico-toggle" class="sr-only peer">
+                            <div class="relative w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-red-600"></div>
+                            <span class="ms-3 text-sm font-medium">Evento Crítico?</span>
+                        </label>
+                    </div>
+                    <div id="rca-servico-critico-section" class="mt-4 hidden">
+                        <label for="rca-servico-critico" class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Serviço Crítico Afetado*</label>
+                        <select id="rca-servico-critico" class="w-full px-3 py-2 text-gray-700 bg-gray-50 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:focus:ring-blue-500">
+                            <option value="">Selecione um serviço...</option>
+                        </select>
+                        <p class="error-message hidden">Campo obrigatório.</p>
+                    </div>
+                </div>
+                <!-- Etapa 2 (antiga Etapa 3): Análise -->
+                <div id="rca-step-2" class="rca-step hidden">
+                    <h4 class="font-semibold mb-4">Etapa 2: Análise e Descrições</h4>
+                     <div class="space-y-4">
+                        <div>
+                            <label for="rca-problema-desc" class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Qual foi o problema observado?*</label>
+                            <textarea id="rca-problema-desc" class="w-full px-3 py-2 text-gray-700 bg-gray-50 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:focus:ring-blue-500 autoresize-textarea" required data-autoresize placeholder="Descreva o problema observado aqui..."></textarea>
+                            <p class="error-message hidden">Campo obrigatório.</p>
+                        </div>
+                        <div>
+                            <label for="rca-causa" class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Qual foi a causa raiz identificada?*</label>
+                            <textarea id="rca-causa" class="w-full px-3 py-2 text-gray-700 bg-gray-50 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:focus:ring-blue-500 autoresize-textarea" required data-autoresize placeholder="Descreva a causa raiz aqui..."></textarea>
+                             <p class="error-message hidden">Campo obrigatório.</p>
+                        </div>
+                        <div>
+                            <label for="rca-resolucao" class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Qual foi a ação de contorno/resolução realizada?*</label>
+                            <textarea id="rca-resolucao" class="w-full px-3 py-2 text-gray-700 bg-gray-50 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:focus:ring-blue-500 autoresize-textarea" required data-autoresize placeholder="Descreva a ação de contorno ou resolução realizada aqui..."></textarea>
+                             <p class="error-message hidden">Campo obrigatório.</p>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <div class="p-6 border-t flex justify-between items-center">
+                <button id="rca-cancel-btn" class="px-4 py-2 text-sm font-medium rounded-md shadow-sm border">Cancelar</button>
+                <div class="space-x-3">
+                    <button id="rca-prev-btn" class="px-4 py-2 text-sm font-medium rounded-md shadow-sm border">Anterior</button>
+                    <button id="rca-next-btn" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md shadow-sm">Próximo</button>
+                    <button id="rca-save-btn" class="flex justify-center items-center px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md shadow-sm hidden disabled:bg-green-400 disabled:cursor-not-allowed">Salvar RCA</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Notification -->
+    <div id="toast-notification" class="fixed top-5 right-5 w-full max-w-xs p-4 rounded-lg shadow-lg text-white opacity-0 transform translate-y-2 transition-all-ease" style="z-index: 100;">
+        <div class="flex items-center">
+            <div id="toast-icon" class="mr-3"></div>
+            <p id="toast-message" class="text-sm font-medium"></p>
+        </div>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- ELEMENTOS DO DOM (abreviado) ---
+            const calendarGrid = document.getElementById('calendar-grid'), monthYearTitle = document.getElementById('month-year-title'), prevMonthBtn = document.getElementById('prev-month-btn'), nextMonthBtn = document.getElementById('next-month-btn'), todayBtn = document.getElementById('today-btn'), themeToggleBtn = document.getElementById('theme-toggle-btn'), themeIcon = document.getElementById('theme-icon'), daysOfWeekContainer = document.getElementById('days-of-week'), monthView = document.getElementById('month-view'), yearView = document.getElementById('year-view'), yearGrid = document.getElementById('year-grid'), prevYearChunkBtn = document.getElementById('prev-year-chunk-btn'), nextYearChunkBtn = document.getElementById('next-year-chunk-btn'), calendarLegend = document.getElementById('calendar-legend'), initialMappingScreen = document.getElementById('initial-mapping-screen'), calendarContainer = document.getElementById('calendar-container'), showCalendarBtn = document.getElementById('show-calendar-btn'), categoriaSelect = document.getElementById('categoria-select'), responsavelSelect = document.getElementById('responsavel-select'), servicoSelect = document.getElementById('servico-select'), loadingIndicator = document.getElementById('loading-indicator'), mappingForm = document.getElementById('mapping-form'), activeFiltersContainer = document.getElementById('active-filters-container'), filterTags = document.getElementById('filter-tags'), changeFiltersBtn = document.getElementById('change-filters-btn'), initialFiltersError = document.getElementById('initial-filters-error');
+            const actionsModal = document.getElementById('actions-modal'), cancelModalBtn = document.getElementById('cancel-modal-btn'), applyModalBtn = document.getElementById('apply-modal-btn'), imbativelSection = document.getElementById('imbativel-section'), imbativelCheckbox = document.getElementById('imbativel-checkbox'), semOcorrenciaRadio = document.getElementById('sem-ocorrencia-radio'), rcaRadio = document.getElementById('rca-radio'), rcaOptionContainer = document.getElementById('rca-option-container');
+            const rcaWizardModal = document.getElementById('rca-wizard-modal'), rcaForm = document.getElementById('rca-form'), rcaErrorSummary = document.getElementById('rca-error-summary'), rcaStepIndicator = document.getElementById('rca-step-indicator'), rcaPrevBtn = document.getElementById('rca-prev-btn'), rcaNextBtn = document.getElementById('rca-next-btn'), rcaSaveBtn = document.getElementById('rca-save-btn'), rcaCancelBtn = document.getElementById('rca-cancel-btn');
+            const rcaCriticoToggle = document.getElementById('rca-critico-toggle'), rcaServicoCriticoSection = document.getElementById('rca-servico-critico-section'), rcaImpactoInput = document.getElementById('rca-impacto'), rcaRacionalSelect = document.getElementById('rca-racional');
+            const toast = document.getElementById('toast-notification'), toastMessage = document.getElementById('toast-message'), toastIcon = document.getElementById('toast-icon');
+            const calendarLoadingOverlay = document.getElementById('calendar-loading-overlay');
+
+            // --- ESTADO DA APLICAÇÃO ---
+            let currentDate = new Date(), currentView = 'days', selectionStartDate = null, selectionEndDate = null, isDragging = false, rcaCurrentStep = 1, yearViewStart;
+            let initialData = [];
+            let currentUserName = '';
+            const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+            const markerTypes = { 
+                rca: { label: 'RCA Registado', color: 'bg-red-500', icon: null }, 
+                sem_ocorrencia: { label: 'Sem Ocorrência', color: 'bg-green-500', icon: null }, 
+                imbativel: { label: 'Dia Imbatível', color: 'text-orange-500', icon: 'star' } 
+            };
+            let dailyMarkers = {}; // Dados de exemplo removidos
+            let rcaDataStore = {};
+
+            // --- FUNÇÕES DE RENDERIZAÇÃO DO CALENDÁRIO ---
+            const renderLegend = () => {
+                calendarLegend.innerHTML = '';
+                Object.entries(markerTypes).forEach(([key, {label, color, icon}]) => {
+                    const legendItem = document.createElement('div');
+                    legendItem.className = 'flex items-center text-xs text-gray-600 dark:text-gray-400';
+                    
+                    const visual = document.createElement('div');
+                    if (icon) {
+                        visual.innerHTML = `<i data-lucide="${icon}" class="h-3.5 w-3.5 mr-1.5 ${color}"></i>`;
+                    } else {
+                        visual.className = `h-3 w-3 rounded-full mr-1.5 ${color}`;
+                    }
+                    
+                    legendItem.appendChild(visual);
+                    legendItem.append(label);
+                    calendarLegend.appendChild(legendItem);
+                });
+                lucide.createIcons();
+            };
+
+            const showView = (...elementsToShow) => {
+                [calendarGrid, daysOfWeekContainer, monthView, yearView].forEach(el => el.classList.add('hidden'));
+                elementsToShow.forEach(el => el.classList.remove('hidden'));
+            };
+
+            const updateTitle = () => {
+                 if (currentView === 'days') {
+                    monthYearTitle.textContent = `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+                } else if (currentView === 'months') {
+                    monthYearTitle.textContent = `${currentDate.getFullYear()}`;
+                } else {
+                    monthYearTitle.textContent = `${yearViewStart} - ${yearViewStart + 11}`;
+                }
+            };
+            
+            const renderMonthView = () => {
+                monthView.innerHTML = '';
+                monthNames.forEach((name, index) => {
+                    const monthCell = document.createElement('div');
+                    monthCell.textContent = name;
+                    monthCell.className = 'flex items-center justify-center h-16 rounded-lg cursor-pointer text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all-ease';
+                    if (index === currentDate.getMonth()) {
+                        monthCell.classList.add('bg-blue-500', 'text-white', 'font-semibold');
+                    }
+                    monthCell.addEventListener('click', () => {
+                        currentDate.setMonth(index);
+                        currentView = 'days';
+                        fetchAndDisplayMonthData();
+                    });
+                    monthView.appendChild(monthCell);
+                });
+            };
+
+            const renderYearView = () => {
+                if (!yearViewStart) yearViewStart = currentDate.getFullYear() - 5;
+                yearGrid.innerHTML = '';
+                for (let i = 0; i < 12; i++) {
+                    const year = yearViewStart + i;
+                    const yearCell = document.createElement('div');
+                    yearCell.textContent = year;
+                    yearCell.className = 'flex items-center justify-center h-16 rounded-lg cursor-pointer text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all-ease';
+                    if (year === currentDate.getFullYear()) {
+                        yearCell.classList.add('bg-blue-500', 'text-white', 'font-semibold');
+                    }
+                    yearCell.addEventListener('click', () => {
+                        currentDate.setFullYear(year);
+                        currentView = 'months';
+                        renderCalendar();
+                    });
+                    yearGrid.appendChild(yearCell);
+                }
+            };
+
+            const renderCalendar = () => {
+                updateThemeIcon();
+                switch (currentView) {
+                    case 'days':
+                        showView(calendarGrid, daysOfWeekContainer);
+                        renderDayGrid();
+                        break;
+                    case 'months':
+                        showView(monthView);
+                        renderMonthView();
+                        break;
+                    case 'years':
+                        showView(yearView);
+                        renderYearView();
+                        break;
+                }
+                updateTitle();
+                lucide.createIcons();
+            };
+
+            const renderDayGrid = () => { calendarGrid.innerHTML = ''; const year = currentDate.getFullYear(), month = currentDate.getMonth(), firstDayOfMonth = new Date(year, month, 1), firstDayOfWeek = firstDayOfMonth.getDay(); const startDate = new Date(firstDayOfMonth); startDate.setDate(startDate.getDate() - firstDayOfWeek); for (let i = 0; i < 42; i++) { const day = new Date(startDate); day.setDate(day.getDate() + i); const cell = document.createElement('div'); cell.dataset.date = toISODateString(day); const dayNumber = document.createElement('span'); dayNumber.textContent = day.getDate(); cell.appendChild(dayNumber); const markersContainer = document.createElement('div'); markersContainer.className = 'absolute bottom-1 left-1/2 -translate-x-1/2 flex items-center justify-center space-x-1'; cell.appendChild(markersContainer); applyDayStyles(cell, day); calendarGrid.appendChild(cell); } lucide.createIcons(); };
+            const applyDayStyles = (cell, day) => { const dayString = cell.dataset.date, isToday = isSameDay(day, new Date()), isCurrentMonth = day.getMonth() === currentDate.getMonth(), isSelected = isDayInRange(day, selectionStartDate, selectionEndDate); cell.className = 'relative flex items-center justify-center h-12 w-12 text-sm rounded-lg cursor-pointer transition-all-ease'; if (isCurrentMonth) cell.classList.add('text-gray-700', 'dark:text-gray-200', 'hover:bg-gray-100', 'dark:hover:bg-gray-700'); else cell.classList.add('text-gray-300', 'dark:text-gray-600'); if (isSelected) { cell.classList.add('bg-blue-100', 'dark:bg-blue-900/50', 'border', 'border-blue-300'); cell.classList.remove('hover:bg-gray-100', 'dark:hover:bg-gray-700'); } if (isToday) cell.querySelector('span').classList.add('h-7', 'w-7', 'flex', 'items-center', 'justify-center', 'font-bold', 'bg-blue-500', 'text-white', 'rounded-full'); const markersContainer = cell.querySelector('div'); markersContainer.innerHTML = ''; const markers = dailyMarkers[dayString] || []; markers.forEach(key => { const info = markerTypes[key]; if (info.icon) { const icon = document.createElement('i'); icon.setAttribute('data-lucide', info.icon); icon.className = `h-3.5 w-3.5 ${info.color}`; markersContainer.appendChild(icon); } else { const dot = document.createElement('div'); dot.className = `h-1.5 w-1.5 rounded-full ${info.color}`; markersContainer.appendChild(dot); } }); };
+            const updateSelectionStyles = () => { calendarGrid.querySelectorAll('[data-date]').forEach(cell => { applyDayStyles(cell, new Date(cell.dataset.date + 'T00:00:00')); }); lucide.createIcons(); };
+
+            // --- LÓGICA DO MODAL DE AÇÕES ---
+            const openActionsModal = () => { const range = getOrderedDateRange(); if (!range) return; const isSingleDay = isSameDay(range.start, range.end); imbativelSection.style.display = isSingleDay ? 'flex' : 'none'; imbativelCheckbox.checked = false; semOcorrenciaRadio.checked = false; rcaRadio.checked = false; 
+                
+                const isServicoSelected = !!servicoSelect.value;
+                rcaRadio.disabled = !isServicoSelected;
+                rcaOptionContainer.classList.toggle('opacity-50', !isServicoSelected);
+                rcaOptionContainer.classList.toggle('cursor-not-allowed', !isServicoSelected);
+                rcaOptionContainer.title = isServicoSelected ? '' : 'Selecione um Serviço no filtro inicial para registar um RCA.';
+
+                if (isSingleDay) { const markers = dailyMarkers[toISODateString(range.start)] || []; imbativelCheckbox.checked = markers.includes('imbativel'); if (markers.includes('sem_ocorrencia')) semOcorrenciaRadio.checked = true; if (markers.includes('rca')) rcaRadio.checked = true; } 
+                toggleModal(actionsModal, true); 
+            };
+
+            const closeActionsModal = () => toggleModal(actionsModal, false);
+            
+            const handleApplyActions = async () => {
+                const ocorrenciaValue = document.querySelector('input[name="ocorrencia_tipo"]:checked')?.value;
+                if (ocorrenciaValue === 'rca') {
+                    closeActionsModal();
+                    openRcaWizard();
+                    return;
+                }
+                const range = getOrderedDateRange(); if (!range) return;
+                const applyImbativel = imbativelCheckbox.checked;
+
+                if (!ocorrenciaValue && !applyImbativel) {
+                    showToast("Nenhuma ação selecionada.", "error");
+                    return;
+                }
+
+                toggleButtonLoading(applyModalBtn, true, 'A gravar...');
+
+                let payloadParaEnviar = [];
+                const categoria = categoriaSelect.value;
+                const responsavel = responsavelSelect.value;
+                const selectedServico = servicoSelect.value;
+
+                const nonRcaPayloadData = {
+                    status: null,
+                    imbativel: 0,
+                    area: categoria,
+                    componente: null, // Será definido no loop
+                    inicio: null, fim: null, problemaNum: null, incidenteNum: null,
+                    impacto: null, racional: null, critico: false, servicoCritico: null,
+                    problemaDesc: null, causa: null, resolucao: null,
+                    registradoPor: currentUserName
+                };
+
+                let servicesToProcess = [];
+                if (selectedServico) {
+                    servicesToProcess.push(selectedServico);
+                } else {
+                    const filteredData = initialData.filter(item => item.cr9ff_categoria === categoria && item.cr9ff_responsavel === responsavel);
+                    servicesToProcess = [...new Set(filteredData.map(item => item.cr9ff_servico).filter(Boolean))];
+                }
+
+                for (let day = new Date(range.start); day <= range.end; day.setDate(day.getDate() + 1)) {
+                    const dayString = toISODateString(day);
+                    
+                    for(const servico of servicesToProcess) {
+                        const chave = `${categoria}#${servico}#${responsavel}#${dayString}`;
+                        let registro = { chave: chave, componente: servico, ...nonRcaPayloadData };
+                        let markers = new Set(dailyMarkers[dayString] || []);
+                        
+                        if (ocorrenciaValue === 'sem_ocorrencia') {
+                            registro.status = 867770001; // Código para Sem Ocorrência
+                            markers.add('sem_ocorrencia');
+                            markers.delete('rca');
+                        }
+                        
+                        if (isSameDay(range.start, range.end)) {
+                            registro.imbativel = applyImbativel ? 1 : 0;
+                            if (applyImbativel) markers.add('imbativel');
+                            else markers.delete('imbativel');
+                        }
+
+                        payloadParaEnviar.push(registro);
+                        
+                        if (markers.size > 0) { dailyMarkers[dayString] = [...markers]; }
+                        else { delete dailyMarkers[dayString]; }
+                    }
+                }
+                
+                if(payloadParaEnviar.length > 0) {
+                     try {
+                        const response = await fetch('https://prod-126.westus.logic.azure.com:443/workflows/1457a62308f64bbabb597499c9bb4618/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=Kg5fzqa7buSQaV0TxVsvfeUbq-ICMobfxiQFRzbf1Wk', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payloadParaEnviar)
+                        });
+                        if (!response.ok) { throw new Error(`HTTP error! status: ${response.status}`); }
+                        showToast('Dados gravados com sucesso!');
+                    } catch (error) {
+                        showToast('Falha ao gravar os dados.', 'error');
+                        console.error("Falha ao gravar dados:", error);
+                    } finally {
+                        toggleButtonLoading(applyModalBtn, false, 'Aplicar');
+                    }
+                }
+
+                closeActionsModal();
+                renderDayGrid();
+            };
+            
+
+            // --- LÓGICA DO ASSISTENTE RCA ---
+            const openRcaWizard = () => {
+                rcaCurrentStep = 1;
+                rcaForm.reset();
+                rcaErrorSummary.classList.add('hidden');
+                rcaForm.querySelectorAll('.error-message').forEach(el => el.classList.add('hidden'));
+                rcaCriticoToggle.checked = false;
+                rcaServicoCriticoSection.classList.add('hidden');
+                updateRacionalImpactoOptions(null);
+                
+                const range = getOrderedDateRange();
+                if (range) {
+                    rcaWizardModal.dataset.startDate = toISODateString(range.start);
+                    rcaWizardModal.dataset.endDate = toISODateString(range.end);
+                    const dateOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
+                    document.getElementById('rca-inicio-date').textContent = range.start.toLocaleDateString('pt-BR', dateOptions);
+                    document.getElementById('rca-fim-date').textContent = range.end.toLocaleDateString('pt-BR', dateOptions);
+                    document.getElementById('rca-inicio-time').value = '';
+                    document.getElementById('rca-fim-time').value = '';
+                }
+
+                showRcaStep(rcaCurrentStep);
+                toggleModal(rcaWizardModal, true);
+            };
+
+            const closeRcaWizard = () => toggleModal(rcaWizardModal, false);
+            
+            const triggerAutoresize = () => {
+                rcaForm.querySelectorAll('textarea[data-autoresize]').forEach(textarea => {
+                    textarea.style.height = 'auto';
+                    textarea.style.height = `${textarea.scrollHeight}px`;
+                });
+            };
+
+            const showRcaStep = (step) => {
+                document.querySelectorAll('.rca-step').forEach(s => s.classList.add('hidden'));
+                const currentStepEl = document.getElementById(`rca-step-${step}`);
+                if (currentStepEl) currentStepEl.classList.remove('hidden');
+                
+                const stepIndicatorEl = rcaStepIndicator;
+                if (stepIndicatorEl) {
+                    const rcaCurrentStepSpan = stepIndicatorEl.querySelector('span');
+                    if (rcaCurrentStepSpan) rcaCurrentStepSpan.textContent = step;
+                }
+                
+                rcaPrevBtn.classList.toggle('hidden', step === 1);
+                rcaNextBtn.classList.toggle('hidden', step === 2);
+                rcaSaveBtn.classList.toggle('hidden', step !== 2);
+                if (step === 2) {
+                    triggerAutoresize();
+                }
+            };
+
+            const validateRcaStep = (step) => {
+                let isValid = true;
+                let errors = [];
+                const stepContainer = document.getElementById(`rca-step-${step}`);
+            
+                const toggleError = (input, show, message) => {
+                    const label = document.querySelector(`label[for="${input.id}"]`);
+                    // O container é o elemento pai da label, ou o div mais próximo se a label não existir (para os campos de tempo)
+                    const fieldContainer = label ? label.parentElement : input.closest('div');
+                    const errorMsg = fieldContainer.querySelector('.error-message');
+                    if (errorMsg) {
+                        errorMsg.textContent = message;
+                        errorMsg.classList.toggle('hidden', !show);
+                    }
+                };
+
+                stepContainer.querySelectorAll('input[required], select[required], textarea[required]').forEach(input => {
+                    if (!input.closest('.hidden') && !input.value) {
+                        isValid = false;
+                        const labelElement = document.querySelector(`label[for="${input.id}"]`);
+                        const label = labelElement ? labelElement.textContent.trim() : 'Este campo';
+                        const errorText = `${label.replace('*','')} é obrigatório.`;
+                        toggleError(input, true, errorText);
+                        errors.push(errorText);
+                    } else {
+                        toggleError(input, false, '');
+                    }
+                });
+
+                if (isValid && step === 1) { // Só executa validações de formato se os campos obrigatórios estiverem preenchidos
+                    const problemaNumInput = document.getElementById('rca-problema-num');
+                    if (problemaNumInput.value && !/^PRB\d{7}$/i.test(problemaNumInput.value)) { isValid = false; const msg = 'Formato inválido. Use PRB0123456.'; toggleError(problemaNumInput, true, msg); errors.push(msg); }
+                    
+                    const incidenteNumInput = document.getElementById('rca-incidente-num');
+                    if (incidenteNumInput.value && !/^INC\d{7}$/i.test(incidenteNumInput.value)) { isValid = false; const msg = 'Formato inválido. Use INC0123456.'; toggleError(incidenteNumInput, true, msg); errors.push(msg); }
+                    
+                    const impactoValue = parseFloat(rcaImpactoInput.value);
+                    if (rcaImpactoInput.value !== '' && (isNaN(impactoValue) || impactoValue < 0 || impactoValue > 100)) { isValid = false; const msg = 'Valor deve estar entre 0 e 100.'; toggleError(rcaImpactoInput, true, msg); errors.push(msg); }
+
+                    const startTimeStr = document.getElementById('rca-inicio-time').value;
+                    const endTimeStr = document.getElementById('rca-fim-time').value;
+                    if (startTimeStr && endTimeStr) {
+                         const inicio = new Date(`${rcaWizardModal.dataset.startDate}T${startTimeStr}`);
+                         const fim = new Date(`${rcaWizardModal.dataset.endDate}T${endTimeStr}`);
+                         if (fim < inicio) { isValid = false; const msg = 'A hora de fim não pode ser anterior à de início.'; toggleError(document.getElementById('rca-fim-time'), true, msg); errors.push(msg); }
+                    }
+                }
+
+                rcaErrorSummary.innerHTML = errors.map(e => `<p>- ${e}</p>`).join('');
+                rcaErrorSummary.classList.toggle('hidden', isValid);
+                
+                return isValid;
+            };
+
+            const handleRcaNext = () => { if (validateRcaStep(rcaCurrentStep)) { rcaCurrentStep++; showRcaStep(rcaCurrentStep); } };
+            const handleRcaPrev = () => { rcaCurrentStep--; showRcaStep(rcaCurrentStep); };
+            const handleRcaSave = async () => {
+                if (!validateRcaStep(2)) return;
+                
+                toggleButtonLoading(rcaSaveBtn, true, 'A gravar...');
+
+                const range = getOrderedDateRange(); if(!range) return;
+                
+                const categoria = categoriaSelect.value;
+                const responsavel = responsavelSelect.value;
+                const servico = servicoSelect.value;
+
+                const rcaData = {
+                    status: 867770000,
+                    imbativel: 0,
+                    area: categoria,
+                    componente: servico,
+                    inicio: `${rcaWizardModal.dataset.startDate}T${document.getElementById('rca-inicio-time').value}`,
+                    fim: `${rcaWizardModal.dataset.endDate}T${document.getElementById('rca-fim-time').value}`,
+                    problemaNum: document.getElementById('rca-problema-num').value,
+                    incidenteNum: document.getElementById('rca-incidente-num').value,
+                    impacto: rcaImpactoInput.value,
+                    racional: rcaRacionalSelect.value,
+                    critico: rcaCriticoToggle.checked,
+                    servicoCritico: rcaCriticoToggle.checked ? document.getElementById('rca-servico-critico').value : null,
+                    problemaDesc: document.getElementById('rca-problema-desc').value,
+                    causa: document.getElementById('rca-causa').value,
+                    resolucao: document.getElementById('rca-resolucao').value,
+                    registradoPor: currentUserName
+                };
+                
+                let payloadParaEnviar = [];
+                for (let day = new Date(range.start); day <= range.end; day.setDate(day.getDate() + 1)) {
+                    const dayString = toISODateString(day);
+                    const chave = `${categoria}#${servico}#${responsavel}#${dayString}`;
+                    const registro = { chave: chave, ...rcaData };
+                    payloadParaEnviar.push(registro);
+
+                    let markers = new Set(dailyMarkers[dayString] || []);
+                    markers.add('rca');
+                    markers.delete('sem_ocorrencia');
+                    dailyMarkers[dayString] = [...markers];
+                    rcaDataStore[dayString] = rcaData;
+                }
+                
+                 try {
+                    const response = await fetch('https://prod-126.westus.logic.azure.com:443/workflows/1457a62308f64bbabb597499c9bb4618/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=Kg5fzqa7buSQaV0TxVsvfeUbq-ICMobfxiQFRzbf1Wk', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payloadParaEnviar)
+                    });
+                     if (!response.ok) { throw new Error(`HTTP error! status: ${response.status}`); }
+                     showToast("RCA gravado com sucesso!");
+                } catch(error) {
+                    showToast("Falha ao gravar o RCA.", 'error');
+                    console.error("Falha ao gravar dados do RCA:", error);
+                } finally {
+                     toggleButtonLoading(rcaSaveBtn, false, 'Salvar RCA');
+                }
+
+                closeRcaWizard();
+                renderDayGrid();
+            };
+            
+            const updateRacionalImpactoOptions = (impacto) => {
+                rcaRacionalSelect.innerHTML = '';
+                let options = [ 'Impacto Geográfico', 'Duração da Indisponibilidade', 'Impacto sobre Transações', 'Intermitência e Performance Degradada', 'Criticidade do Serviço para a Operação', 'Volume de Chamados Associados' ];
+                
+                if (impacto === 0) {
+                    options = ['Sem impacto'];
+                }
+                
+                rcaRacionalSelect.appendChild(new Option('Selecione um racional...', ''));
+                options.forEach(opt => rcaRacionalSelect.appendChild(new Option(opt, opt)));
+                
+                if (impacto === 0) {
+                    rcaRacionalSelect.value = 'Sem impacto';
+                }
+            };
+
+            // --- LÓGICA DE EVENTOS ---
+            window.addEventListener('mouseup', () => { if(isDragging) { isDragging = false; openActionsModal(); }});
+            calendarGrid.addEventListener('mousedown', e => { const cell = e.target.closest('[data-date]'); if (!cell) return; isDragging = true; const date = new Date(cell.dataset.date + 'T00:00:00'); selectionStartDate = date; selectionEndDate = date; updateSelectionStyles(); });
+            calendarGrid.addEventListener('mouseover', e => { if (isDragging) { const cell = e.target.closest('[data-date]'); if (!cell) return; selectionEndDate = new Date(cell.dataset.date + 'T00:00:00'); updateSelectionStyles(); }});
+            applyModalBtn.addEventListener('click', handleApplyActions);
+            cancelModalBtn.addEventListener('click', closeActionsModal);
+            rcaNextBtn.addEventListener('click', handleRcaNext);
+            rcaPrevBtn.addEventListener('click', handleRcaPrev);
+            rcaSaveBtn.addEventListener('click', handleRcaSave);
+            rcaCancelBtn.addEventListener('click', closeRcaWizard);
+            
+            rcaImpactoInput.addEventListener('input', (e) => updateRacionalImpactoOptions(parseFloat(e.target.value)));
+
+            rcaCriticoToggle.addEventListener('change', async (e) => {
+                const isChecked = e.target.checked;
+                const servicoCriticoSelect = document.getElementById('rca-servico-critico');
+                rcaServicoCriticoSection.classList.toggle('hidden', !isChecked);
+                servicoCriticoSelect.required = isChecked;
+                if (!isChecked) {
+                     servicoCriticoSelect.innerHTML = '<option value="">Selecione um serviço...</option>';
+                     servicoCriticoSelect.value = '';
+                } else {
+                    servicoCriticoSelect.innerHTML = '<option value="">A carregar...</option>';
+                     try {
+                        const response = await fetch('https://prod-119.westus.logic.azure.com:443/workflows/d2e495e96af548acaa70318d74c07596/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=n4FxWDTe1al2x_30knYpYLxxjT1YmzqRUmEyoHF6oJ4', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({})
+                        });
+                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                        const data = await response.json();
+                        populateSelect(servicoCriticoSelect, data.value || [], 'cr9ff_itpf', 'Selecione um serviço crítico...');
+
+                     } catch (error) {
+                        console.error("Falha ao carregar serviços críticos:", error);
+                        servicoCriticoSelect.innerHTML = '<option value="">Erro ao carregar</option>';
+                     }
+                }
+            });
+
+            rcaForm.addEventListener('input', (e) => {
+                if (e.target.matches('[data-autoresize]')) {
+                    triggerAutoresize();
+                }
+            });
+
+            // --- FUNÇÕES UTILITÁRIAS E DE INICIALIZAÇÃO ---
+            const showToast = (message, type = 'success') => {
+                toastMessage.textContent = message;
+                toast.classList.remove('bg-green-500', 'bg-red-500');
+                if (type === 'success') {
+                    toast.classList.add('bg-green-500');
+                    toastIcon.innerHTML = `<i data-lucide="check-circle" class="h-5 w-5"></i>`;
+                } else {
+                    toast.classList.add('bg-red-500');
+                    toastIcon.innerHTML = `<i data-lucide="x-circle" class="h-5 w-5"></i>`;
+                }
+                lucide.createIcons();
+                toast.classList.remove('opacity-0', 'translate-y-2');
+                setTimeout(() => {
+                    toast.classList.add('opacity-0', 'translate-y-2');
+                }, 4000);
+            };
+
+            const toggleModal = (modal, show) => { if (show) { modal.classList.remove('hidden'); setTimeout(() => { modal.classList.add('opacity-100'); modal.querySelector('div:first-child').classList.remove('scale-95'); }, 10); } else { modal.classList.remove('opacity-100'); modal.querySelector('div:first-child').classList.add('scale-95'); setTimeout(() => modal.classList.add('hidden'), 300); }};
+            const toISODateString = (date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+            const isSameDay = (d1, d2) => d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate();
+            const getOrderedDateRange = () => { if (!selectionStartDate || !selectionEndDate) return null; const start = selectionStartDate < selectionEndDate ? selectionStartDate : selectionEndDate; const end = selectionStartDate > selectionEndDate ? selectionStartDate : selectionEndDate; return { start, end }; };
+            const isDayInRange = (day, start, end) => { if (!start || !end) return false; const range = getOrderedDateRange(); const d = new Date(day); d.setHours(0,0,0,0); return d >= range.start && d <= range.end; };
+            
+            const populateSelect = (selectElement, options, key, placeholder) => {
+                selectElement.innerHTML = `<option value="">${placeholder}</option>`;
+                const uniqueOptions = [...new Set(options.map(item => item[key]).filter(Boolean))];
+                uniqueOptions.sort();
+                uniqueOptions.forEach(optionText => {
+                   const option = document.createElement('option');
+                   option.value = optionText;
+                   option.textContent = optionText;
+                   selectElement.appendChild(option);
+               });
+           };
+
+            const updateDependentFilters = () => {
+                const selectedCategory = categoriaSelect.value;
+                const selectedResponsavel = responsavelSelect.value;
+                let filteredData = initialData;
+
+                if (selectedCategory) {
+                    filteredData = filteredData.filter(item => item.cr9ff_categoria === selectedCategory);
+                }
+                if(selectedResponsavel) {
+                    filteredData = filteredData.filter(item => item.cr9ff_responsavel === selectedResponsavel);
+                }
+                
+                populateSelect(servicoSelect, filteredData, 'cr9ff_servico', 'Todos os Serviços');
+
+                if(!selectedCategory) {
+                     populateSelect(responsavelSelect, initialData, 'cr9ff_responsavel', 'Todos os Responsáveis');
+                } else if (!selectedResponsavel) {
+                    populateSelect(responsavelSelect, initialData.filter(item => item.cr9ff_categoria === selectedCategory), 'cr9ff_responsavel', 'Todos os Responsáveis');
+                }
+                 checkInitialFilters();
+            };
+            
+            const checkInitialFilters = () => {
+                const isReady = categoriaSelect.value && responsavelSelect.value;
+                showCalendarBtn.disabled = !isReady;
+                initialFiltersError.classList.toggle('hidden', isReady);
+            };
+            
+            async function main() {
+                loadingIndicator.classList.remove('hidden');
+                mappingForm.classList.add('hidden');
+                
+                try {
+                    const Xrm = parent.Xrm;
+                    if (typeof Xrm !== "undefined" && Xrm.Utility) {
+                        currentUserName = Xrm.Utility.getGlobalContext().userSettings.userName;
+                    } else {
+                        currentUserName = "Utilizador Desconhecido";
+                    }
+                } catch(e) {
+                    console.warn("Não foi possível obter o contexto do Power Apps. Usando utilizador padrão.");
+                    currentUserName = "Utilizador Desconhecido";
+                }
+
+                try {
+                    const response = await fetch('https://prod-96.westus.logic.azure.com:443/workflows/0fa3bd3693404e0784ac54c5384ffce6/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=RZJjoPihCDjQogYqzHJLRBoQeOxGprDNjyWZxR8DJZM', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({})
+                    });
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    
+                    const data = await response.json();
+                    initialData = data.value || []; 
+
+                    populateSelect(categoriaSelect, initialData, 'cr9ff_categoria', 'Todas as Categorias');
+                    updateDependentFilters();
+
+                } catch (error) {
+                    console.error("Falha ao carregar dados iniciais:", error);
+                    loadingIndicator.innerHTML = '<p class="text-red-500 text-center">Falha ao carregar dados. Por favor, tente novamente mais tarde.</p>';
+                    return;
+                }
+
+                loadingIndicator.classList.add('hidden');
+                mappingForm.classList.remove('hidden');
+                lucide.createIcons();
+            }
+
+            const initializeCalendar = () => { 
+                const theme = localStorage.getItem('calendarTheme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); 
+                applyTheme(theme); 
+                renderCalendar(); 
+                renderLegend();
+                fetchAndDisplayMonthData();
+            };
+
+            const toggleButtonLoading = (button, isLoading, loadingText, originalText) => {
+                button.disabled = isLoading;
+                if(isLoading){
+                    button.dataset.originalText = button.innerHTML;
+                    button.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span>${loadingText}</span>`;
+                } else {
+                    button.innerHTML = originalText || button.dataset.originalText;
+                }
+            };
+
+            const fetchAndDisplayMonthData = async () => {
+                calendarLoadingOverlay.classList.remove('hidden');
+
+                const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+                const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+
+                const payload = {
+                    startDate: toISODateString(firstDay),
+                    endDate: toISODateString(lastDay),
+                    categoria: categoriaSelect.value,
+                    responsavel: responsavelSelect.value,
+                    servico: servicoSelect.value,
+                };
+                
+                try {
+                    const response = await fetch('https://prod-13.westus.logic.azure.com:443/workflows/99be8b0c613047a498ac7f9b2bcfe2ca/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=DOoibAcjA_KJM0_kv2pkiM33ajFy7HsvJG2Ih8zNdGs', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+                    
+                    const data = await response.json();
+                    dailyMarkers = {}; // Limpa os marcadores existentes
+                    (data || []).forEach(record => {
+                        const date = record.cr9ff_data;
+                        if(!dailyMarkers[date]) dailyMarkers[date] = new Set();
+
+                        if (record.cr9ff_validacao === 867770000) dailyMarkers[date].add('rca');
+                        if (record.cr9ff_validacao === 867770001) dailyMarkers[date].add('sem_ocorrencia');
+                        if (record.cr9ff_imbativel) dailyMarkers[date].add('imbativel');
+                    });
+                     // Converte Sets para Arrays para o resto da aplicação
+                    Object.keys(dailyMarkers).forEach(key => {
+                        dailyMarkers[key] = [...dailyMarkers[key]];
+                    });
+
+                } catch (error) {
+                    console.error("Falha ao carregar dados de eventos:", error);
+                    showToast("Falha ao carregar eventos do mês.", "error");
+                } finally {
+                    calendarLoadingOverlay.classList.add('hidden');
+                    renderCalendar(); // Corrigido para redesenhar o calendário completo
+                }
+            };
+            
+            showCalendarBtn.addEventListener('click', () => {
+                if(showCalendarBtn.disabled) return;
+                initialMappingScreen.classList.add('hidden');
+                calendarContainer.classList.remove('hidden');
+                activeFiltersContainer.classList.remove('hidden');
+
+                filterTags.innerHTML = '';
+                const filters = {
+                    'Categoria': categoriaSelect.value,
+                    'Responsável': responsavelSelect.value,
+                    'Serviço': servicoSelect.value
+                };
+
+                const userTag = document.createElement('span');
+                userTag.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+                userTag.innerHTML = `<i data-lucide="user-circle" class="h-4 w-4 mr-1.5"></i>${currentUserName}`;
+                filterTags.appendChild(userTag);
+                lucide.createIcons();
+
+                Object.entries(filters).forEach(([key, value]) => {
+                    if(value) {
+                        const tag = document.createElement('span');
+                        tag.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
+                        tag.textContent = `${key}: ${value}`;
+                        filterTags.appendChild(tag);
+                    }
+                });
+
+                initializeCalendar();
+            });
+            
+            categoriaSelect.addEventListener('change', updateDependentFilters);
+            responsavelSelect.addEventListener('change', updateDependentFilters);
+
+            changeFiltersBtn.addEventListener('click', () => {
+                 initialMappingScreen.classList.remove('hidden');
+                 calendarContainer.classList.add('hidden');
+                 activeFiltersContainer.classList.add('hidden');
+            });
+
+
+            const applyTheme = (theme) => { if (theme === 'dark') document.documentElement.classList.add('dark'); else document.documentElement.classList.remove('dark'); localStorage.setItem('calendarTheme', theme); updateThemeIcon(); };
+            const updateThemeIcon = () => { const isDark = document.documentElement.classList.contains('dark'); themeIcon.setAttribute('data-lucide', isDark ? 'moon' : 'sun'); lucide.createIcons(); };
+            
+            // --- EVENTOS DE NAVEGAÇÃO DO CALENDÁRIO ---
+            prevMonthBtn.addEventListener('click', () => { currentDate.setMonth(currentDate.getMonth() - 1); fetchAndDisplayMonthData(); });
+            nextMonthBtn.addEventListener('click', () => { currentDate.setMonth(currentDate.getMonth() + 1); fetchAndDisplayMonthData(); });
+            todayBtn.addEventListener('click', () => { currentDate = new Date(); selectionStartDate = new Date(); selectionStartDate.setHours(0,0,0,0); selectionEndDate = selectionStartDate; currentView = 'days'; fetchAndDisplayMonthData(); });
+            monthYearTitle.addEventListener('click', () => { if (currentView === 'days') currentView = 'months'; else if (currentView === 'months') currentView = 'years'; else if (currentView === 'years') currentView = 'days'; renderCalendar(); });
+            themeToggleBtn.addEventListener('click', () => { const isDark = document.documentElement.classList.contains('dark'); applyTheme(isDark ? 'light' : 'dark'); });
+            prevYearChunkBtn.addEventListener('click', () => { yearViewStart -= 12; renderYearView(); updateTitle(); });
+            nextYearChunkBtn.addEventListener('click', () => { yearViewStart += 12; renderYearView(); updateTitle(); });
+            
+            main();
         });
-      }
-
-      // Funções renderCurrentMonthKPIs, processRcaDataForCharts, renderVolumetricCharts, etc.
-      // Sem alterações, copie do seu código original.
-
-      // fetchFromApi(), fetchAndRenderAll(), initialize() – tudo tal qual
-
-      // Inicia tudo
-      initialize();
-    });
-  </script>
+    </script>
 </body>
 </html>
