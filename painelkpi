@@ -101,17 +101,21 @@
             <div>
                 <h1 class="text-3xl font-bold text-gray-800 dark:text-white">Painel de Indicadores de Operações</h1>
                 <div class="flex items-center space-x-2 mt-2">
-                    <button id="prev-month-btn" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"><i data-lucide="chevron-left" class="h-5 w-5 text-gray-600 dark:text-gray-400"></i></button>
-                    <h2 id="month-year-title" class="text-xl font-semibold text-blue-600 dark:text-blue-400 cursor-pointer"></h2>
-                    <button id="next-month-btn" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"><i data-lucide="chevron-right" class="h-5 w-5 text-gray-600 dark:text-gray-400"></i></button>
+                    <button id="prev-month-btn" type="button" aria-label="Mês anterior" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+                        <i data-lucide="chevron-left" class="h-5 w-5 text-gray-600 dark:text-gray-400" aria-hidden="true"></i>
+                    </button>
+                    <button id="month-year-title" type="button" aria-label="Selecionar mês e ano" class="text-xl font-semibold text-blue-600 dark:text-blue-400 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"></button>
+                    <button id="next-month-btn" type="button" aria-label="Próximo mês" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+                        <i data-lucide="chevron-right" class="h-5 w-5 text-gray-600 dark:text-gray-400" aria-hidden="true"></i>
+                    </button>
                 </div>
             </div>
             <div class="flex flex-wrap items-center gap-2">
                 <select id="kpi-categoria-select" class="form-input w-48"><option value="">Todas as Categorias</option></select>
                 <select id="kpi-responsavel-select" class="form-input w-48"><option value="">Todos os Responsáveis</option></select>
                 <select id="kpi-servico-select" class="form-input w-48"><option value="">Todos os Serviços</option></select>
-                <button id="theme-toggle-btn" class="p-2 rounded-lg bg-white dark:bg-gray-800 shadow-md">
-                    <i id="theme-icon" data-lucide="sun" class="h-5 w-5 text-gray-600 dark:text-gray-400"></i>
+                <button id="theme-toggle-btn" type="button" aria-label="Alternar tema" class="p-2 rounded-lg bg-white dark:bg-gray-800 shadow-md">
+                    <i id="theme-icon" data-lucide="sun" class="h-5 w-5 text-gray-600 dark:text-gray-400" aria-hidden="true"></i>
                 </button>
             </div>
              <!-- Month and Year Picker -->
@@ -165,7 +169,7 @@
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 max-w-md w-full">
                 <h3 id="calendar-modal-title" class="text-lg font-semibold text-gray-800 dark:text-white mb-2"></h3>
                 <div id="calendar-modal-content" class="space-y-2 max-h-96 overflow-y-auto"></div>
-                <button id="calendar-modal-close" class="mt-4 px-4 py-2 rounded-lg bg-blue-500 text-white">Fechar</button>
+                <button id="calendar-modal-close" type="button" aria-label="Fechar modal" class="mt-4 px-4 py-2 rounded-lg bg-blue-500 text-white">Fechar</button>
             </div>
         </div>
 
@@ -175,28 +179,28 @@
             <div class="kpi-card !p-4">
                 <div id="category-chart-skeleton" class="skeleton h-64 w-full"></div>
                 <div id="category-chart-content" class="hidden h-64 flex flex-col items-center justify-center">
-                    <canvas id="kpiCategoryChart" class="w-full h-full"></canvas>
+                    <canvas id="kpiCategoryChart" class="w-full h-full" role="img" aria-label="Gráfico de ocorrências por categoria"></canvas>
                 </div>
             </div>
             <!-- Chart for Ocorrências by Responsible -->
             <div class="kpi-card !p-4">
                 <div id="responsible-chart-skeleton" class="skeleton h-64 w-full"></div>
                 <div id="responsible-chart-content" class="hidden h-64 flex flex-col items-center justify-center">
-                    <canvas id="kpiResponsibleChart" class="w-full h-full"></canvas>
+                    <canvas id="kpiResponsibleChart" class="w-full h-full" role="img" aria-label="Gráfico de ocorrências por responsável"></canvas>
                 </div>
             </div>
             <!-- Chart for Ocorrências by Service -->
             <div class="kpi-card !p-4">
                 <div id="service-chart-skeleton" class="skeleton h-64 w-full"></div>
                 <div id="service-chart-content" class="hidden h-64 flex flex-col items-center justify-center">
-                    <canvas id="kpiServiceChart" class="w-full h-full"></canvas>
+                    <canvas id="kpiServiceChart" class="w-full h-full" role="img" aria-label="Gráfico de ocorrências por serviço"></canvas>
                 </div>
             </div>
             <!-- Chart for Critical Ocorrências by Service -->
             <div class="kpi-card !p-4"> 
                 <div id="critical-service-chart-skeleton" class="skeleton h-64 w-full"></div>
                 <div id="critical-service-chart-content" class="hidden h-64 flex flex-col items-center justify-center">
-                    <canvas id="kpiCriticalServiceChart" class="w-full h-full"></canvas>
+                    <canvas id="kpiCriticalServiceChart" class="w-full h-full" role="img" aria-label="Gráfico de ocorrências críticas por serviço"></canvas>
                 </div>
             </div>
         </div>
@@ -216,12 +220,12 @@
                 </div>
             </div>
             <div class="flex justify-between items-center mt-6">
-                <button id="prev-card-btn" class="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
-                    <i data-lucide="arrow-left" class="h-5 w-5 inline-block align-middle mr-2"></i> Anterior
+                <button id="prev-card-btn" type="button" aria-label="Página anterior" class="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i data-lucide="arrow-left" class="h-5 w-5 inline-block align-middle mr-2" aria-hidden="true"></i> Anterior
                 </button>
                 <span id="card-pagination-info" class="text-gray-600 dark:text-gray-400 font-medium"></span>
-                <button id="next-card-btn" class="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
-                    Próximo <i data-lucide="arrow-right" class="h-5 w-5 inline-block align-middle ml-2"></i>
+                <button id="next-card-btn" type="button" aria-label="Próxima página" class="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                    Próximo <i data-lucide="arrow-right" class="h-5 w-5 inline-block align-middle ml-2" aria-hidden="true"></i>
                 </button>
             </div>
         </div>
@@ -348,23 +352,23 @@
             const toggleLoadingSkeletons = (show) => {
                  const contentElements = document.querySelectorAll('[id$="-content"]');
                  const skeletonElements = document.querySelectorAll('[id$="-skeleton"]');
-                 
-                 contentElements.forEach(el => el.style.display = show ? 'none' : 'block');
-                 skeletonElements.forEach(el => el.style.display = show ? 'block' : 'none');
+                
+                contentElements.forEach(el => el.style.display = show ? 'none' : 'block');
+                skeletonElements.forEach(el => el.style.display = show ? 'block' : 'none');
 
-                 // Special handling for chart content display
-                 document.querySelectorAll('#volumetric-charts [id$="-content"]').forEach(el => {
-                     el.style.display = show ? 'none' : 'flex';
-                 });
-                 
-                 // Special handling for incident card skeletons
-                 incidentCardsSkeleton.style.display = show ? 'grid' : 'none';
-                 incidentCardsContainer.classList.toggle('min-h-[300px]', show);
+                // Special handling for chart content display
+                document.querySelectorAll('#volumetric-charts [id$="-content"]').forEach(el => {
+                    el.style.display = show ? 'none' : 'flex';
+                });
+                
+                // Special handling for incident card skeletons
+                incidentCardsSkeleton.style.display = show ? 'grid' : 'none';
+                incidentCardsContainer.classList.toggle('min-h-[300px]', show);
 
-                 // Hide pagination during load
-                 prevCardBtn.style.display = show ? 'none' : 'inline-flex';
-                 nextCardBtn.style.display = show ? 'none' : 'inline-flex';
-                 cardPaginationInfo.style.display = show ? 'none' : 'inline-block';
+                // Hide pagination during load
+                prevCardBtn.style.display = show ? 'none' : 'inline-flex';
+                nextCardBtn.style.display = show ? 'none' : 'inline-flex';
+                cardPaginationInfo.style.display = show ? 'none' : 'inline-block';
             };
 
             // Generic function to fetch data from an API
@@ -437,13 +441,14 @@
                 });
 
                 const totalServicesInScope = currentServicesInScope.length > 0 ? currentServicesInScope.length : 1;
-                const criticalServicesInScope = currentServicesInScope.filter(s => criticalServicesList.includes(s));
-                
+
                 const totalUniverseSeconds = totalSecondsInMonth * totalServicesInScope;
-                const criticalUniverseSeconds = totalSecondsInMonth * (criticalServicesInScope.length > 0 ? criticalServicesInScope.length : 1);
 
                 const disponibilidade = totalUniverseSeconds > 0 ? Math.max(0, 100 - (totalDowntimeSeconds / totalUniverseSeconds) * 100) : 100;
-                const disponibilidadeCritica = criticalUniverseSeconds > 0 ? Math.max(0, 100 - (criticalDowntimeSeconds / criticalUniverseSeconds) * 100) : 100;
+
+                // Disponibilidade crítica segue o mesmo cálculo da geral, mas
+                // considera apenas ocorrências com serviço crítico mencionado.
+                const disponibilidadeCritica = totalUniverseSeconds > 0 ? Math.max(0, 100 - (criticalDowntimeSeconds / totalUniverseSeconds) * 100) : 100;
 
                 const mttrInMinutes = resolvedRCACount > 0 ? (totalResolvedTimeInSeconds / resolvedRCACount) / 60 : 0;
                 const totalIncidents = rcaEvents.length;
@@ -711,7 +716,8 @@
 
                 const incidentsByDay = {};
                 filteredRcaEvents.forEach(ev => {
-                    const d = new Date(ev.cr9ff_horadeinicio);
+                    if (!ev.cr9ff_data) return; 
+                    const d = new Date(ev.cr9ff_data + 'T00:00:00'); 
                     if (d.getFullYear() === year && d.getMonth() === month) {
                         const day = d.getDate();
                         if (!incidentsByDay[day]) incidentsByDay[day] = [];
@@ -745,7 +751,8 @@
             // Displays incidents for a selected day in a modal - NEW
             const showDayDetails = (dateStr, events) => {
                 if (!calendarModal) return;
-                calendarModalTitle.textContent = new Date(dateStr).toLocaleDateString('pt-BR');
+                const displayDate = new Date(dateStr);
+                calendarModalTitle.textContent = displayDate.toLocaleDateString('pt-BR', { timeZone: 'UTC' });
                 calendarModalContent.innerHTML = '';
 
                 if (events.length === 0) {
@@ -757,12 +764,16 @@
                     events.forEach(ev => {
                         const item = document.createElement('div');
                         item.className = 'border-b pb-2 last:border-b-0 text-sm';
+
                         const inicio = new Date(ev.cr9ff_horadeinicio);
-                        const time = isNaN(inicio) ? 'N/A' : inicio.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+                        const fim = new Date(ev.cr9ff_horadefim);
+                        const startTime = isNaN(inicio) ? 'N/A' : inicio.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+                        const endTime = isNaN(fim) ? 'N/A' : fim.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+
                         const servico = ev.cr9ff_servio || 'N/A';
                         const problema = ev.cr9ff_problema || 'N/A';
                         item.innerHTML = `
-                            <div class="text-gray-600 dark:text-gray-400">${time}</div>
+                            <div class="text-gray-600 dark:text-gray-400">${startTime} - ${endTime}</div>
                             <div class="text-gray-800 dark:text-white font-medium">${servico}</div>
                             <div class="text-gray-700 dark:text-gray-300">${problema}</div>
                         `;
@@ -783,8 +794,18 @@
                 updateTitle();
 
                 try {
-                    allMonthData = await fetchKPIs(currentDate.getFullYear(), currentDate.getMonth());
+                    const rawMonthData = await fetchKPIs(currentDate.getFullYear(), currentDate.getMonth());
                     
+                    // Deduplicate events based on a unique key
+                    const uniqueEventsMap = new Map();
+                    rawMonthData.forEach(event => {
+                        const key = event['@odata.id'] || `${event.cr9ff_horadeinicio}-${event.cr9ff_servio}-${event.cr9ff_problema}`;
+                        if (!uniqueEventsMap.has(key)) {
+                           uniqueEventsMap.set(key, event);
+                        }
+                    });
+                    allMonthData = Array.from(uniqueEventsMap.values());
+
                     filteredRcaEvents = allMonthData.filter(event => 
                         event.cr9ff_validacao === 867770000 && 
                         (!kpiCategoriaSelect.value || event.cr9ff_categoria === kpiCategoriaSelect.value) &&
