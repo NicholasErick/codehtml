@@ -92,8 +92,15 @@
             margin-top: 0.25rem;
         }
     </style>
+
 </head>
 <body class="dark:bg-gray-900">
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white bg-opacity-75 dark:bg-gray-900 dark:bg-opacity-75 hidden">
+        <div class="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+        <p class="mt-4 text-gray-700 dark:text-gray-300 font-semibold">Carregando...</p>
+    </div>
 
     <div class="p-4 md:p-8 max-w-7xl mx-auto space-y-8">
         <!-- Header and Filters -->
@@ -246,6 +253,8 @@
             const prevMonthBtn = document.getElementById('prev-month-btn');
             const nextMonthBtn = document.getElementById('next-month-btn');
 
+            const loadingOverlay = document.getElementById('loading-overlay');
+
             // Chart-specific skeleton/content elements
             const categoryChartSkeleton = document.getElementById('category-chart-skeleton');
             const categoryChartContent = document.getElementById('category-chart-content');
@@ -350,8 +359,8 @@
             // --- LOADING AND RENDERING FUNCTIONS ---
             // Toggles the visibility of skeleton loaders and actual content
             const toggleLoadingSkeletons = (show) => {
-                 const contentElements = document.querySelectorAll('[id$="-content"]');
-                 const skeletonElements = document.querySelectorAll('[id$="-skeleton"]');
+                const contentElements = document.querySelectorAll('[id$="-content"]');
+                const skeletonElements = document.querySelectorAll('[id$="-skeleton"]');
                 
                 contentElements.forEach(el => el.style.display = show ? 'none' : 'block');
                 skeletonElements.forEach(el => el.style.display = show ? 'block' : 'none');
@@ -360,6 +369,8 @@
                 document.querySelectorAll('#volumetric-charts [id$="-content"]').forEach(el => {
                     el.style.display = show ? 'none' : 'flex';
                 });
+
+                loadingOverlay.classList.toggle('hidden', !show);
                 
                 // Special handling for incident card skeletons
                 incidentCardsSkeleton.style.display = show ? 'grid' : 'none';
@@ -719,7 +730,7 @@
                     if (!ev.cr9ff_data) return; 
                     const d = new Date(ev.cr9ff_data + 'T00:00:00'); 
                     if (d.getFullYear() === year && d.getMonth() === month) {
-                        const day = d.getDate();
+                        const day = d.getUTCDate();
                         if (!incidentsByDay[day]) incidentsByDay[day] = [];
                         incidentsByDay[day].push(ev);
                     }
@@ -751,7 +762,8 @@
             // Displays incidents for a selected day in a modal - NEW
             const showDayDetails = (dateStr, events) => {
                 if (!calendarModal) return;
-                const displayDate = new Date(dateStr);
+                const [year, month, day] = dateStr.split('-').map(Number);
+                const displayDate = new Date(Date.UTC(year, month - 1, day));
                 calendarModalTitle.textContent = displayDate.toLocaleDateString('pt-BR', { timeZone: 'UTC' });
                 calendarModalContent.innerHTML = '';
 
@@ -858,6 +870,7 @@
 
             // --- INITIALIZATION ---
             const initialize = async () => {
+                loadingOverlay.classList.remove('hidden');
                 const savedTheme = localStorage.getItem('kpiTheme');
                 const systemTheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
                 applyTheme(savedTheme || systemTheme);
