@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel de Indicadores de TI</title>
-    
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         // Tailwind CSS configuration for dark mode
@@ -31,21 +31,20 @@
         .kpi-card {
             @apply bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
         }
-        
+
         /* Skeleton loading animation styles */
         .skeleton {
             @apply bg-gray-200 dark:bg-gray-700 rounded-md animate-pulse;
         }
         /* Form input styles */
-        .form-input { 
-            @apply w-full px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:focus:ring-blue-500; 
+        .form-input {
+            @apply w-full px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:focus:ring-blue-500;
         }
-
+        
         /* Styles for the month picker, positioning relative to the title */
         #month-year-picker {
             top: calc(100% + 10px); /* Position below the header */
             left: 0;
-            /* Adjust positioning further with JS if needed, or based on parent container */
         }
 
         /* Incident Card specific styles */
@@ -62,12 +61,42 @@
         .incident-card.critical .incident-title {
             @apply text-yellow-800 dark:text-yellow-200;
         }
+        .incident-title {
+             @apply text-lg font-bold text-gray-900 dark:text-white;
+        }
+
+        /* Calendar styles */
+        #calendar {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            gap: 0.5rem;
+        }
+        .calendar-cell {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+            text-align: center;
+            border: 1px solid rgb(229 231 235);
+            border-radius: 0.5rem;
+            cursor: pointer;
+        }
+        .dark .calendar-cell {
+            border-color: rgb(55 65 81);
+        }
+        .calendar-dot {
+            width: 0.5rem;
+            height: 0.5rem;
+            border-radius: 9999px;
+            margin-top: 0.25rem;
+        }
     </style>
 </head>
 <body class="dark:bg-gray-900">
 
     <div class="p-4 md:p-8 max-w-7xl mx-auto space-y-8">
-        <!-- Cabeçalho e Filtros -->
+        <!-- Header and Filters -->
         <header class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0 relative">
             <div>
                 <h1 class="text-3xl font-bold text-gray-800 dark:text-white">Painel de Indicadores de Operações</h1>
@@ -85,13 +114,12 @@
                     <i id="theme-icon" data-lucide="sun" class="h-5 w-5 text-gray-600 dark:text-gray-400"></i>
                 </button>
             </div>
+             <!-- Month and Year Picker -->
+            <div id="month-year-picker" class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 hidden absolute z-10 top-full mt-2">
+                <div id="month-view" class="grid grid-cols-3 md:grid-cols-4 gap-2"></div>
+            </div>
         </header>
         
-        <!-- Month and Year Picker -->
-        <div id="month-year-picker" class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 hidden absolute z-10">
-            <div id="month-view" class="grid grid-cols-3 md:grid-cols-4 gap-2"></div>
-        </div>
-
         <!-- KPI Scorecards Section -->
         <div id="kpi-scorecards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <div class="kpi-card">
@@ -125,45 +153,61 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Calendar Section - NEW -->
+        <div class="kpi-card !p-4">
+            <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Calendário de Ocorrências</h2>
+            <div id="calendar"></div>
+        </div>
+
+        <!-- Modal for Calendar Day - NEW -->
+        <div id="calendar-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-20">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 max-w-md w-full">
+                <h3 id="calendar-modal-title" class="text-lg font-semibold text-gray-800 dark:text-white mb-2"></h3>
+                <div id="calendar-modal-content" class="space-y-2 max-h-96 overflow-y-auto"></div>
+                <button id="calendar-modal-close" class="mt-4 px-4 py-2 rounded-lg bg-blue-500 text-white">Fechar</button>
+            </div>
+        </div>
 
         <!-- Volumetric Charts Section -->
-        <div id="volumetric-charts" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div id="volumetric-charts" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
             <!-- Chart for Ocorrências by Category -->
             <div class="kpi-card !p-4">
                 <div id="category-chart-skeleton" class="skeleton h-64 w-full"></div>
-                <div id="category-chart-content" class="hidden h-full flex flex-col items-center justify-center">
+                <div id="category-chart-content" class="hidden h-64 flex flex-col items-center justify-center">
                     <canvas id="kpiCategoryChart" class="w-full h-full"></canvas>
                 </div>
             </div>
             <!-- Chart for Ocorrências by Responsible -->
             <div class="kpi-card !p-4">
                 <div id="responsible-chart-skeleton" class="skeleton h-64 w-full"></div>
-                <div id="responsible-chart-content" class="hidden h-full flex flex-col items-center justify-center">
+                <div id="responsible-chart-content" class="hidden h-64 flex flex-col items-center justify-center">
                     <canvas id="kpiResponsibleChart" class="w-full h-full"></canvas>
                 </div>
             </div>
             <!-- Chart for Ocorrências by Service -->
             <div class="kpi-card !p-4">
                 <div id="service-chart-skeleton" class="skeleton h-64 w-full"></div>
-                <div id="service-chart-content" class="hidden h-full flex flex-col items-center justify-center">
+                <div id="service-chart-content" class="hidden h-64 flex flex-col items-center justify-center">
                     <canvas id="kpiServiceChart" class="w-full h-full"></canvas>
                 </div>
             </div>
             <!-- Chart for Critical Ocorrências by Service -->
             <div class="kpi-card !p-4"> 
                 <div id="critical-service-chart-skeleton" class="skeleton h-64 w-full"></div>
-                <div id="critical-service-chart-content" class="hidden h-full flex flex-col items-center justify-center">
+                <div id="critical-service-chart-content" class="hidden h-64 flex flex-col items-center justify-center">
                     <canvas id="kpiCriticalServiceChart" class="w-full h-full"></canvas>
                 </div>
             </div>
         </div>
 
-        <!-- Incident Cards Section - NEW -->
+        <!-- Incident Cards Section -->
         <div class="kpi-card !p-4">
             <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Detalhes das Ocorrências Resolvidas</h2>
             <div id="incident-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 min-h-[300px]">
                 <!-- Incident cards will be injected here -->
                 <div id="incident-cards-skeleton" class="col-span-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="skeleton h-48"></div>
                     <div class="skeleton h-48"></div>
                     <div class="skeleton h-48"></div>
                     <div class="skeleton h-48"></div>
@@ -185,19 +229,19 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            
+
             // --- DOM ELEMENTS ---
             const themeToggleBtn = document.getElementById('theme-toggle-btn');
             const themeIcon = document.getElementById('theme-icon');
             const monthYearTitle = document.getElementById('month-year-title');
             const kpiCategoriaSelect = document.getElementById('kpi-categoria-select');
             const kpiResponsavelSelect = document.getElementById('kpi-responsavel-select');
-            const kpiServicoSelect = document.getElementById('kpi-servico-select'); 
+            const kpiServicoSelect = document.getElementById('kpi-servico-select');
             const monthYearPicker = document.getElementById('month-year-picker');
             const monthView = document.getElementById('month-view');
             const prevMonthBtn = document.getElementById('prev-month-btn');
             const nextMonthBtn = document.getElementById('next-month-btn');
-            
+
             // Chart-specific skeleton/content elements
             const categoryChartSkeleton = document.getElementById('category-chart-skeleton');
             const categoryChartContent = document.getElementById('category-chart-content');
@@ -205,51 +249,58 @@
             const responsibleChartContent = document.getElementById('responsible-chart-content');
             const serviceChartSkeleton = document.getElementById('service-chart-skeleton');
             const serviceChartContent = document.getElementById('service-chart-content');
-            const criticalServiceChartSkeleton = document.getElementById('critical-service-chart-skeleton'); 
-            const criticalServiceChartContent = document.getElementById('critical-service-chart-content'); 
+            const criticalServiceChartSkeleton = document.getElementById('critical-service-chart-skeleton');
+            const criticalServiceChartContent = document.getElementById('critical-service-chart-content');
 
-            // Incident Cards elements - NEW
+            // Incident Cards elements
             const incidentCardsContainer = document.getElementById('incident-cards-container');
             const incidentCardsSkeleton = document.getElementById('incident-cards-skeleton');
             const prevCardBtn = document.getElementById('prev-card-btn');
             const nextCardBtn = document.getElementById('next-card-btn');
             const cardPaginationInfo = document.getElementById('card-pagination-info');
 
+            // Calendar elements - NEW
+            const calendarContainer = document.getElementById('calendar');
+            const calendarModal = document.getElementById('calendar-modal');
+            const calendarModalTitle = document.getElementById('calendar-modal-title');
+            const calendarModalContent = document.getElementById('calendar-modal-content');
+            const calendarModalClose = document.getElementById('calendar-modal-close');
 
-            // --- ESTADO INICIAL ---
-            let initialFilterData = []; 
-            let criticalServicesList = []; 
-            let allMonthData = []; 
+            // --- INITIAL STATE ---
+            let initialFilterData = [];
+            let criticalServicesList = [];
+            let allMonthData = [];
             let filteredRcaEvents = []; // Stores the RCA events AFTER applying all current filters for card display
             let currentCardPageIndex = 0; // Current starting index for incident cards pagination
-            const cardsPerPage = 5; // Number of cards to display per page
+            const cardsPerPage = 6; // Number of cards to display per page
 
-            let currentDate = new Date(); 
+            let currentDate = new Date();
             const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-            
+
             // Chart.js instances for volumetric charts
             let kpiCategoryChartInstance = null;
             let kpiResponsibleChartInstance = null;
             let kpiServiceChartInstance = null;
-            let kpiCriticalServiceChartInstance = null; 
+            let kpiCriticalServiceChartInstance = null;
 
             // API URLs for fetching data
             const kpiHttpUrl = 'https://prod-61.westus.logic.azure.com:443/workflows/5353facb01f74219ade9ef7013603f32/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=xSIqkZsmKMKrsLcMINO9LzKZ-UQG77ZrTLxxNB2vcNQ';
             const filtersHttpUrl = 'https://prod-96.westus.logic.azure.com:443/workflows/0fa3bd3693404e0784ac54c5384ffce6/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=RZJjoPihCDjQogYqzHJLRBoQeOxGprDNjyWZxR8DJZM';
             const criticalServicesHttpUrl = 'https://prod-119.westus.logic.azure.com:443/workflows/d2e495e96af548acaa70318d74c07596/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=n4FxWDTe1al2x_30knYpYLxxjT1YmzqRUmEyoHF6oJ4';
 
-            // --- LÓGICA DE TEMA (DARK/LIGHT) ---
+            // --- THEME LOGIC (DARK/LIGHT) ---
             const applyTheme = (theme) => {
                 if (theme === 'dark') document.documentElement.classList.add('dark');
                 else document.documentElement.classList.remove('dark');
                 localStorage.setItem('kpiTheme', theme);
-                updateThemeIcon(); 
-                if (allMonthData.length > 0) { 
-                    const rcaEvents = allMonthData.filter(event => 
+                updateThemeIcon();
+                // Re-render charts with correct theme colors
+                if (allMonthData.length > 0) {
+                    const rcaEvents = allMonthData.filter(event =>
                         event.cr9ff_validacao === 867770000 &&
                         (!kpiCategoriaSelect.value || event.cr9ff_categoria === kpiCategoriaSelect.value) &&
-                        (!kpiResponsavelSelect.value || event.cr9ff_responsvel === kpiResponsavelSelect.value) && 
-                        (!kpiServicoSelect.value || event.cr9ff_servio === kpiServicoSelect.value) 
+                        (!kpiResponsavelSelect.value || event.cr9ff_responsvel === kpiResponsavelSelect.value) &&
+                        (!kpiServicoSelect.value || event.cr9ff_servio === kpiServicoSelect.value)
                     );
                     const chartData = processRcaDataForCharts(rcaEvents);
                     renderVolumetricCharts(chartData);
@@ -259,7 +310,7 @@
             const updateThemeIcon = () => {
                 const isDark = document.documentElement.classList.contains('dark');
                 themeIcon.setAttribute('data-lucide', isDark ? 'moon' : 'sun');
-                if (window.lucide) lucide.createIcons(); 
+                if (window.lucide) lucide.createIcons();
             };
 
             // Event listener for theme toggle button
@@ -267,15 +318,15 @@
                 const isDark = document.documentElement.classList.contains('dark');
                 applyTheme(isDark ? 'light' : 'dark');
             });
-            
+
             // Updates the month/year title display
             const updateTitle = () => {
                 monthYearTitle.textContent = `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
             };
-            
+
             // Renders the month picker UI
             const renderMonthPicker = () => {
-                monthView.innerHTML = ''; 
+                monthView.innerHTML = '';
                 monthNames.forEach((name, index) => {
                     const monthCell = document.createElement('div');
                     monthCell.textContent = name;
@@ -284,53 +335,44 @@
                         monthCell.classList.add('bg-blue-500', 'text-white', 'font-semibold');
                     }
                     monthCell.addEventListener('click', () => {
-                        currentDate.setMonth(index); 
-                        monthYearPicker.classList.add('hidden'); 
-                        fetchAndRenderAll(); 
+                        currentDate.setMonth(index);
+                        monthYearPicker.classList.add('hidden');
+                        fetchAndRenderAll();
                     });
                     monthView.appendChild(monthCell);
                 });
             };
-            
+
             // --- LOADING AND RENDERING FUNCTIONS ---
             // Toggles the visibility of skeleton loaders and actual content
             const toggleLoadingSkeletons = (show) => {
-                // Skeletons for scorecards
-                document.querySelectorAll('[id$="-skeleton"]').forEach(el => {
-                    if (!el.closest('#incident-cards-container') && !el.closest('#volumetric-charts')) { // Exclude specific sections
-                        el.style.display = show ? 'block' : 'none';
-                    }
-                });
-                document.querySelectorAll('[id$="-content"]').forEach(el => {
-                    if (!el.closest('#incident-cards-container') && !el.closest('#volumetric-charts')) { // Exclude specific sections
-                        el.style.display = show ? 'none' : 'block';
-                    }
-                });
+                 const contentElements = document.querySelectorAll('[id$="-content"]');
+                 const skeletonElements = document.querySelectorAll('[id$="-skeleton"]');
+                 
+                 contentElements.forEach(el => el.style.display = show ? 'none' : 'block');
+                 skeletonElements.forEach(el => el.style.display = show ? 'block' : 'none');
 
-                // Skeletons for charts
-                document.querySelectorAll('#volumetric-charts .skeleton').forEach(el => {
-                    el.style.display = show ? 'block' : 'none';
-                });
-                document.querySelectorAll('#volumetric-charts [id$="-content"]').forEach(el => {
-                    el.style.display = show ? 'none' : 'flex'; // Charts use flex display
-                });
+                 // Special handling for chart content display
+                 document.querySelectorAll('#volumetric-charts [id$="-content"]').forEach(el => {
+                     el.style.display = show ? 'none' : 'flex';
+                 });
+                 
+                 // Special handling for incident card skeletons
+                 incidentCardsSkeleton.style.display = show ? 'grid' : 'none';
+                 incidentCardsContainer.classList.toggle('min-h-[300px]', show);
 
-                // Skeletons for incident cards
-                incidentCardsSkeleton.style.display = show ? 'grid' : 'none';
-                incidentCardsContainer.classList.toggle('min-h-[300px]', show); // Maintain height during skeleton load
-                // Hide pagination buttons during skeleton load
-                prevCardBtn.style.display = show ? 'none' : 'inline-block';
-                nextCardBtn.style.display = show ? 'none' : 'inline-block';
-                cardPaginationInfo.style.display = show ? 'none' : 'inline-block';
+                 // Hide pagination during load
+                 prevCardBtn.style.display = show ? 'none' : 'inline-flex';
+                 nextCardBtn.style.display = show ? 'none' : 'inline-flex';
+                 cardPaginationInfo.style.display = show ? 'none' : 'inline-block';
             };
-
 
             // Generic function to fetch data from an API
             const fetchFromApi = async (url, payload = {}) => {
-                const response = await fetch(url, { 
-                    method: 'POST', 
-                    headers: {'Content-Type': 'application/json'}, 
-                    body: JSON.stringify(payload) 
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload)
                 });
                 if (!response.ok) {
                     console.error(`HTTP Error fetching from ${url}: ${response.status} - ${response.statusText}`);
@@ -339,7 +381,7 @@
                 const data = await response.json();
                 return Array.isArray(data) ? data : data.body || data.value || [];
             }
-            
+
             // Fetches KPI data for a specific year and month
             const fetchKPIs = async (year, month) => {
                 const startDate = new Date(year, month, 1);
@@ -369,9 +411,9 @@
                 let criticalDowntimeSeconds = 0;
                 let totalResolvedTimeInSeconds = 0;
                 let resolvedRCACount = 0;
-                
+
                 const rcaEvents = data.filter(event => event.cr9ff_validacao === 867770000);
-                
+
                 rcaEvents.forEach(event => {
                     const inicio = new Date(event.cr9ff_horadeinicio);
                     const fim = new Date(event.cr9ff_horadefim);
@@ -383,10 +425,10 @@
                     const impacto = parseFloat(event['cr9ff_percentual']) || 0;
                     const downtime = (fim - inicio) / 1000;
                     const downtimePonderado = downtime * (impacto / 100);
-                    
+
                     totalDowntimeSeconds += downtimePonderado;
 
-                    if (event.cr9ff_servicocritico) { 
+                    if (event.cr9ff_servicocritico) {
                         criticalDowntimeSeconds += downtimePonderado;
                     }
 
@@ -394,11 +436,15 @@
                     resolvedRCACount++;
                 });
 
-                const totalUniverseSeconds = currentServicesInScope.length > 0 ? totalSecondsInMonth * currentServicesInScope.length : 0;
-
-                const disponibilidade = totalUniverseSeconds > 0 ? 100 - (totalDowntimeSeconds / totalUniverseSeconds) * 100 : 100;
-                const disponibilidadeCritica = totalUniverseSeconds > 0 ? 100 - (criticalDowntimeSeconds / totalUniverseSeconds) * 100 : 100;
+                const totalServicesInScope = currentServicesInScope.length > 0 ? currentServicesInScope.length : 1;
+                const criticalServicesInScope = currentServicesInScope.filter(s => criticalServicesList.includes(s));
                 
+                const totalUniverseSeconds = totalSecondsInMonth * totalServicesInScope;
+                const criticalUniverseSeconds = totalSecondsInMonth * (criticalServicesInScope.length > 0 ? criticalServicesInScope.length : 1);
+
+                const disponibilidade = totalUniverseSeconds > 0 ? Math.max(0, 100 - (totalDowntimeSeconds / totalUniverseSeconds) * 100) : 100;
+                const disponibilidadeCritica = criticalUniverseSeconds > 0 ? Math.max(0, 100 - (criticalDowntimeSeconds / criticalUniverseSeconds) * 100) : 100;
+
                 const mttrInMinutes = resolvedRCACount > 0 ? (totalResolvedTimeInSeconds / resolvedRCACount) / 60 : 0;
                 const totalIncidents = rcaEvents.length;
 
@@ -412,17 +458,17 @@
 
             // Calculates and renders the KPI values for the current month on the scorecards
             const renderCurrentMonthKPIs = (data, year, month) => {
-                const currentServicesInScope = [...new Set(initialFilterData.filter(d => 
+                const currentServicesInScope = [...new Set(initialFilterData.filter(d =>
                     (!kpiCategoriaSelect.value || d.cr9ff_categoria === kpiCategoriaSelect.value) &&
-                    (!kpiResponsavelSelect.value || d.cr9ff_responsvel === kpiResponsavelSelect.value) 
-                ).map(item => item.cr9ff_servico).filter(Boolean))]; 
+                    (!kpiResponsavelSelect.value || d.cr9ff_responsvel === kpiResponsavelSelect.value)
+                ).map(item => item.cr9ff_servico).filter(Boolean))];
 
                 const kpis = calculateKpisForMonth(data, year, month, currentServicesInScope);
-                
+
                 document.getElementById('disponibilidade-value').textContent = `${kpis.disponibilidade.toFixed(4)}%`;
                 document.getElementById('disponibilidade-critica-value').textContent = `${kpis.disponibilidadeCritica.toFixed(4)}%`;
                 document.getElementById('mttr-value').textContent = `${kpis.mttr.toFixed(2)}`;
-                document.getElementById('incidentes-value').textContent = `${kpis.incidents}`; 
+                document.getElementById('incidentes-value').textContent = `${kpis.incidents}`;
             };
 
             /**
@@ -436,8 +482,8 @@
 
                 rcaEvents.forEach(event => {
                     const category = event.cr9ff_categoria || 'Não Especificado';
-                    const responsible = event.cr9ff_responsvel || 'Não Especificado'; 
-                    const service = event.cr9ff_servio || 'Não Especificado'; 
+                    const responsible = event.cr9ff_responsvel || 'Não Especificado';
+                    const service = event.cr9ff_servio || 'Não Especificado';
 
                     categoriesMap[category] = (categoriesMap[category] || 0) + 1;
                     responsiblesMap[responsible] = (responsiblesMap[responsible] || 0) + 1;
@@ -479,20 +525,20 @@
                 }
 
                 const isDark = document.documentElement.classList.contains('dark');
-                const textColor = isDark ? '#d1d5db' : '#4b5563'; 
+                const textColor = isDark ? '#d1d5db' : '#4b5563';
                 const gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
 
-                chartInstanceRef = new Chart(chartContext, {
+                const newChartInstance = new Chart(chartContext, {
                     type: 'bar',
                     data: {
                         labels: chartData.labels,
                         datasets: [{
-                            label: 'Número de Ocorrências', 
+                            label: 'Número de Ocorrências',
                             data: chartData.data,
-                            backgroundColor: 'rgba(54, 162, 235, 0.6)', 
+                            backgroundColor: 'rgba(54, 162, 235, 0.6)',
                             borderColor: 'rgba(54, 162, 235, 1)',
                             borderWidth: 1,
-                            borderRadius: 4, 
+                            borderRadius: 4,
                         }]
                     },
                     options: {
@@ -510,71 +556,55 @@
                                 }
                             },
                             legend: {
-                                display: false 
+                                display: false
                             },
                             tooltip: {
                                 mode: 'index',
                                 intersect: false,
                                 callbacks: {
                                     label: function(context) {
-                                        return `Número de Ocorrências: ${context.parsed.y}`; 
+                                        return `Número de Ocorrências: ${context.parsed.y}`;
                                     }
                                 }
                             }
                         },
                         scales: {
                             x: {
-                                ticks: {
-                                    color: textColor,
-                                    font: {
-                                        family: 'Inter',
-                                    }
-                                },
-                                grid: {
-                                    color: gridColor,
-                                    drawOnChartArea: false, 
-                                }
+                                ticks: { color: textColor, font: { family: 'Inter' } },
+                                grid: { color: gridColor, drawOnChartArea: false, }
                             },
                             y: {
                                 beginAtZero: true,
-                                ticks: {
-                                    precision: 0, 
-                                    color: textColor,
-                                    font: {
-                                        family: 'Inter',
-                                    }
-                                },
-                                grid: {
-                                    color: gridColor,
-                                }
+                                ticks: { precision: 0, color: textColor, font: { family: 'Inter' } },
+                                grid: { color: gridColor }
                             }
                         }
                     }
                 });
-                return chartInstanceRef;
+                return newChartInstance;
             };
 
             // Orchestrates rendering all volumetric charts
             const renderVolumetricCharts = (chartData) => {
                 kpiCategoryChartInstance = renderBarChart(
-                    'kpiCategoryChart', 
-                    'Ocorrências por Categoria', 
-                    chartData.categoryChartData, 
+                    'kpiCategoryChart',
+                    'Ocorrências por Categoria',
+                    chartData.categoryChartData,
                     kpiCategoryChartInstance
                 );
                 kpiResponsibleChartInstance = renderBarChart(
-                    'kpiResponsibleChart', 
-                    'Ocorrências por Responsável', 
-                    chartData.responsibleChartData, 
+                    'kpiResponsibleChart',
+                    'Ocorrências por Responsável',
+                    chartData.responsibleChartData,
                     kpiResponsibleChartInstance
                 );
                 kpiServiceChartInstance = renderBarChart(
-                    'kpiServiceChart', 
-                    'Ocorrências por Serviço', 
-                    chartData.serviceChartData, 
+                    'kpiServiceChart',
+                    'Ocorrências por Serviço',
+                    chartData.serviceChartData,
                     kpiServiceChartInstance
                 );
-                kpiCriticalServiceChartInstance = renderBarChart( 
+                kpiCriticalServiceChartInstance = renderBarChart(
                     'kpiCriticalServiceChart',
                     'Ocorrências por Serviço Crítico',
                     chartData.criticalServicesVolumetryData,
@@ -587,8 +617,11 @@
              * @param {Array} incidents - The filtered RCA incidents to display.
              */
             const renderIncidentCards = (incidents) => {
+                // Ensure skeleton is removed from container before clearing
+                if (incidentCardsSkeleton.parentNode === incidentCardsContainer) {
+                    incidentCardsContainer.removeChild(incidentCardsSkeleton);
+                }
                 incidentCardsContainer.innerHTML = ''; // Clear previous cards
-                incidentCardsSkeleton.style.display = 'none'; // Hide skeleton once rendering starts
 
                 const start = currentCardPageIndex;
                 const end = Math.min(start + cardsPerPage, incidents.length);
@@ -601,18 +634,12 @@
                     incidentCardsContainer.appendChild(noDataMessage);
                 } else {
                     incidentsToDisplay.forEach(event => {
-                        // Helper to safely get value or 'N/A'
-                        const getValue = (field, fallback = 'N/A') => {
-                            return event[field] !== undefined && event[field] !== null && String(event[field]).trim() !== '' ? event[field] : fallback;
-                        };
-
-                        // Format dates and times
+                        const getValue = (field, fallback = 'N/A') => event[field] !== undefined && event[field] !== null && String(event[field]).trim() !== '' ? event[field] : fallback;
                         const formatDate = (dateString) => {
                             if (!dateString) return 'N/A';
                             const date = new Date(dateString);
                             return isNaN(date) ? 'N/A' : date.toLocaleDateString('pt-BR');
                         };
-
                         const formatTime = (dateString) => {
                             if (!dateString) return 'N/A';
                             const date = new Date(dateString);
@@ -620,14 +647,14 @@
                         };
 
                         const card = document.createElement('div');
-                        card.className = `incident-card space-y-2 relative ${event.cr9ff_servicocritico ? 'critical' : ''}`;
+                        card.className = `incident-card bg-gray-50 dark:bg-gray-800 p-4 rounded-lg shadow-md space-y-2 relative ${event.cr9ff_servicocritico ? 'critical' : ''}`;
 
                         card.innerHTML = `
                             <div class="flex justify-between items-center text-sm text-gray-600 dark:text-gray-400">
                                 <span>${formatDate(getValue('cr9ff_data'))}</span>
                                 <span class="font-bold text-gray-800 dark:text-white">${getValue('cr9ff_percentual', '0.00')}%</span>
                             </div>
-                            <h3 class="text-lg font-bold text-gray-900 dark:text-white incident-title">${getValue('cr9ff_servico')}</h3>
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white incident-title truncate" title="${getValue('cr9ff_servico')}">${getValue('cr9ff_servico')}</h3>
                             ${event.cr9ff_servicocritico ? `<span class="inline-block bg-yellow-200 dark:bg-yellow-700 text-yellow-800 dark:text-yellow-100 text-xs font-semibold px-2.5 py-0.5 rounded-full mb-2">Serviço Crítico: ${getValue('cr9ff_servicocritico')}</span>` : ''}
                             <p class="text-gray-700 dark:text-gray-300 text-sm">
                                 <strong>Resp.:</strong> ${getValue('cr9ff_responsvel')}<br>
@@ -648,8 +675,8 @@
                 }
 
                 // Update pagination info
-                cardPaginationInfo.textContent = `${Math.min(start + 1, incidents.length)}-${end} de ${incidents.length} Ocorrências`;
-                
+                cardPaginationInfo.textContent = incidents.length > 0 ? `${Math.min(start + 1, incidents.length)} - ${end} de ${incidents.length} Ocorrências` : 'Nenhuma Ocorrência';
+
                 // Disable/enable navigation buttons
                 prevCardBtn.disabled = currentCardPageIndex === 0;
                 nextCardBtn.disabled = end >= incidents.length;
@@ -659,24 +686,101 @@
             prevCardBtn.addEventListener('click', () => {
                 if (currentCardPageIndex > 0) {
                     currentCardPageIndex -= cardsPerPage;
-                    renderIncidentCards(filteredRcaEvents); // Re-render with updated index
-                    if (window.lucide) lucide.createIcons(); // Re-create icons for buttons
+                    renderIncidentCards(filteredRcaEvents); 
+                    if (window.lucide) lucide.createIcons();
                 }
             });
 
             nextCardBtn.addEventListener('click', () => {
                 if (currentCardPageIndex + cardsPerPage < filteredRcaEvents.length) {
                     currentCardPageIndex += cardsPerPage;
-                    renderIncidentCards(filteredRcaEvents); // Re-render with updated index
-                    if (window.lucide) lucide.createIcons(); // Re-create icons for buttons
+                    renderIncidentCards(filteredRcaEvents);
+                    if (window.lucide) lucide.createIcons();
                 }
             });
+
+            // Renders the calendar grid based on filtered incidents - NEW
+            const renderCalendar = () => {
+                if (!calendarContainer) return;
+                calendarContainer.innerHTML = '';
+
+                const year = currentDate.getFullYear();
+                const month = currentDate.getMonth();
+                const firstDay = new Date(year, month, 1).getDay();
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+                const incidentsByDay = {};
+                filteredRcaEvents.forEach(ev => {
+                    const d = new Date(ev.cr9ff_horadeinicio);
+                    if (d.getFullYear() === year && d.getMonth() === month) {
+                        const day = d.getDate();
+                        if (!incidentsByDay[day]) incidentsByDay[day] = [];
+                        incidentsByDay[day].push(ev);
+                    }
+                });
+
+                for (let i = 0; i < firstDay; i++) {
+                    calendarContainer.appendChild(document.createElement('div'));
+                }
+
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'calendar-cell';
+                    cell.dataset.date = `${year}-${String(month + 1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+
+                    const label = document.createElement('span');
+                    label.textContent = day;
+                    const dot = document.createElement('div');
+                    dot.className = 'calendar-dot ' + (incidentsByDay[day] ? 'bg-red-500' : 'bg-green-500');
+
+                    cell.appendChild(label);
+                    cell.appendChild(dot);
+
+                    cell.addEventListener('click', () => showDayDetails(cell.dataset.date, incidentsByDay[day] || []));
+
+                    calendarContainer.appendChild(cell);
+                }
+            };
+
+            // Displays incidents for a selected day in a modal - NEW
+            const showDayDetails = (dateStr, events) => {
+                if (!calendarModal) return;
+                calendarModalTitle.textContent = new Date(dateStr).toLocaleDateString('pt-BR');
+                calendarModalContent.innerHTML = '';
+
+                if (events.length === 0) {
+                    const p = document.createElement('p');
+                    p.className = 'text-center text-gray-600 dark:text-gray-400';
+                    p.textContent = 'Nenhuma ocorrência para este dia.';
+                    calendarModalContent.appendChild(p);
+                } else {
+                    events.forEach(ev => {
+                        const item = document.createElement('div');
+                        item.className = 'border-b pb-2 last:border-b-0 text-sm';
+                        const inicio = new Date(ev.cr9ff_horadeinicio);
+                        const time = isNaN(inicio) ? 'N/A' : inicio.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+                        const servico = ev.cr9ff_servico || 'N/A';
+                        const problema = ev.cr9ff_problema || 'N/A';
+                        item.innerHTML = `
+                            <div class="text-gray-600 dark:text-gray-400">${time}</div>
+                            <div class="text-gray-800 dark:text-white font-medium">${servico}</div>
+                            <div class="text-gray-700 dark:text-gray-300">${problema}</div>
+                        `;
+                        calendarModalContent.appendChild(item);
+                    });
+                }
+
+                calendarModal.classList.remove('hidden');
+            };
+
+            calendarModalClose.addEventListener('click', () => calendarModal.classList.add('hidden'));
+            calendarModal.addEventListener('click', (e) => { if (e.target === calendarModal) calendarModal.classList.add('hidden'); });
 
 
             // Main function to fetch all necessary data and render the dashboard
             const fetchAndRenderAll = async () => {
-                toggleLoadingSkeletons(true); 
-                updateTitle(); 
+                toggleLoadingSkeletons(true);
+                updateTitle();
 
                 try {
                     allMonthData = await fetchKPIs(currentDate.getFullYear(), currentDate.getMonth());
@@ -696,47 +800,48 @@
                     // Reset pagination index and render first batch of cards
                     currentCardPageIndex = 0;
                     renderIncidentCards(filteredRcaEvents);
+                    renderCalendar();
 
                 } catch (error) {
                     console.error("Falha ao buscar dados para o painel:", error);
                 } finally {
-                    toggleLoadingSkeletons(false); 
+                    toggleLoadingSkeletons(false);
                     if (window.lucide) lucide.createIcons();
                 }
             };
 
             // Populates a select element with unique values from data
             const populateFilter = (select, data, key, placeholder) => {
-                const currentValue = select.value; 
-                select.innerHTML = `<option value="">${placeholder}</option>`; 
+                const currentValue = select.value;
+                select.innerHTML = `<option value="">${placeholder}</option>`;
                 if (!Array.isArray(data)) {
                     console.warn(`Data for filter ${key} is not an array:`, data);
                     return;
                 }
                 const unique = [...new Set(data.map(item => item[key]).filter(Boolean))].sort();
-                unique.forEach(val => select.add(new Option(val, val))); 
-                select.value = currentValue; 
+                unique.forEach(val => select.add(new Option(val, val)));
+                select.value = currentValue;
             };
 
             // Updates the responsible and service filters based on the selected category
             const updateDependentFilters = () => {
                 const selectedCategory = kpiCategoriaSelect.value;
                 let filteredByCat = initialFilterData.filter(d => !selectedCategory || d.cr9ff_categoria === selectedCategory);
-                
-                populateFilter(kpiResponsavelSelect, filteredByCat, 'cr9ff_responsvel', 'Todos os Responsáveis'); 
-                
+
+                populateFilter(kpiResponsavelSelect, filteredByCat, 'cr9ff_responsvel', 'Todos os Responsáveis');
+
                 const selectedResponsible = kpiResponsavelSelect.value;
-                let filteredByCatAndResp = filteredByCat.filter(d => !selectedResponsible || d.cr9ff_responsvel === selectedResponsible); 
-                populateFilter(kpiServicoSelect, filteredByCatAndResp, 'cr9ff_servio', 'Todos os Serviços'); 
+                let filteredByCatAndResp = filteredByCat.filter(d => !selectedResponsible || d.cr9ff_responsvel === selectedResponsible);
+                populateFilter(kpiServicoSelect, filteredByCatAndResp, 'cr9ff_servio', 'Todos os Serviços');
             };
 
-            // --- INITIALIZAÇÃO ---
+            // --- INITIALIZATION ---
             const initialize = async () => {
                 const savedTheme = localStorage.getItem('kpiTheme');
                 const systemTheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
                 applyTheme(savedTheme || systemTheme);
-                
-                updateTitle(); 
+
+                updateTitle();
 
                 try {
                     const [filterResponse, criticalServicesResponse] = await Promise.all([
@@ -745,11 +850,11 @@
                     ]);
 
                     initialFilterData = filterResponse;
-                    if (!Array.isArray(initialFilterData)) { 
+                    if (!Array.isArray(initialFilterData)) {
                         console.error('Filter data for initialFilterData is not an array, received:', initialFilterData);
-                        throw new Error('Filter data is not an array.'); 
+                        throw new Error('Filter data is not an array.');
                     }
-                    
+
                     const criticalDataArray = criticalServicesResponse;
                     if(Array.isArray(criticalDataArray)){
                         criticalServicesList = [...new Set(criticalDataArray.map(item => item.cr9ff_itpf).filter(Boolean))];
@@ -758,32 +863,32 @@
                     }
 
                     populateFilter(kpiCategoriaSelect, initialFilterData, 'cr9ff_categoria', 'Todas as Categorias');
-                    updateDependentFilters(); 
-                
-                } catch(e) { 
-                    console.error("Falha ao carregar filtros iniciais ou serviços críticos:", e); 
+                    updateDependentFilters();
+
+                } catch(e) {
+                    console.error("Falha ao carregar filtros iniciais ou serviços críticos:", e);
                 }
 
-                await fetchAndRenderAll(); 
-                
+                await fetchAndRenderAll();
+
                 // --- EVENT LISTENERS ---
-                kpiCategoriaSelect.addEventListener('change', () => { 
-                    updateDependentFilters(); 
-                    fetchAndRenderAll(); 
+                kpiCategoriaSelect.addEventListener('change', () => {
+                    updateDependentFilters();
+                    fetchAndRenderAll();
                 });
                 kpiResponsavelSelect.addEventListener('change', () => {
-                    updateDependentFilters(); 
-                    fetchAndRenderAll(); 
+                    updateDependentFilters();
+                    fetchAndRenderAll();
                 });
                 kpiServicoSelect.addEventListener('change', () => fetchAndRenderAll());
 
                 prevMonthBtn.addEventListener('click', () => { currentDate.setMonth(currentDate.getMonth() - 1); fetchAndRenderAll(); });
                 nextMonthBtn.addEventListener('click', () => { currentDate.setMonth(currentDate.getMonth() + 1); fetchAndRenderAll(); });
-                
+
                 monthYearTitle.addEventListener('click', () => { renderMonthPicker(); monthYearPicker.classList.toggle('hidden'); });
 
                 document.addEventListener('click', (event) => {
-                    if (!monthYearPicker.contains(event.target) && !monthYearTitle.contains(event.target) && !prevMonthBtn.contains(event.target) && !nextMonthBtn.contains(event.target)) {
+                    if (!monthYearPicker.contains(event.target) && !monthYearTitle.contains(event.target) && !event.target.closest('header')) {
                         monthYearPicker.classList.add('hidden');
                     }
                 });
