@@ -18,6 +18,8 @@
         .active-btn { transform: scale(0.95); }
         input[type='number']::-webkit-inner-spin-button, input[type='number']::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type='number'] { -moz-appearance: textfield; }
+        
+        /* Estilos de formulário atualizados */
         .form-input{width:100%;padding:0.5rem 0.75rem;color:#374151;background-color:#f9fafb;border:1px solid #d1d5db;border-radius:0.375rem;box-shadow:0 1px 2px 0 rgba(0,0,0,0.05);}
         .form-input:focus{outline:none;box-shadow:0 0 0 2px #3b82f6;border-color:#3b82f6;}
         .dark .form-input{background-color:#374151;border-color:#4b5563;color:#e5e7eb;}
@@ -26,14 +28,12 @@
         .dark .form-label{color:#d1d5db;}
         .error-message{color:#ef4444;font-size:0.75rem;margin-top:0.25rem;}
         
-        /* Estilos para a área de texto com auto-resize */
         .autoresize-textarea {
-            min-height: 8rem; /* Altura inicial maior (128px) */
-            resize: vertical;   /* Permite redimensionamento vertical pelo usuário */
-            overflow-y: hidden; /* Oculta a barra de rolagem até ser necessária */
+            min-height: 8rem;
+            resize: vertical;
+            overflow-y: hidden;
         }
 
-        /* Estilos para a notificação (toast) */
         #toast-notification {
             transition: opacity 0.3s, transform 0.3s;
         }
@@ -70,36 +70,27 @@
             <!-- Formulário de Filtros -->
             <div id="mapping-form" class="hidden space-y-4">
                 <div>
-                    <label for="categoria-select" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Categoria*</label>
+                    <label for="categoria-select" class="form-label">Categoria*</label>
                     <div class="relative">
-                        <select id="categoria-select" class="w-full pl-4 pr-10 py-3 text-base text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-700/50 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 transition-all-ease" style="appearance: none; -webkit-appearance: none; -moz-appearance: none;" required>
+                        <select id="categoria-select" class="form-input" required>
                             <option value="">Selecione uma Categoria</option>
                         </select>
-                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 dark:text-gray-400">
-                            <i data-lucide="chevron-down" class="h-5 w-5"></i>
-                        </div>
                     </div>
                 </div>
                 <div>
-                    <label for="responsavel-select" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Responsável*</label>
+                    <label for="responsavel-select" class="form-label">Responsável*</label>
                     <div class="relative">
-                        <select id="responsavel-select" class="w-full pl-4 pr-10 py-3 text-base text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-700/50 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 transition-all-ease" style="appearance: none; -webkit-appearance: none; -moz-appearance: none;" required>
+                        <select id="responsavel-select" class="form-input" required>
                                 <option value="">Selecione um Responsável</option>
                         </select>
-                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 dark:text-gray-400">
-                            <i data-lucide="chevron-down" class="h-5 w-5"></i>
-                        </div>
                     </div>
                 </div>
                 <div>
-                    <label for="servico-select" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Serviço</label>
+                    <label for="servico-select" class="form-label">Serviço</label>
                      <div class="relative">
-                        <select id="servico-select" class="w-full pl-4 pr-10 py-3 text-base text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-700/50 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 transition-all-ease" style="appearance: none; -webkit-appearance: none; -moz-appearance: none;">
+                        <select id="servico-select" class="form-input">
                             <option value="">Todos os Serviços</option>
                         </select>
-                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 dark:text-gray-400">
-                            <i data-lucide="chevron-down" class="h-5 w-5"></i>
-                        </div>
                     </div>
                 </div>
                 <div class="pt-4">
@@ -850,6 +841,7 @@
                         });
                         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                         showToast('Dados gravados com sucesso!');
+                         fetchTimelineData();
                     } catch (error) {
                         showToast('Falha ao gravar os dados.', 'error');
                         console.error("Falha ao gravar dados:", error);
@@ -1036,11 +1028,13 @@
                     });
                      if (!response.ok) { throw new Error(`HTTP error! status: ${response.status}`); }
                      showToast("RCA gravado com sucesso!");
+                     fetchTimelineData();
                 } catch(error) {
                     showToast("Falha ao gravar o RCA.", 'error');
                     console.error("Falha ao gravar dados do RCA:", error);
                 } finally {
                      toggleButtonLoading(dom.rcaWizard.saveBtn, false, 'Salvar RCA');
+                     fetchTimelineData();
                 }
             };
             
