@@ -1111,6 +1111,34 @@
                 dom.showTimelineBtn.disabled = !isReady;
                 dom.initialFiltersError.classList.toggle('hidden', isReady);
             };
+
+            const updateDependentFilters = (changedFilter) => {
+                const selectedCategory = dom.categoriaSelect.value;
+
+                if (changedFilter === 'categoria') {
+                    const responsavelEnabled = !!selectedCategory;
+                    dom.responsavelSelect.disabled = !responsavelEnabled;
+                    dom.responsavelSelect.parentElement.classList.toggle('opacity-50', !responsavelEnabled);
+                    const dataForResponsavel = responsavelEnabled ? state.initialData.filter(item => item.cr9ff_categoria === selectedCategory) : [];
+                    populateSelect(dom.responsavelSelect, dataForResponsavel, 'cr9ff_responsavel', responsavelEnabled ? 'Selecione um Responsável' : 'Selecione uma Categoria');
+                }
+
+                const selectedResponsavel = dom.responsavelSelect.value;
+                const servicoEnabled = !!selectedResponsavel;
+                dom.servicoSelect.disabled = !servicoEnabled;
+                dom.servicoSelect.parentElement.classList.toggle('opacity-50', !servicoEnabled);
+
+                let dataForServico = [];
+                if (servicoEnabled) {
+                    dataForServico = state.initialData.filter(item => 
+                        item.cr9ff_categoria === selectedCategory && 
+                        item.cr9ff_responsavel === selectedResponsavel
+                    );
+                }
+                populateSelect(dom.servicoSelect, dataForServico, 'cr9ff_servico', servicoEnabled ? 'Todos os Serviços' : 'Selecione um Responsável');
+                
+                checkInitialFilters();
+            };
             
             async function main() {
                 dom.loadingIndicator.classList.remove('hidden');
@@ -1137,8 +1165,7 @@
                     state.initialData = data.value || []; 
                     
                     populateSelect(dom.categoriaSelect, state.initialData, 'cr9ff_categoria', 'Selecione uma Categoria');
-                    populateSelect(dom.responsavelSelect, [], 'cr9ff_responsavel', 'Selecione uma Categoria primeiro');
-                    checkInitialFilters();
+                    updateDependentFilters(); // Set initial state for dependent filters
 
                 } catch (error) {
                     console.error("Falha ao carregar dados iniciais:", error);
@@ -1161,11 +1188,12 @@
 
             const toggleButtonLoading = (button, isLoading, text) => {
                 button.disabled = isLoading;
+                const originalText = button.querySelector('span:last-child')?.textContent || 'Ação';
                 if (isLoading) {
                     button.dataset.originalText = button.innerHTML;
                     button.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span>${text}</span>`;
                 } else {
-                    button.innerHTML = text || button.dataset.originalText || 'Confirmar';
+                    button.innerHTML = button.dataset.originalText || originalText;
                 }
             };
 
@@ -1285,24 +1313,8 @@
                 fetchTimelineData();
             });
 
-            dom.categoriaSelect.addEventListener('change', () => {
-                const selectedCategory = dom.categoriaSelect.value;
-                const dataForResponsavel = selectedCategory ? state.initialData.filter(item => item.cr9ff_categoria === selectedCategory) : state.initialData;
-                populateSelect(dom.responsavelSelect, dataForResponsavel, 'cr9ff_responsavel', 'Selecione um Responsável');
-                populateSelect(dom.servicoSelect, dataForResponsavel, 'cr9ff_servico', 'Todos os Serviços');
-                checkInitialFilters();
-            });
-            
-            dom.responsavelSelect.addEventListener('change', () => {
-                const selectedCategory = dom.categoriaSelect.value;
-                const selectedResponsavel = dom.responsavelSelect.value;
-                let dataForServico = selectedCategory ? state.initialData.filter(item => item.cr9ff_categoria === selectedCategory) : state.initialData;
-                if (selectedResponsavel) {
-                    dataForServico = dataForServico.filter(item => item.cr9ff_responsavel === selectedResponsavel);
-                }
-                populateSelect(dom.servicoSelect, dataForServico, 'cr9ff_servico', 'Todos os Serviços');
-                checkInitialFilters();
-            });
+            dom.categoriaSelect.addEventListener('change', () => updateDependentFilters('categoria'));
+            dom.responsavelSelect.addEventListener('change', () => updateDependentFilters('responsavel'));
 
             const returnToFilterScreen = () => {
                 dom.initialMappingScreen.classList.remove('hidden');
