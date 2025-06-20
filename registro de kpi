@@ -33,6 +33,17 @@
         #toast-notification {
             transition: opacity 0.3s, transform 0.3s;
         }
+
+        .timeline-item-enter {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        .timeline-item-enter-active {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.3s, transform 0.3s;
+        }
     </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
@@ -87,15 +98,24 @@
                         </div>
                     </div>
                 </div>
-                <div class="pt-4">
-                    <button id="show-calendar-btn" class="w-full flex justify-center items-center bg-blue-600 text-white font-semibold text-base py-3 px-4 rounded-lg hover:bg-blue-700 transition-all-ease active-btn focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-900 disabled:bg-blue-400 disabled:cursor-not-allowed">
-                        <span class="mr-2">Ver Calendário</span>
-                        <i data-lucide="arrow-right" class="h-5 w-5"></i>
-                    </button>
-                    <p id="initial-filters-error" class="text-center text-red-500 text-sm mt-2 hidden">Por favor, selecione Categoria e Responsável.</p>
-                </div>
+                 <div class="pt-4">
+                     <button id="show-timeline-btn" class="w-full flex justify-center items-center bg-blue-600 text-white font-semibold text-base py-3 px-4 rounded-lg hover:bg-blue-700 transition-all-ease active-btn focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-900 disabled:bg-blue-400 disabled:cursor-not-allowed">
+                         <span class="mr-2">Ver Registros</span>
+                         <i data-lucide="arrow-right" class="h-5 w-5"></i>
+                     </button>
+                     <p id="initial-filters-error" class="text-center text-red-500 text-sm mt-2 hidden">Por favor, selecione Categoria e Responsável.</p>
+                 </div>
             </div>
         </div>
+    </div>
+
+
+    <div id="timeline-container" class="p-4 md:p-6 max-w-2xl mx-auto hidden">
+        <div class="mb-4 flex justify-between items-center">
+            <button id="timeline-change-filters-btn" class="text-sm text-blue-600 dark:text-blue-400 hover:underline whitespace-nowrap">Alterar Filtros</button>
+            <button id="view-calendar-btn" class="text-sm text-blue-600 dark:text-blue-400 hover:underline whitespace-nowrap">Ver Calendário / Registrar para outra data</button>
+        </div>
+        <div id="timeline-list" class="space-y-4"></div>
     </div>
 
 
@@ -106,9 +126,12 @@
                  <div id="filter-tags" class="flex flex-wrap gap-2 items-center">
                     <!-- Tags de filtro serão inseridas aqui -->
                 </div>
-                <button id="change-filters-btn" class="text-sm text-blue-600 dark:text-blue-400 hover:underline whitespace-nowrap">Alterar Filtros</button>
-            </div>
-        </div>
+                 <div class="flex gap-2">
+                     <button id="show-timeline-view-btn" class="text-sm text-blue-600 dark:text-blue-400 hover:underline whitespace-nowrap">Ver Registros</button>
+                     <button id="change-filters-btn" class="text-sm text-blue-600 dark:text-blue-400 hover:underline whitespace-nowrap">Alterar Filtros</button>
+                 </div>
+             </div>
+         </div>
 
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 transition-colors duration-300 relative">
              <!-- Overlay de Carregamento para o Calendário -->
@@ -327,7 +350,12 @@
                 calendarLegend: document.getElementById('calendar-legend'),
                 initialMappingScreen: document.getElementById('initial-mapping-screen'),
                 calendarContainer: document.getElementById('calendar-container'),
-                showCalendarBtn: document.getElementById('show-calendar-btn'),
+                timelineContainer: document.getElementById('timeline-container'),
+                showTimelineBtn: document.getElementById('show-timeline-btn'),
+                timelineChangeFiltersBtn: document.getElementById('timeline-change-filters-btn'),
+                viewCalendarBtn: document.getElementById('view-calendar-btn'),
+                timelineList: document.getElementById('timeline-list'),
+                showTimelineViewBtn: document.getElementById('show-timeline-view-btn'),
                 categoriaSelect: document.getElementById('categoria-select'),
                 responsavelSelect: document.getElementById('responsavel-select'),
                 servicoSelect: document.getElementById('servico-select'),
@@ -373,7 +401,7 @@
             // --- ESTADO DA APLICAÇÃO ---
             let state = {
                 currentDate: new Date(),
-                currentView: 'days', // 'days', 'months', 'years'
+                currentView: 'timeline', // 'timeline', 'days', 'months', 'years'
                 selectionStartDate: null,
                 selectionEndDate: null,
                 isDragging: false,
@@ -383,6 +411,7 @@
                 currentUserName: 'Utilizador Desconhecido',
                 dailyMarkers: {}, // Ex: { "2025-06-20": ["rca", "imbativel"] }
                 rcaDataStore: {},
+                dailyData: {},
             };
 
             // --- FUNÇÕES DE RENDERIZAÇÃO E UI ---
@@ -586,6 +615,78 @@
                 });
                 lucide.createIcons();
             };
+
+            const renderTimelineView = () => {
+                dom.timelineList.innerHTML = '';
+                const dates = Object.keys(state.dailyData).sort((a, b) => new Date(b) - new Date(a));
+                dates.forEach(date => {
+                    const item = document.createElement('div');
+                    item.className = 'bg-white dark:bg-gray-800 rounded-lg shadow p-4 flex justify-between items-center timeline-item-enter';
+                    const label = document.createElement('span');
+                    label.textContent = new Date(date).toLocaleDateString('pt-BR');
+                    const actions = document.createElement('div');
+                    actions.className = 'space-x-2';
+                    actions.innerHTML = `<button data-date="${date}" class="quick-rca text-sm text-blue-600 hover:underline">Registrar RCA</button>` +
+                                      `<button data-date="${date}" class="quick-sem text-sm text-green-600 hover:underline">Sem Ocorrência</button>`;
+                    item.appendChild(label);
+                    item.appendChild(actions);
+                    dom.timelineList.appendChild(item);
+                    requestAnimationFrame(() => item.classList.add('timeline-item-enter-active'));
+                });
+                lucide.createIcons();
+            };
+
+            const handleQuickMark = async (date) => {
+                const registro = {
+                    chave: `${dom.categoriaSelect.value}#${dom.servicoSelect.value}#${dom.responsavelSelect.value}#${date}`,
+                    componente: dom.servicoSelect.value,
+                    status: STATUS_CODES.SEM_OCORRENCIA,
+                    imbativel: 0,
+                    area: dom.categoriaSelect.value,
+                    inicio: null,
+                    fim: null,
+                    problemaNum: null,
+                    incidenteNum: null,
+                    impacto: null,
+                    racional: null,
+                    critico: false,
+                    servicoCritico: null,
+                    problemaDesc: null,
+                    causa: null,
+                    resolucao: null,
+                    registradoPor: state.currentUserName
+                };
+                try {
+                    await fetch(API_ENDPOINTS.save, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify([registro]) });
+                    showToast('Registro atualizado!');
+                } catch (e) {
+                    showToast('Falha ao registrar.', 'error');
+                }
+            };
+
+            const fetchTimelineData = async () => {
+                dom.timelineList.innerHTML = '<p>A carregar...</p>';
+                const end = new Date();
+                const start = new Date();
+                start.setDate(end.getDate() - 6);
+                const payload = {
+                    startDate: toISODateString(start),
+                    endDate: toISODateString(end),
+                    categoria: dom.categoriaSelect.value,
+                    responsavel: dom.responsavelSelect.value,
+                    servico: dom.servicoSelect.value,
+                };
+                try {
+                    const response = await fetch(API_ENDPOINTS.monthData, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                    if (!response.ok) throw new Error();
+                    const data = await response.json();
+                    state.dailyData = {};
+                    (data || []).forEach(r => { state.dailyData[r.cr9ff_data] = r; });
+                    renderTimelineView();
+                } catch(e) {
+                    dom.timelineList.innerHTML = '<p class="text-red-500">Erro ao carregar dados.</p>';
+                }
+            };
             
             // --- LÓGICA DE MODAIS E AÇÕES ---
 
@@ -725,7 +826,7 @@
 
             // --- LÓGICA DO ASSISTENTE RCA ---
 
-            const openRcaWizard = () => {
+            const openRcaWizard = (specificDate = null) => {
                 state.rcaCurrentStep = 1;
                 dom.rcaWizard.form.reset();
                 dom.rcaWizard.errorSummary.classList.add('hidden');
@@ -734,7 +835,13 @@
                 dom.rcaWizard.servicoCriticoSection.classList.add('hidden');
                 updateRacionalImpactoOptions(null);
                 
-                const range = getOrderedDateRange();
+                let range = null;
+                if (specificDate) {
+                    const d = new Date(specificDate);
+                    range = { start: d, end: d };
+                } else {
+                    range = getOrderedDateRange();
+                }
                 if (range) {
                     dom.rcaWizard.modal.dataset.startDate = toISODateString(range.start);
                     dom.rcaWizard.modal.dataset.endDate = toISODateString(range.end);
@@ -1006,7 +1113,7 @@
 
             const checkInitialFilters = () => {
                 const isReady = dom.categoriaSelect.value && dom.responsavelSelect.value;
-                dom.showCalendarBtn.disabled = !isReady;
+                dom.showTimelineBtn.disabled = !isReady;
                 dom.initialFiltersError.classList.toggle('hidden', isReady);
             };
             
@@ -1155,10 +1262,10 @@
             });
             
             // --- FILTROS INICIAIS (LÓGICA CORRIGIDA) ---
-            dom.showCalendarBtn.addEventListener('click', () => {
-                if(dom.showCalendarBtn.disabled) return;
+            dom.showTimelineBtn.addEventListener('click', () => {
+                if(dom.showTimelineBtn.disabled) return;
                 dom.initialMappingScreen.classList.add('hidden');
-                dom.calendarContainer.classList.remove('hidden');
+                dom.timelineContainer.classList.remove('hidden');
                 dom.activeFiltersContainer.classList.remove('hidden');
 
                 dom.filterTags.innerHTML = '';
@@ -1182,7 +1289,7 @@
                     }
                 });
                 lucide.createIcons();
-                initializeCalendar();
+                fetchTimelineData();
             });
 
             dom.categoriaSelect.addEventListener('change', () => {
@@ -1208,7 +1315,38 @@
             dom.changeFiltersBtn.addEventListener('click', () => {
                 dom.initialMappingScreen.classList.remove('hidden');
                 dom.calendarContainer.classList.add('hidden');
+                dom.timelineContainer.classList.add('hidden');
                 dom.activeFiltersContainer.classList.add('hidden');
+            });
+
+            dom.timelineChangeFiltersBtn.addEventListener('click', () => {
+                dom.initialMappingScreen.classList.remove('hidden');
+                dom.timelineContainer.classList.add('hidden');
+                dom.activeFiltersContainer.classList.add('hidden');
+            });
+
+            dom.showTimelineViewBtn.addEventListener('click', () => {
+                dom.calendarContainer.classList.add('hidden');
+                dom.timelineContainer.classList.remove('hidden');
+                fetchTimelineData();
+            });
+
+            dom.viewCalendarBtn.addEventListener('click', () => {
+                dom.timelineContainer.classList.add('hidden');
+                dom.calendarContainer.classList.remove('hidden');
+                initializeCalendar();
+            });
+
+            dom.timelineList.addEventListener('click', (e) => {
+                const rcaBtn = e.target.closest('.quick-rca');
+                const semBtn = e.target.closest('.quick-sem');
+                if (rcaBtn) {
+                    const date = rcaBtn.dataset.date;
+                    openRcaWizard(date);
+                } else if (semBtn) {
+                    const date = semBtn.dataset.date;
+                    handleQuickMark(date);
+                }
             });
             
             // Modal de Ações
