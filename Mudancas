@@ -701,7 +701,7 @@
             }
 
             /**
-             * Parses a date string from the API (DD/MM/YYYY HH:mm) as UTC.
+             * Parses a date string from the API (DD/MM/YYYY HH:mm) using the São Paulo timezone.
              * @param {string} dateString - The date string from the API.
              * @returns {Date|null} A Date object or null if invalid.
              */
@@ -716,9 +716,18 @@
                 const hour = match[4] || '00';
                 const minute = match[5] || '00';
 
-                // Create an ISO 8601 string and append 'Z' to specify it's UTC
-                const isoString = `${year}-${month}-${day}T${hour}:${minute}:00Z`;
-                return new Date(isoString);
+                // Interpret the date as being in the São Paulo timezone (-03:00)
+                const isoString = `${year}-${month}-${day}T${hour}:${minute}:00-03:00`;
+                const parsedDate = new Date(isoString);
+
+                if (!isNaN(parsedDate.getTime())) {
+                    return parsedDate;
+                }
+
+                // Fallback in case the environment cannot parse the ISO string with offset
+                const offsetMinutes = 3 * 60; // São Paulo is UTC-3 (no DST at present)
+                const timestamp = Date.UTC(Number(year), Number(month) - 1, Number(day), Number(hour), Number(minute)) + offsetMinutes * 60 * 1000;
+                return new Date(timestamp);
             }
 
             /**
