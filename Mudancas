@@ -326,7 +326,9 @@
             const loadingOverlay = document.getElementById('loading-overlay');
             const templateSpecificOptionsContainer = document.getElementById('template-specific-options');
             const toggleObservationCard = document.getElementById('toggle-observation-card');
-            
+
+            const ALLOWED_TEAMS_HOSTS = new Set(['teams.microsoft.com']);
+
             // Modais
             const testEmailModal = document.getElementById('test-email-modal');
             const testEmailInput = document.getElementById('test-email-input');
@@ -346,6 +348,7 @@
             let generatedAttachment = null;
             let csvOverrideActive = false;
             let tempFixedRecipients = new Set();
+            let validatedTeamsMeetingUrl = '';
 
             // --- Inicialização ---
             Object.keys(templates).forEach(id => {
@@ -455,7 +458,8 @@
                 if (selectedTemplateCard) selectedTemplateCard.classList.remove('selected-card');
                 card.classList.add('selected-card');
                 selectedTemplateCard = card;
-                
+                validatedTeamsMeetingUrl = '';
+
                 const templateId = card.dataset.templateId;
                 const template = templates[templateId];
 
@@ -501,7 +505,8 @@
                         showStatus('Template carregado. Pronto para editar.', 'success');
                     } catch (error) {
                         const errorMessage = `Erro ao gerar relatório: ${error.message}`;
-                        updatePreview(`<div style="text-align:center; color:#dc2626; padding:40px;">${errorMessage}</div>`);
+                        const safeErrorMessage = escapeHtml(errorMessage);
+                        updatePreview(`<div style="text-align:center; color:#dc2626; padding:40px;">${safeErrorMessage}</div>`);
                         showStatus(errorMessage, 'error');
                     } finally {
                         loadingOverlay.classList.add('hidden');
@@ -648,7 +653,12 @@
                 if(templates[templateId].needsTeamsUrl) {
                     const teamsUrlInput = document.getElementById('teams-url-input');
                     const teamsUrl = teamsUrlInput ? teamsUrlInput.value.trim() : '';
-                    const teamsButtonHtml = teamsUrl ? generateTeamsButtonHtml(teamsUrl) : '';
+                    let sanitizedUrl = validatedTeamsMeetingUrl;
+                    if (!sanitizedUrl && teamsUrl) {
+                        const validation = validateTeamsUrl(teamsUrl);
+                        sanitizedUrl = validation.valid ? validation.sanitizedUrl : '';
+                    }
+                    const teamsButtonHtml = sanitizedUrl ? generateTeamsButtonHtml(sanitizedUrl) : '';
                     finalBodyContent = finalBodyContent.replace('%%TEAMS_BUTTON%%', teamsButtonHtml);
                 }
 
@@ -676,17 +686,21 @@
 
             function handleConfirmSend() {
                 confirmSendModal.classList.add('hidden');
-                
+
                 // Validação da URL do Teams para ambos os modos
                 const templateId = selectedTemplateCard.dataset.templateId;
                 const template = templates[templateId];
+                validatedTeamsMeetingUrl = '';
                 if (template.needsTeamsUrl) {
                     const teamsUrlInput = document.getElementById('teams-url-input');
                     const teamsUrl = teamsUrlInput ? teamsUrlInput.value.trim() : '';
-                    if (!teamsUrl || !teamsUrl.startsWith('https://teams.microsoft.com')) {
-                         showStatus('Para enviar a Prévia do Comitê, a URL da reunião do Teams é obrigatória.', 'error');
-                         return; 
+                    const validation = validateTeamsUrl(teamsUrl);
+                    if (!validation.valid) {
+                        showStatus(validation.error, 'error');
+                        if (teamsUrlInput) teamsUrlInput.focus();
+                        return;
                     }
+                    validatedTeamsMeetingUrl = validation.sanitizedUrl;
                 }
 
                 if (testModeToggle.checked) {
@@ -771,7 +785,8 @@
                 tempFixedRecipients.forEach(email => {
                     const tag = document.createElement('div');
                     tag.className = 'recipient-tag';
-                    tag.innerHTML = `<span>${email}</span><button>&times;</button>`;
+                    const safeEmail = escapeHtml(email);
+                    tag.innerHTML = `<span>${safeEmail}</span><button>&times;</button>`;
                     tag.querySelector('button').onclick = () => { tempFixedRecipients.delete(email); renderRecipientTags(); };
                     container.appendChild(tag);
                 });
@@ -857,7 +872,18 @@
                 };
                 return date.toLocaleString('pt-BR', {...defaultOptions, ...options});
             }
-            
+
+            function escapeHtml(value) {
+                if (value === null || value === undefined) return '';
+                return String(value).replace(/[&<>"']/g, char => ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#39;'
+                })[char]);
+            }
+
             // Lógica para Atrasos
             function processarDadosDeAtraso(todasAsMudancas) {
                 const now = new Date();
@@ -889,7 +915,10 @@
                 const metricas = {
                     totalAtrasadas: mudancasAtrasadas.length,
                     totalCriticas: mudancasAtrasadas.filter(m => m.daysLate > 30).length,
-                    previousWeekTotal: mudancasAtrasadas.filter(m => parseApiDate(m['cr9ff_datadetrminoplanejada@OData.Community.Display.V1.FormattedValue']) < oneWeekAgo).length,
+                    previousWeekTotal: mudancasAtrasadas.filter(m => {
+                        const plannedEndDate = parseApiDate(m['cr9ff_datadetrminoplanejada@OData.Community.Display.V1.FormattedValue']);
+                        return plannedEndDate && !isNaN(plannedEndDate.getTime()) && plannedEndDate < oneWeekAgo;
+                    }).length,
                     topOffenders: getTopOffenders(gruposHierarquicos, (categorias) => categorias.critico.length + categorias.atrasadas.length)
                 };
                 
@@ -901,25 +930,45 @@
                 let trendText = 'estável';
                 if (metricas.previousWeekTotal > 0 && metricas.totalAtrasadas !== metricas.previousWeekTotal) {
                     const change = ((metricas.totalAtrasadas - metricas.previousWeekTotal) / metricas.previousWeekTotal) * 100;
-                    if (change > 5) trendText = `<span style="color: #b91c1c;">aumentou ${change.toFixed(0)}%</span>`;
-                    else if (change < -5) trendText = `<span style="color: #166534;">diminuiu ${Math.abs(change).toFixed(0)}%</span>`;
+                    if (change > 5) trendText = `<span style="color: #b91c1c;">aumentou ${escapeHtml(change.toFixed(0))}%</span>`;
+                    else if (change < -5) trendText = `<span style="color: #166534;">diminuiu ${escapeHtml(Math.abs(change).toFixed(0))}%</span>`;
                 }
 
+                const safePreviousWeekTotal = escapeHtml(metricas.previousWeekTotal);
+                const safeTotalAtrasadas = escapeHtml(metricas.totalAtrasadas);
+                const topOffendersHtml = metricas.topOffenders
+                    .map(([name, count]) => {
+                        const safeName = escapeHtml(name);
+                        const safeCount = escapeHtml(count);
+                        return `<tr><td style="padding: 4px 0;">${safeName}</td><td style="padding: 4px 0; text-align: right;"><strong>${safeCount} mudanças</strong></td></tr>`;
+                    })
+                    .join('');
+
                 const noticeHtml = `<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 24px;"><tr><td style="background-color: #f8fafc; border-left: 4px solid #64748b; padding: 16px; border-radius: 4px;"><p style="margin: 0; font-size: 13px; font-family: 'Segoe UI', Arial, sans-serif; color: #334155; line-height: 1.6;"><strong style="color: #1e293b;">Observação:</strong> Caso sejam identificadas divergências entre o Solicitante e o Coordenador, é necessário solicitar a correção no cadastro do ServiceNow, que serve como base para a geração deste relatório.</p></td></tr></table>`;
-                const highlightsHtml = `<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 24px;"><tr><td style="background-color: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 16px;"><h3 style="margin: 0 0 12px 0; font-size: 16px; font-family: 'Segoe UI', Arial, sans-serif; color: #1e293b;">Destaques da Semana</h3><p style="font-size: 14px; font-family: 'Segoe UI', Arial, sans-serif; color: #475569; margin: 0 0 12px;">O total de mudanças atrasadas ${trendText} em relação à semana passada (de ${metricas.previousWeekTotal} para ${metricas.totalAtrasadas}).</p><h4 style="margin: 0 0 8px; font-size: 14px; font-family: 'Segoe UI', Arial, sans-serif; color: #1e293b;">Superiores com mais atrasos:</h4><table role="presentation" border="0" cellpadding="0" cellspacing="0" style="width: 100%; font-size: 14px; font-family: 'Segoe UI', Arial, sans-serif; color: #475569;">${metricas.topOffenders.map(([name, count]) => `<tr><td style="padding: 4px 0;">${name}</td><td style="padding: 4px 0; text-align: right;"><strong>${count} mudanças</strong></td></tr>`).join('')}</table></td></tr></table>`;
-                const kpisHtml = `<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 24px;"><tr><td width="49%" valign="top"><div style="background-color: #fef2f2; border-radius: 5px; text-align: center; padding: 16px 10px;"><p style="margin: 0; font-size: 28px; font-weight: 700; font-family: 'Segoe UI', Arial, sans-serif; color: #b91c1c;">${metricas.totalCriticas}</p><p style="margin: 4px 0 0 0; font-size: 12px; font-family: 'Segoe UI', Arial, sans-serif; color: #991b1b; text-transform: uppercase;">Atraso Crítico (>30d)</p></div></td><td width="2%"></td><td width="49%" valign="top"><div style="background-color: #f3f4f6; border-radius: 5px; text-align: center; padding: 16px 10px;"><p style="margin: 0; font-size: 28px; font-weight: 700; font-family: 'Segoe UI', Arial, sans-serif; color: #4b5563;">${metricas.totalAtrasadas}</p><p style="margin: 4px 0 0 0; font-size: 12px; font-family: 'Segoe UI', Arial, sans-serif; color: #4b5563; text-transform: uppercase;">Total Atrasadas (>7d)</p></div></td></tr></table>`;
-                
+                const highlightsHtml = `<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 24px;"><tr><td style="background-color: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 16px;"><h3 style="margin: 0 0 12px 0; font-size: 16px; font-family: 'Segoe UI', Arial, sans-serif; color: #1e293b;">Destaques da Semana</h3><p style="font-size: 14px; font-family: 'Segoe UI', Arial, sans-serif; color: #475569; margin: 0 0 12px;">O total de mudanças atrasadas ${trendText} em relação à semana passada (de ${safePreviousWeekTotal} para ${safeTotalAtrasadas}).</p><h4 style="margin: 0 0 8px; font-size: 14px; font-family: 'Segoe UI', Arial, sans-serif; color: #1e293b;">Superiores com mais atrasos:</h4><table role="presentation" border="0" cellpadding="0" cellspacing="0" style="width: 100%; font-size: 14px; font-family: 'Segoe UI', Arial, sans-serif; color: #475569;">${topOffendersHtml}</table></td></tr></table>`;
+                const kpisHtml = `<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 24px;"><tr><td width="49%" valign="top"><div style="background-color: #fef2f2; border-radius: 5px; text-align: center; padding: 16px 10px;"><p style="margin: 0; font-size: 28px; font-weight: 700; font-family: 'Segoe UI', Arial, sans-serif; color: #b91c1c;">${escapeHtml(metricas.totalCriticas)}</p><p style="margin: 4px 0 0 0; font-size: 12px; font-family: 'Segoe UI', Arial, sans-serif; color: #991b1b; text-transform: uppercase;">Atraso Crítico (>30d)</p></div></td><td width="2%"></td><td width="49%" valign="top"><div style="background-color: #f3f4f6; border-radius: 5px; text-align: center; padding: 16px 10px;"><p style="margin: 0; font-size: 28px; font-weight: 700; font-family: 'Segoe UI', Arial, sans-serif; color: #4b5563;">${safeTotalAtrasadas}</p><p style="margin: 4px 0 0 0; font-size: 12px; font-family: 'Segoe UI', Arial, sans-serif; color: #4b5563; text-transform: uppercase;">Total Atrasadas (>7d)</p></div></td></tr></table>`;
+
                 let body = editableObservationCard + noticeHtml + kpisHtml + highlightsHtml;
                 Object.keys(grupos).sort().forEach(departamento => {
+                    const safeDepartamento = escapeHtml(departamento);
                     let superioresHtml = '';
                     Object.keys(grupos[departamento]).sort().forEach(superior => {
                         const { critico, atrasadas } = grupos[departamento][superior];
                         critico.sort((a, b) => b.daysLate - a.daysLate);
                         atrasadas.sort((a, b) => b.daysLate - a.daysLate);
-                        const createList = (items, color) => items.map(m => `<tr><td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;"><p style="margin:0;font-weight:600; font-family: 'Segoe UI', Arial, sans-serif; color:${color};">${m.cr9ff_nmero} (${m.daysLate}d)</p><p style="margin:2px 0;font-size:12px; font-family: 'Segoe UI', Arial, sans-serif;">${m.cr9ff_descrioresumida}</p><p style="margin:2px 0;font-size:11px; font-family: 'Segoe UI', Arial, sans-serif; color:#6b7280;">Solicitante: ${m.cr9ff_abertopor} (${m.cr9ff_iddousurio})</p></td></tr>`).join('');
-                        superioresHtml += `<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-top: 16px; border: 1px solid #e5e7eb; border-radius: 8px;"><tr><td style="background-color: #f9fafb; padding: 12px; border-bottom: 1px solid #e5e7eb;"><h4 style="margin:0; font-size: 14px; font-family: 'Segoe UI', Arial, sans-serif;">${superior} - ${critico.length + atrasadas.length} Atrasada(s)</h4></td></tr><tr><td style="padding: 0 16px;"><table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">${createList(critico, '#b91c1c')}${createList(atrasadas, '#f59e0b')}</table></td></tr></table>`;
+                        const createList = (items, color) => items.map(m => {
+                            const numero = escapeHtml(m.cr9ff_nmero || 'N/A');
+                            const daysLateValue = m.daysLate !== null && m.daysLate !== undefined ? `${escapeHtml(m.daysLate)}d` : 'N/A';
+                            const descricao = escapeHtml(m.cr9ff_descrioresumida || 'Descrição não disponível');
+                            const solicitante = escapeHtml(m.cr9ff_abertopor || 'N/A');
+                            const solicitanteId = escapeHtml(m.cr9ff_iddousurio || 'N/A');
+                            return `<tr><td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;"><p style="margin:0;font-weight:600; font-family: 'Segoe UI', Arial, sans-serif; color:${color};">${numero} (${daysLateValue})</p><p style="margin:2px 0;font-size:12px; font-family: 'Segoe UI', Arial, sans-serif;">${descricao}</p><p style="margin:2px 0;font-size:11px; font-family: 'Segoe UI', Arial, sans-serif; color:#6b7280;">Solicitante: ${solicitante} (${solicitanteId})</p></td></tr>`;
+                        }).join('');
+                        const safeSuperior = escapeHtml(superior);
+                        const totalMudancas = escapeHtml(critico.length + atrasadas.length);
+                        superioresHtml += `<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-top: 16px; border: 1px solid #e5e7eb; border-radius: 8px;"><tr><td style="background-color: #f9fafb; padding: 12px; border-bottom: 1px solid #e5e7eb;"><h4 style="margin:0; font-size: 14px; font-family: 'Segoe UI', Arial, sans-serif;">${safeSuperior} - ${totalMudancas} Atrasada(s)</h4></td></tr><tr><td style="padding: 0 16px;"><table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">${createList(critico, '#b91c1c')}${createList(atrasadas, '#f59e0b')}</table></td></tr></table>`;
                     });
-                    body += `<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 24px;"><tr><td style="padding: 20px;"><h3 style="margin: 0 0 16px; font-size: 18px; font-family: 'Segoe UI', Arial, sans-serif; border-bottom: 1px solid #e5e7eb; padding-bottom: 12px;">${departamento}</h3>${superioresHtml}</td></tr></table>`;
+                    body += `<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 24px;"><tr><td style="padding: 20px;"><h3 style="margin: 0 0 16px; font-size: 18px; font-family: 'Segoe UI', Arial, sans-serif; border-bottom: 1px solid #e5e7eb; padding-bottom: 12px;">${safeDepartamento}</h3>${superioresHtml}</td></tr></table>`;
                 });
                 return body;
             }
@@ -968,7 +1017,10 @@
                 } else {
                     textoIntro = `Para sua ciência e preparação, seguem as mudanças que serão submetidas para análise e aprovação na próxima reunião do Comitê de Mudanças (CAB).`;
                 }
-                
+
+                const safeSaudacao = escapeHtml(saudacao);
+                const safeTextoIntro = escapeHtml(textoIntro);
+
                 let kpis = { total: 0, gerentes: 0, criticas: 0};
                 Object.values(grupos).forEach(superiores => {
                     kpis.gerentes += Object.keys(superiores).length;
@@ -980,19 +1032,25 @@
                     });
                 });
 
+                const safeKpisTotal = escapeHtml(kpis.total);
+                const safeKpisGerentes = escapeHtml(kpis.gerentes);
+                const safeKpisCriticas = escapeHtml(kpis.criticas);
+
                 const noticeHtml = `<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 24px;"><tr><td style="background-color: #f8fafc; border-left: 4px solid #64748b; padding: 16px; border-radius: 4px;"><p style="margin: 0; font-size: 13px; font-family: 'Segoe UI', Arial, sans-serif; color: #334155; line-height: 1.6;"><strong style="color: #1e293b;">Observação:</strong> Caso sejam identificadas divergências entre o Solicitante e o Coordenador, é necessário solicitar a correção no cadastro do ServiceNow, que serve como base para a geração deste relatório.</p></td></tr></table>`;
 
                 const kpisHtml = options.tipo === 'aprovadas' ?
-                    `<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom:30px;"><tr><td align="center" width="33.33%" style="padding:0 10px;"><p style="margin:0;font-size:28px;color:#A0A0A0;font-weight:700;">${kpis.total}</p><p style="margin:0;font-size:12px;color:#777777;text-transform:uppercase;">Total</p></td><td align="center" width="33.33%" style="padding:0 10px;border-left:1px solid #D1D1D1;border-right:1px solid #D1D1D1;"><p style="margin:0;font-size:28px;color:#A0A0A0;font-weight:700;">${kpis.gerentes}</p><p style="margin:0;font-size:12px;color:#777777;text-transform:uppercase;">Superiores</p></td><td align="center" width="33.33%" style="padding:0 10px;"><p style="margin:0;font-size:28px;color:#D32F2F;font-weight:700;">${kpis.criticas}</p><p style="margin:0;font-size:12px;color:#777777;text-transform:uppercase;">Críticas</p></td></tr></table>` :
-                    `<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom:30px;"><tr><td align="center" width="50%" style="padding:0 10px;border-right:1px solid #D1D1D1;"><p style="margin:0;font-size:28px;color:#A0A0A0;font-weight:700;">${kpis.total}</p><p style="margin:0;font-size:12px;color:#777777;text-transform:uppercase;">Total</p></td><td align="center" width="50%" style="padding:0 10px;"><p style="margin:0;font-size:28px;color:#A0A0A0;font-weight:700;">${kpis.gerentes}</p><p style="margin:0;font-size:12px;color:#777777;text-transform:uppercase;">Superiores</p></td></tr></table>`;
-                
+                    `<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom:30px;"><tr><td align="center" width="33.33%" style="padding:0 10px;"><p style="margin:0;font-size:28px;color:#A0A0A0;font-weight:700;">${safeKpisTotal}</p><p style="margin:0;font-size:12px;color:#777777;text-transform:uppercase;">Total</p></td><td align="center" width="33.33%" style="padding:0 10px;border-left:1px solid #D1D1D1;border-right:1px solid #D1D1D1;"><p style="margin:0;font-size:28px;color:#A0A0A0;font-weight:700;">${safeKpisGerentes}</p><p style="margin:0;font-size:12px;color:#777777;text-transform:uppercase;">Superiores</p></td><td align="center" width="33.33%" style="padding:0 10px;"><p style="margin:0;font-size:28px;color:#D32F2F;font-weight:700;">${safeKpisCriticas}</p><p style="margin:0;font-size:12px;color:#777777;text-transform:uppercase;">Críticas</p></td></tr></table>` :
+                    `<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom:30px;"><tr><td align="center" width="50%" style="padding:0 10px;border-right:1px solid #D1D1D1;"><p style="margin:0;font-size:28px;color:#A0A0A0;font-weight:700;">${safeKpisTotal}</p><p style="margin:0;font-size:12px;color:#777777;text-transform:uppercase;">Total</p></td><td align="center" width="50%" style="padding:0 10px;"><p style="margin:0;font-size:28px;color:#A0A0A0;font-weight:700;">${safeKpisGerentes}</p><p style="margin:0;font-size:12px;color:#777777;text-transform:uppercase;">Superiores</p></td></tr></table>`;
+
                 let cardsHtml = '';
                 Object.keys(grupos).sort().forEach(departamento => {
+                    const safeDepartamento = escapeHtml(departamento);
                     let superioresHtml = '';
                     Object.keys(grupos[departamento]).sort().forEach(superior => {
+                        const safeSuperior = escapeHtml(superior);
                         const mudancas = grupos[departamento][superior];
                         mudancas.sort((a,b) => (a.cr9ff_nmero || '').localeCompare(b.cr9ff_nmero || ''));
-                        
+
                         const mudancasHtml = mudancas.map(m => {
                             const prioridade = getPriorityStyle(m.cr9ff_prioridade);
                             const inicioFmt = formatLocalDate(parseApiDate(m['cr9ff_datadeincioplanejada@OData.Community.Display.V1.FormattedValue']));
@@ -1001,6 +1059,16 @@
                                 m['cr9ff_datadeincioplanejada@OData.Community.Display.V1.FormattedValue'],
                                 m['cr9ff_datadetrminoplanejada@OData.Community.Display.V1.FormattedValue']
                             );
+                            const numero = escapeHtml(m.cr9ff_nmero || 'N/A');
+                            const descricao = escapeHtml(m.cr9ff_descrioresumida || 'Descrição não disponível');
+                            const prioridadeTexto = escapeHtml(prioridade.text);
+                            const inicioFmtSeguro = escapeHtml(inicioFmt);
+                            const fimFmtSeguro = escapeHtml(fimFmt);
+                            const duracaoSegura = escapeHtml(duracao);
+                            const solicitante = escapeHtml(m.cr9ff_abertopor || 'N/A');
+                            const solicitanteId = escapeHtml(m.cr9ff_iddousurio || 'N/A');
+                            const itemConfiguracao = escapeHtml(m.cr9ff_itemdeconfigurao || 'N/A');
+                            const analiseRisco = escapeHtml(m.cr9ff_anlisederiscoeimpacto || 'Não informada.');
                             return `<table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top:16px; border: 1px solid #D1D1D1; border-top: 4px solid ${prioridade.borderColor}; border-radius: 6px;">
                                         <tr><td style="padding:16px 20px;">
                                             <table width="100%" border="0" cellspacing="0" cellpadding="0">
@@ -1009,11 +1077,11 @@
                                                     <table width="100%" border="0" cellspacing="0" cellpadding="0">
                                                         <tr>
                                                             <td>
-                                                                <p style="margin:0 0 4px;font-size:13px;color:#777777;">${m.cr9ff_nmero || 'N/A'}</p>
-                                                                <h3 style="margin:0;font-size:16px;color:#5A5A5A;font-weight:700;line-height:1.4;">${m.cr9ff_descrioresumida || 'Descrição não disponível'}</h3>
+                                                                <p style="margin:0 0 4px;font-size:13px;color:#777777;">${numero}</p>
+                                                                <h3 style="margin:0;font-size:16px;color:#5A5A5A;font-weight:700;line-height:1.4;">${descricao}</h3>
                                                             </td>
                                                             <td width="100" align="right" valign="top">
-                                                                <span style="display:inline-block;padding:4px 10px;font-size:11px;font-weight:600;color:${prioridade.tagColor};border:1px solid ${prioridade.borderColor};border-radius:4px;">${prioridade.text}</span>
+                                                                <span style="display:inline-block;padding:4px 10px;font-size:11px;font-weight:600;color:${prioridade.tagColor};border:1px solid ${prioridade.borderColor};border-radius:4px;">${prioridadeTexto}</span>
                                                             </td>
                                                         </tr>
                                                     </table>
@@ -1023,16 +1091,16 @@
                                                 <tr>
                                                     <td width="50%" valign="top" style="padding-right:12px;font-size:13px;color:#2C2C2C;line-height:1.5;">
                                                         <strong style="color:#555;">Período Planejado:</strong><br>
-                                                        ${inicioFmt} a<br>
-                                                        ${fimFmt}<br><br>
+                                                        ${inicioFmtSeguro} a<br>
+                                                        ${fimFmtSeguro}<br><br>
                                                         <strong style="color:#555;">Duração Estimada:</strong><br>
-                                                        ${duracao}
+                                                        ${duracaoSegura}
                                                     </td>
                                                     <td width="50%" valign="top" style="padding-left:12px;font-size:13px;color:#2C2C2C;line-height:1.5;">
                                                         <strong style="color:#555;">Solicitante:</strong><br>
-                                                        ${m.cr9ff_abertopor || 'N/A'} (${m.cr9ff_iddousurio || 'N/A'})<br><br>
+                                                        ${solicitante} (${solicitanteId})<br><br>
                                                         <strong style="color:#555;">Item de Configuração:</strong><br>
-                                                        ${m.cr9ff_itemdeconfigurao || 'N/A'}
+                                                        ${itemConfiguracao}
                                                     </td>
                                                 </tr>
                                                 <tr><td colspan="2" height="16"></td></tr>
@@ -1041,7 +1109,7 @@
                                                     <td colspan="2" style="background-color: #F8F8F8; border-left: 4px solid ${prioridade.borderColor}; padding: 12px 16px; border-radius: 4px;">
                                                         <p style="margin: 0; font-size: 13px; color: #2C2C2C; line-height: 1.5;">
                                                             <strong style="color: #555555;">Análise de Risco e Impacto:</strong><br>
-                                                            ${m.cr9ff_anlisederiscoeimpacto || 'Não informada.'}
+                                                            ${analiseRisco}
                                                         </p>
                                                     </td>
                                                 </tr>
@@ -1050,15 +1118,15 @@
                                     </table>`;
                         }).join('');
 
-                        superioresHtml += `<h2 style="margin:24px 0 8px 0;font-size:18px;color:#2C2C2C;font-weight:700;border-bottom:1px solid #D1D1D1;padding-bottom:8px;">${superior}</h2>${mudancasHtml}`;
+                        superioresHtml += `<h2 style="margin:24px 0 8px 0;font-size:18px;color:#2C2C2C;font-weight:700;border-bottom:1px solid #D1D1D1;padding-bottom:8px;">${safeSuperior}</h2>${mudancasHtml}`;
                     });
 
-                    cardsHtml += `<div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 24px;"><div style="padding: 20px;"><h3 style="margin: 0 0 16px; font-size: 18px; font-family: 'Segoe UI', Arial, sans-serif; border-bottom: 1px solid #e5e7eb; padding-bottom: 12px;">${departamento}</h3>${superioresHtml}</div></div>`;
+                    cardsHtml += `<div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 24px;"><div style="padding: 20px;"><h3 style="margin: 0 0 16px; font-size: 18px; font-family: 'Segoe UI', Arial, sans-serif; border-bottom: 1px solid #e5e7eb; padding-bottom: 12px;">${safeDepartamento}</h3>${superioresHtml}</div></div>`;
                 });
-                
+
                 const teamsButtonPlaceholder = options.tipo === 'previa' ? '<div style="text-align:center; padding-bottom: 25px;">%%TEAMS_BUTTON%%</div>' : '';
 
-                return `<p style="font-size:15px;color:#2C2C2C;line-height:1.6;padding-bottom:20px;">${saudacao}<br><br>${textoIntro}</p>${editableObservationCard}${noticeHtml}${teamsButtonPlaceholder}${kpisHtml}${cardsHtml}`;
+                return `<p style="font-size:15px;color:#2C2C2C;line-height:1.6;padding-bottom:20px;">${safeSaudacao}<br><br>${safeTextoIntro}</p>${editableObservationCard}${noticeHtml}${teamsButtonPlaceholder}${kpisHtml}${cardsHtml}`;
             }
 
             function generateGenericXLSX(mudancas, filename) {
@@ -1093,7 +1161,8 @@
             }
             
             function generateTeamsButtonHtml(url) {
-                return `<table border="0" cellspacing="0" cellpadding="0" align="center"><tr><td align="center" style="background-color:#464EB8;border-radius:4px;"><a href="${url}" target="_blank" style="padding:12px 25px;font-family:'Segoe UI',Arial,sans-serif;font-size:16px;color:#ffffff;text-decoration:none;display:inline-block;font-weight:600;">Acessar Reunião do Teams</a></td></tr></table>`;
+                const safeUrl = escapeHtml(url);
+                return `<table border="0" cellspacing="0" cellpadding="0" align="center"><tr><td align="center" style="background-color:#464EB8;border-radius:4px;"><a href="${safeUrl}" target="_blank" style="padding:12px 25px;font-family:'Segoe UI',Arial,sans-serif;font-size:16px;color:#ffffff;text-decoration:none;display:inline-block;font-weight:600;">Acessar Reunião do Teams</a></td></tr></table>`;
             }
 
             function extrairEmails(mudancas) {
@@ -1136,6 +1205,52 @@
 
                 return parts.length > 0 ? parts.join(' ') : '< 1m';
             }
+
+            function runStaticTests() {
+                const API_END_DATE_KEY = 'cr9ff_datadetrminoplanejada@OData.Community.Display.V1.FormattedValue';
+                const pad = (value) => String(value).padStart(2, '0');
+                const formatToApiDate = (date) => {
+                    return `${pad(date.getDate())}/${pad(date.getMonth() + 1)}/${date.getFullYear()} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+                };
+
+                const now = new Date();
+                const createDateWithOffset = (daysOffset) => {
+                    const date = new Date(now.getTime() + daysOffset * 24 * 60 * 60 * 1000);
+                    date.setHours(0, 0, 0, 0);
+                    return date;
+                };
+
+                const atrasadaComData = {
+                    cr9ff_classificao: 'Execução',
+                    [API_END_DATE_KEY]: formatToApiDate(createDateWithOffset(-10)),
+                    cr9ff_departamento_2: 'Teste',
+                    cr9ff_gerente_1: 'Gerente Teste',
+                    cr9ff_nmero: 'CHG0001',
+                    cr9ff_descrioresumida: 'Mudança com data válida',
+                    cr9ff_abertopor: 'Solicitante Teste',
+                    cr9ff_iddousurio: 'ID123'
+                };
+
+                const atrasadaSemData = {
+                    cr9ff_classificao: 'Execução',
+                    [API_END_DATE_KEY]: '',
+                    cr9ff_departamento_2: 'Teste',
+                    cr9ff_gerente_1: 'Gerente Sem Data',
+                    cr9ff_nmero: 'CHG0002',
+                    cr9ff_descrioresumida: 'Mudança sem data',
+                    cr9ff_abertopor: 'Solicitante Teste',
+                    cr9ff_iddousurio: 'ID124'
+                };
+
+                const { metricas } = processarDadosDeAtraso([atrasadaComData, atrasadaSemData]);
+                const expectedPreviousWeekTotal = 1;
+                console.assert(
+                    metricas.previousWeekTotal === expectedPreviousWeekTotal,
+                    `Teste estático falhou: esperado ${expectedPreviousWeekTotal}, recebido ${metricas.previousWeekTotal}`
+                );
+            }
+
+            runStaticTests();
         });
     </script>
 </body>
