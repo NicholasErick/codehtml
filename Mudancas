@@ -102,7 +102,7 @@
                             <div id="cc-recipients-display" class="mt-2 text-sm text-gray-700">Nenhum destinatário em cópia.</div>
                             
                             <div id="attachment-section">
-                                <label for="attachment-input" class="block text-sm font-medium text-gray-700 mt-4">Anexar Arquivo (Opcional)</label>
+                                <label id="attachment-label" for="attachment-input" class="block text-sm font-medium text-gray-700 mt-4">Anexar Arquivo (Opcional)</label>
                                 <input type="file" id="attachment-input" class="mt-1 text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"/>
                             </div>
                              <div id="auto-attachment-section" class="hidden mt-4 text-sm">
@@ -111,6 +111,8 @@
                                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
                                      <span id="auto-attachment-filename" class="font-semibold"></span>
                                  </div>
+                                 <p id="auto-attachment-note" class="mt-2 text-xs text-gray-600">Caso necessário, anexe um arquivo CSV manual acima para substituir este anexo automático.</p>
+                                 <p id="auto-attachment-override" class="hidden mt-2 text-xs text-blue-700">CSV manual selecionado: <span id="csv-override-filename" class="font-semibold"></span>. Ele substituirá o anexo automático ao enviar.</p>
                              </div>
                         </div>
                     </div>
@@ -311,9 +313,15 @@
             const previewFrame = document.getElementById('email-preview-frame');
             const toolbar = document.getElementById('text-format-toolbar');
             const attachmentInput = document.getElementById('attachment-input');
+            const attachmentLabel = document.getElementById('attachment-label');
             const attachmentSection = document.getElementById('attachment-section');
             const autoAttachmentSection = document.getElementById('auto-attachment-section');
             const autoAttachmentFilename = document.getElementById('auto-attachment-filename');
+            const autoAttachmentNote = document.getElementById('auto-attachment-note');
+            const autoAttachmentOverride = document.getElementById('auto-attachment-override');
+            const csvOverrideFilename = document.getElementById('csv-override-filename');
+            const defaultAttachmentLabel = attachmentLabel ? attachmentLabel.textContent : '';
+            const autoAttachmentNoteDefault = autoAttachmentNote ? autoAttachmentNote.textContent : '';
             const testModeToggle = document.getElementById('test-mode-toggle');
             const loadingOverlay = document.getElementById('loading-overlay');
             const templateSpecificOptionsContainer = document.getElementById('template-specific-options');
@@ -336,6 +344,7 @@
             let fixedRecipients = new Set();
             let ccRecipients = new Set();
             let generatedAttachment = null;
+            let csvOverrideActive = false;
             let tempFixedRecipients = new Set();
 
             // --- Inicialização ---
@@ -356,9 +365,91 @@
             confirmTestEmailBtn.addEventListener('click', handleConfirmTestEmail);
             cancelSendBtn.addEventListener('click', () => confirmSendModal.classList.add('hidden'));
             toggleObservationCard.addEventListener('change', handleToggleObservation);
+            attachmentInput.addEventListener('change', handleAttachmentInputChange);
+            updateAutoAttachmentIndicator();
 
-            
+
             // --- Lógica Principal ---
+            function isCsvFile(file) {
+                return !!file && /\.csv$/i.test(file.name);
+            }
+
+            function readFileAsBase64(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        const result = reader.result;
+                        if (typeof result === 'string') {
+                            const [, base64Content = ''] = result.split(',');
+                            if (base64Content) {
+                                resolve(base64Content);
+                                return;
+                            }
+                        }
+                        reject(new Error('Erro ao processar o arquivo selecionado.'));
+                    };
+                    reader.onerror = () => reject(reader.error || new Error('Falha ao ler o arquivo selecionado.'));
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            function updateAutoAttachmentIndicator() {
+                if (!autoAttachmentSection) return;
+
+                if (!generatedAttachment) {
+                    autoAttachmentSection.classList.add('hidden');
+                    if (autoAttachmentNote) autoAttachmentNote.classList.add('hidden');
+                    if (autoAttachmentOverride) autoAttachmentOverride.classList.add('hidden');
+                    if (csvOverrideFilename) csvOverrideFilename.textContent = '';
+                    if (attachmentLabel) attachmentLabel.textContent = defaultAttachmentLabel;
+                    csvOverrideActive = false;
+                    if (autoAttachmentNote && autoAttachmentNoteDefault) {
+                        autoAttachmentNote.textContent = autoAttachmentNoteDefault;
+                    }
+                    return;
+                }
+
+                autoAttachmentFilename.textContent = generatedAttachment.filename;
+                autoAttachmentSection.classList.remove('hidden');
+
+                if (attachmentLabel) {
+                    attachmentLabel.textContent = 'Substituir anexo automático por CSV (Opcional)';
+                }
+
+                if (csvOverrideActive) {
+                    if (autoAttachmentNote) autoAttachmentNote.classList.add('hidden');
+                    if (autoAttachmentOverride) autoAttachmentOverride.classList.remove('hidden');
+                } else {
+                    if (autoAttachmentOverride) autoAttachmentOverride.classList.add('hidden');
+                    if (csvOverrideFilename) csvOverrideFilename.textContent = '';
+                    if (autoAttachmentNote) {
+                        autoAttachmentNote.textContent = autoAttachmentNoteDefault;
+                        autoAttachmentNote.classList.remove('hidden');
+                    }
+                }
+            }
+
+            function handleAttachmentInputChange() {
+                const file = attachmentInput.files[0];
+                const csvSelected = isCsvFile(file);
+
+                if (generatedAttachment && csvSelected) {
+                    csvOverrideActive = true;
+                    if (csvOverrideFilename) csvOverrideFilename.textContent = file.name;
+                } else {
+                    if (csvOverrideFilename && csvOverrideActive) {
+                        csvOverrideFilename.textContent = '';
+                    }
+                    csvOverrideActive = false;
+                }
+
+                if (autoAttachmentNote && autoAttachmentNoteDefault) {
+                    autoAttachmentNote.textContent = autoAttachmentNoteDefault;
+                }
+
+                updateAutoAttachmentIndicator();
+            }
+
             async function handleTemplateSelection(event) {
                 const card = event.currentTarget;
                 if (selectedTemplateCard) selectedTemplateCard.classList.remove('selected-card');
@@ -373,8 +464,9 @@
                 attachmentInput.value = '';
                 toggleObservationCard.checked = false;
                 generatedAttachment = null;
+                csvOverrideActive = false;
+                handleAttachmentInputChange();
                 attachmentSection.classList.remove('hidden');
-                autoAttachmentSection.classList.add('hidden');
                 emailSubjectInput.value = template.subject;
                 fixedRecipients = new Set();
                 ccRecipients = new Set();
@@ -403,9 +495,8 @@
                         
                         if (result.attachment) {
                             generatedAttachment = result.attachment;
-                            attachmentSection.classList.add('hidden');
-                            autoAttachmentFilename.textContent = result.attachment.filename;
-                            autoAttachmentSection.classList.remove('hidden');
+                            csvOverrideActive = false;
+                            updateAutoAttachmentIndicator();
                         }
                         showStatus('Template carregado. Pronto para editar.', 'success');
                     } catch (error) {
@@ -621,15 +712,26 @@
             async function executeSend(destinatariosPara, destinatariosCopia) {
                 sendButton.disabled = true;
                 showStatus('Preparando para enviar...', 'loading');
+                const manualFile = attachmentInput.files[0];
+                const manualIsCsv = isCsvFile(manualFile);
                 let attachmentContent = null, attachmentName = null;
-                if (generatedAttachment) {
+
+                if (manualFile && manualIsCsv) {
+                    attachmentContent = await readFileAsBase64(manualFile);
+                    attachmentName = manualFile.name;
+                } else if (generatedAttachment) {
                     attachmentContent = generatedAttachment.content;
                     attachmentName = generatedAttachment.filename;
-                } else if (attachmentInput.files[0]) {
-                    const file = attachmentInput.files[0];
-                    attachmentContent = (await new Promise(r=> { const reader=new FileReader();reader.onload=()=>r(reader.result.split(',')[1]);reader.readAsDataURL(file); }));
-                    attachmentName = file.name;
+                } else if (manualFile) {
+                    attachmentContent = await readFileAsBase64(manualFile);
+                    attachmentName = manualFile.name;
                 }
+
+                if (generatedAttachment && manualIsCsv !== csvOverrideActive) {
+                    csvOverrideActive = manualIsCsv;
+                    updateAutoAttachmentIndicator();
+                }
+
                 const payload = { htmlParaEnviar: generateFinalHtml(), assuntoParaEnviar: emailSubjectInput.value, destinatariosFixos: destinatariosPara, destinatariosDinamicos: destinatariosCopia, attachmentName, attachmentContent };
                 showStatus('Enviando...', 'loading');
                 try {
@@ -701,7 +803,7 @@
             }
 
             /**
-             * Parses a date string from the API (DD/MM/YYYY HH:mm) as UTC.
+             * Parses a date string from the API (DD/MM/YYYY HH:mm) using the São Paulo timezone.
              * @param {string} dateString - The date string from the API.
              * @returns {Date|null} A Date object or null if invalid.
              */
@@ -716,9 +818,18 @@
                 const hour = match[4] || '00';
                 const minute = match[5] || '00';
 
-                // Create an ISO 8601 string and append 'Z' to specify it's UTC
-                const isoString = `${year}-${month}-${day}T${hour}:${minute}:00Z`;
-                return new Date(isoString);
+                // Interpret the date as being in the São Paulo timezone (-03:00)
+                const isoString = `${year}-${month}-${day}T${hour}:${minute}:00-03:00`;
+                const parsedDate = new Date(isoString);
+
+                if (!isNaN(parsedDate.getTime())) {
+                    return parsedDate;
+                }
+
+                // Fallback in case the environment cannot parse the ISO string with offset
+                const offsetMinutes = 3 * 60; // São Paulo is UTC-3 (no DST at present)
+                const timestamp = Date.UTC(Number(year), Number(month) - 1, Number(day), Number(hour), Number(minute)) + offsetMinutes * 60 * 1000;
+                return new Date(timestamp);
             }
 
             /**
