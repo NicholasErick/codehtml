@@ -716,15 +716,23 @@
                 const manualIsCsv = isCsvFile(manualFile);
                 let attachmentContent = null, attachmentName = null;
 
-                if (manualFile && manualIsCsv) {
-                    attachmentContent = await readFileAsBase64(manualFile);
-                    attachmentName = manualFile.name;
-                } else if (generatedAttachment) {
-                    attachmentContent = generatedAttachment.content;
-                    attachmentName = generatedAttachment.filename;
-                } else if (manualFile) {
-                    attachmentContent = await readFileAsBase64(manualFile);
-                    attachmentName = manualFile.name;
+                try {
+                    if (manualFile && manualIsCsv) {
+                        attachmentContent = await readFileAsBase64(manualFile);
+                        attachmentName = manualFile.name;
+                    } else if (generatedAttachment) {
+                        attachmentContent = generatedAttachment.content;
+                        attachmentName = generatedAttachment.filename;
+                    } else if (manualFile) {
+                        attachmentContent = await readFileAsBase64(manualFile);
+                        attachmentName = manualFile.name;
+                    }
+                } catch (error) {
+                    showStatus(`Não foi possível ler o arquivo selecionado: ${error.message}`, 'error');
+                    attachmentContent = null;
+                    attachmentName = null;
+                    sendButton.disabled = false;
+                    return;
                 }
 
                 if (generatedAttachment && manualIsCsv !== csvOverrideActive) {
