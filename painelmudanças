@@ -510,7 +510,7 @@
             appendUnmatchedClassificationsNotice(contentContainer, unmatchedClassifications);
         }
 
-        const groupedByManager = groupData(filteredChanges, 'cr9ff_departamento', 'cr9ff_gerente');
+        const groupedByHierarchy = groupData(filteredChanges, 'cr9ff_departamento', 'cr9ff_gerente');
 
         const priorityCounts = countBy(allChanges, m => getPriorityStyle(m.cr9ff_prioridade).text);
         const monthlyCounts = countBy(allChanges, m => getMonthlyCategory(m.createdon));
@@ -539,20 +539,20 @@
             return;
         }
 
-        for (const departmentName in groupedByManager) {
-            const departmentData = groupedByManager[departmentName];
-            const managerAccordion = createAccordion('manager', departmentName, departmentData.count);
-            const managerContent = managerAccordion.querySelector('.accordion-content');
+        for (const departmentName in groupedByHierarchy) {
+            const departmentData = groupedByHierarchy[departmentName];
+            const departmentAccordion = createAccordion('manager', departmentName, departmentData.count);
+            const departmentContent = departmentAccordion.querySelector('.accordion-content');
 
-            for (const superiorName in departmentData.coordinators) {
-                const superiorData = departmentData.coordinators[superiorName];
-                const coordinatorAccordion = createAccordion('coordinator', superiorName, superiorData.count);
-                const coordinatorContent = coordinatorAccordion.querySelector('.accordion-content');
+            for (const superiorName in departmentData.secondaryGroups) {
+                const superiorData = departmentData.secondaryGroups[superiorName];
+                const superiorAccordion = createAccordion('coordinator', superiorName, superiorData.count);
+                const superiorContent = superiorAccordion.querySelector('.accordion-content');
                 
-                superiorData.changes.forEach(m => coordinatorContent.appendChild(createChangeCard(m)));
-                managerContent.appendChild(coordinatorAccordion);
+                superiorData.changes.forEach(m => superiorContent.appendChild(createChangeCard(m)));
+                departmentContent.appendChild(superiorAccordion);
             }
-            contentContainer.appendChild(managerAccordion);
+            contentContainer.appendChild(departmentAccordion);
         }
     }
 
@@ -563,7 +563,7 @@
         }
 
         const now = new Date();
-        const groupedByManager = groupData(filteredChanges, 'cr9ff_departamento', 'cr9ff_gerente');
+        const groupedByHierarchy = groupData(filteredChanges, 'cr9ff_departamento', 'cr9ff_gerente');
         
         const monthlyCounts = countBy(allChanges, m => getMonthlyCategory(m.createdon));
         const checklistCounts = countBy(allChanges, m => m.checklist ? 'Com Checklist' : 'Sem Checklist');
@@ -611,20 +611,20 @@
             return;
         }
         
-        for (const departmentName in groupedByManager) {
-            const departmentData = groupedByManager[departmentName];
-            const managerAccordion = createAccordion('manager', departmentName, departmentData.count);
-            const managerContent = managerAccordion.querySelector('.accordion-content');
+        for (const departmentName in groupedByHierarchy) {
+            const departmentData = groupedByHierarchy[departmentName];
+            const departmentAccordion = createAccordion('manager', departmentName, departmentData.count);
+            const departmentContent = departmentAccordion.querySelector('.accordion-content');
 
-            for (const superiorName in departmentData.coordinators) {
-                const superiorData = departmentData.coordinators[superiorName];
-                const coordinatorAccordion = createAccordion('coordinator', superiorName, superiorData.count);
-                const coordinatorContent = coordinatorAccordion.querySelector('.accordion-content');
+            for (const superiorName in departmentData.secondaryGroups) {
+                const superiorData = departmentData.secondaryGroups[superiorName];
+                const superiorAccordion = createAccordion('coordinator', superiorName, superiorData.count);
+                const superiorContent = superiorAccordion.querySelector('.accordion-content');
 
-                superiorData.changes.forEach(m => coordinatorContent.appendChild(createChangeCard(m, true)));
-                managerContent.appendChild(coordinatorAccordion);
+                superiorData.changes.forEach(m => superiorContent.appendChild(createChangeCard(m, true)));
+                departmentContent.appendChild(superiorAccordion);
             }
-            contentContainer.appendChild(managerAccordion);
+            contentContainer.appendChild(departmentAccordion);
         }
     }
 
@@ -829,7 +829,7 @@
                 </div>
                 <div class="grid grid-cols-2 gap-4 text-sm">
                     <div><p class="font-semibold text-slate-600 dark:text-slate-300">Período Planejado</p><p class="text-slate-800 dark:text-slate-200">${m['cr9ff_datadeincioplanejada@OData.Community.Display.V1.FormattedValue'] || 'N/A'} a<br>${m['cr9ff_datadetrminoplanejada@OData.Community.Display.V1.FormattedValue'] || 'N/A'}</p></div>
-                    <div><p class="font-semibold text-slate-600 dark:text-slate-300">Coordenador</p><p class="text-slate-800 dark:text-slate-200">${m.cr9ff_coordenador || 'N/A'}</p></div>
+                    <div><p class="font-semibold text-slate-600 dark:text-slate-300">Solicitante</p><p class="text-slate-800 dark:text-slate-200">${m.cr9ff_solicitante || 'N/A'}</p></div>
                 </div>
                 <div class="mt-auto pt-4 text-right">
                     <button data-action="view-details" class="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline">Ver Detalhes</button>
@@ -867,9 +867,9 @@
       if (!Array.isArray(mudancas)) return [];
       return mudancas.map(m => {
         const newChange = { ...m };
-        newChange.cr9ff_gerente = m.gerente;
-        newChange.cr9ff_coordenador = m.coordenador;
-        newChange.cr9ff_departamento = m.departamento;
+        newChange.cr9ff_gerente = m['_cr9ff_gerente_1_value@OData.Community.Display.V1.FormattedValue'] ?? m['_cr9ff_gerente_2_value@OData.Community.Display.V1.FormattedValue'];
+        newChange.cr9ff_coordenador = m['_cr9ff_coordenador_value@OData.Community.Display.V1.FormattedValue'];
+        newChange.cr9ff_departamento = m['_cr9ff_departamento_value@OData.Community.Display.V1.FormattedValue'];
         newChange.cr9ff_solicitante = m.cr9ff_abertopor;
         return newChange;
       });
@@ -903,18 +903,22 @@
         initTheme();
     }
 
-    function groupData(data, managerKey, coordinatorKey) {
+    function groupData(data, primaryKey, secondaryKey) {
         const grouped = {};
         data.forEach(item => {
-            const manager = item[managerKey] || 'Gerente não especificado';
-            if (!grouped[manager]) grouped[manager] = { count: 0, coordinators: {} };
-            if (coordinatorKey) {
-                const coordinator = item[coordinatorKey] || 'Coordenador não especificado';
-                if (!grouped[manager].coordinators[coordinator]) grouped[manager].coordinators[coordinator] = { count: 0, changes: [] };
-                grouped[manager].coordinators[coordinator].count++;
-                grouped[manager].coordinators[coordinator].changes.push(item);
+            const primaryGroup = item[primaryKey] || 'Departamento não especificado';
+            if (!grouped[primaryGroup]) {
+                grouped[primaryGroup] = { count: 0, secondaryGroups: {} };
             }
-            grouped[manager].count++;
+
+            const secondaryGroup = item[secondaryKey] || 'Superior não especificado';
+            if (!grouped[primaryGroup].secondaryGroups[secondaryGroup]) {
+                grouped[primaryGroup].secondaryGroups[secondaryGroup] = { count: 0, changes: [] };
+            }
+            
+            grouped[primaryGroup].secondaryGroups[secondaryGroup].count++;
+            grouped[primaryGroup].secondaryGroups[secondaryGroup].changes.push(item);
+            grouped[primaryGroup].count++;
         });
         return grouped;
     }
