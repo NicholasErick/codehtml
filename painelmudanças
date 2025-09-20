@@ -138,6 +138,14 @@
     .dark .breakdown-label.active {
         color: #60a5fa;
     }
+    #global-search::-webkit-search-cancel-button {
+        -webkit-appearance: none;
+        height: 1rem;
+        width: 1rem;
+        margin-left: .25rem;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%239CA3AF'><path d='M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z'/></svg>");
+        cursor: pointer;
+    }
   </style>
 </head>
 <body class="bg-slate-100 dark:bg-gray-900 text-slate-800 dark:text-slate-200 transition-colors duration-300">
@@ -146,13 +154,19 @@
     <!-- CABEÇALHO -->
     <header class="bg-white dark:bg-slate-800 shadow-sm sticky top-0 z-20 transition-colors duration-300">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-        <div class="flex justify-between items-center">
-            <div>
+        <div class="flex justify-between items-center gap-4">
+            <div class="flex-shrink-0">
                 <h1 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">Dashboard de Gestão de Mudanças</h1>
                 <p id="user-greeting" class="text-xs text-slate-500 dark:text-slate-400"></p>
             </div>
-            <div class="flex items-center gap-4">
-                <div id="last-updated-container" class="text-right">
+            <div class="relative flex-grow max-w-md">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i data-lucide="search" class="h-5 w-5 text-slate-400"></i>
+                </div>
+                <input type="search" id="global-search" placeholder="Buscar por nº, descrição, gerente..." class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:placeholder-slate-400 transition">
+            </div>
+            <div class="flex items-center gap-2 flex-shrink-0">
+                <div id="last-updated-container" class="text-right hidden sm:block">
                     <p class="text-xs text-slate-500 dark:text-slate-400">Última Atualização</p>
                     <p class="text-sm font-semibold text-slate-700 dark:text-slate-300" id="last-updated-timestamp">--/--/---- --:--</p>
                 </div>
@@ -165,15 +179,15 @@
     </header>
 
     <!-- NAVEGAÇÃO POR ABAS -->
-    <nav class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-[65px] sm:top-[69px] z-10 transition-colors duration-300">
+    <nav class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-[81px] sm:top-[85px] z-10 transition-colors duration-300">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex -mb-px items-center">
           <button data-tab="aprovadas" class="tab active text-sm font-semibold py-3 px-4 border-b-2 border-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">
-            Relatório de Aprovadas
+            Aprovadas
           </button>
           <div class="tooltip-container">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-            <span class="tooltip-text">Exibe as mudanças já aprovadas no último comitê (classificação 'Report'), agrupadas por gerente e prioridade.</span>
+            <span class="tooltip-text">Classificação: 'Report'</span>
           </div>
 
           <button data-tab="previa" class="tab text-sm font-semibold py-3 px-4 ml-4 border-b-2 border-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">
@@ -181,15 +195,23 @@
           </button>
             <div class="tooltip-container">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-            <span class="tooltip-text">Lista as mudanças que serão apresentadas no próximo comitê para aprovação (classificação 'Comite').</span>
+            <span class="tooltip-text">Classificação: 'Comite'</span>
           </div>
 
           <button data-tab="temporal" class="tab text-sm font-semibold py-3 px-4 ml-4 border-b-2 border-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">
-            Visão Temporal das Ativas
+            Ativas
           </button>
             <div class="tooltip-container">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-            <span class="tooltip-text">Mostra mudanças em execução (classificação 'Execução'), classificadas pelo status em relação à data atual.</span>
+            <span class="tooltip-text">Classificação: 'Execução'</span>
+          </div>
+
+          <button data-tab="superadas" class="tab text-sm font-semibold py-3 px-4 ml-4 border-b-2 border-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">
+            Superadas
+          </button>
+            <div class="tooltip-container">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            <span class="tooltip-text">Classificação: 'Superado'</span>
           </div>
         </div>
       </div>
@@ -217,6 +239,12 @@
           <div id="kpi-temporal" class="grid grid-cols-2 lg:grid-cols-5 gap-5 mb-8"></div>
           <div id="content-temporal" class="space-y-4"></div>
         </div>
+
+        <!-- PAINEL: SUPERADAS -->
+        <div id="panel-superadas" class="panel-content hidden">
+          <div id="kpi-superadas" class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8"></div>
+          <div id="content-superadas" class="space-y-4"></div>
+        </div>
       </section>
 
     </main>
@@ -235,18 +263,56 @@
     // URLs e constantes
     const URL_MUDANCAS = 'https://f9de0ae4d0f6e2fd9223eb9d948f40.0e.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/1371f4c89025411fac91fb7b8dd6ee79/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=MtxkUjXxGdY0zKsTi5opzjqcFx2oG5hM3vuBz1Zgdjk';
     const URL_CHECKLIST = 'https://f9de0ae4d0f6e2fd9223eb9d948f40.0e.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/67e54359b5e2415daa9fe5ad5cb320ec/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=FR58ReEbp4PaixTewkDTNR_6uS1scgD5o3q_ThKUqik';
-    const URL_DESTINATARIOS = 'https://f9de0ae4d0f6e2fd9223eb9d948f40.0e.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/ac59eb10a6be49229a6b246eb9c1eba2/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=1xwbO92Pnf7rGwudBe6b3KF-Kp9bnNVkDoRs-YHevMg';
     
     // --- ESTADO DA APLICAÇÃO ---
     const state = {
         isDataLoaded: false,
-        masterData: { mudancas: [], destinatarios: [], checklist: [] },
+        masterData: { mudancas: [], checklist: [] },
         activeFilters: {
             aprovadas: { type: 'all', value: null },
             previa: { type: 'all', value: null },
-            temporal: { type: 'all', value: null }
-        }
+            temporal: { type: 'all', value: null },
+            superadas: { type: 'all', value: null }
+        },
+        classificationInfo: null,
+        globalSearchTerm: ''
     };
+
+    const DIACRITICS_REGEX = new RegExp('[\\u0300-\\u036f]', 'g');
+
+    const TAB_CLASSIFICATION_LABELS = {
+        aprovadas: ['Report'],
+        previa: ['Comite'],
+        temporal: ['Execução'],
+        superadas: ['Superado']
+    };
+
+    const NORMALIZED_TAB_CLASSIFICATION_LABELS = Object.fromEntries(
+        Object.entries(TAB_CLASSIFICATION_LABELS).map(([tab, labels]) => [
+            tab,
+            new Set(labels.map(label => normalizeClassification(label)))
+        ])
+    );
+
+    const KNOWN_CLASSIFICATIONS = (() => {
+        const known = new Set();
+        Object.values(NORMALIZED_TAB_CLASSIFICATION_LABELS).forEach(set => {
+            set.forEach(value => known.add(value));
+        });
+        return known;
+    })();
+
+    function safeCreateIcons(context = 'renderização padrão') {
+        if (window.lucide?.createIcons) {
+            try {
+                window.lucide.createIcons();
+            } catch (error) {
+                console.warn(`Não foi possível renderizar os ícones do Lucide (${context}).`, error);
+            }
+        } else {
+            console.warn(`Biblioteca Lucide indisponível; ícones não serão renderizados (${context}).`);
+        }
+    }
 
     // --- INICIALIZAÇÃO ---
     document.addEventListener('DOMContentLoaded', () => {
@@ -254,6 +320,7 @@
         const panelsSection = document.getElementById('panels-section');
         const themeToggleBtn = document.getElementById('theme-toggle-btn');
         const modal = document.getElementById('details-modal');
+        const searchInput = document.getElementById('global-search');
 
         const switchTab = (tabId) => {
             const panels = document.querySelectorAll('.panel-content');
@@ -265,6 +332,14 @@
         tabs.forEach(tab => tab.addEventListener('click', () => switchTab(tab.dataset.tab)));
         themeToggleBtn.addEventListener('click', toggleTheme);
         
+        searchInput.addEventListener('input', (e) => {
+            state.globalSearchTerm = e.target.value;
+            const activeTabId = document.querySelector('.tab.active').dataset.tab;
+            if(state.isDataLoaded) {
+                renderPanel(activeTabId);
+            }
+        });
+
         modal.addEventListener('click', (e) => {
             if (e.target === modal || e.target.closest('[data-action="close-modal"]')) {
                 toggleModal(false);
@@ -311,25 +386,39 @@
         document.getElementById('last-updated-timestamp').textContent = 'Carregando...';
 
         try {
-            const [mainResponse, checklistResponse, destinatariosResponse] = await Promise.all([
+            const [mainResponse, checklistResponse] = await Promise.all([
                 fetch(URL_MUDANCAS, { method: 'POST' }),
-                fetch(URL_CHECKLIST, { method: 'POST' }),
-                fetch(URL_DESTINATARIOS, { method: 'POST' })
+                fetch(URL_CHECKLIST, { method: 'POST' })
             ]);
 
-            if (!mainResponse.ok || !checklistResponse.ok || !destinatariosResponse.ok) throw new Error(`Falha na rede`);
+            if (!mainResponse.ok || !checklistResponse.ok) throw new Error(`Falha na rede`);
             
             const mainDataJson = await mainResponse.json();
             const checklistData = await checklistResponse.json();
-            const destinatariosData = await destinatariosResponse.json();
 
-            const mudancasFromApi = mainDataJson.body || [];
-
-            state.masterData = { 
-                mudancas: mudancasFromApi,
-                destinatarios: destinatariosData.destinatarios || [],
-                checklist: checklistData.registros || [] 
+            const extractArrayFromResponse = (payload, fallbackKeys = []) => {
+                if (Array.isArray(payload)) {
+                    return payload;
+                }
+                const candidates = [ payload?.body?.value, payload?.body, payload?.value ];
+                fallbackKeys.forEach(key => {
+                    candidates.push(payload?.[key]?.value, payload?.[key], payload?.body?.[key]?.value, payload?.body?.[key], payload?.body?.value?.[key]?.value, payload?.body?.value?.[key], payload?.value?.[key]?.value, payload?.value?.[key]);
+                });
+                for (const candidate of candidates) {
+                    if (Array.isArray(candidate)) return candidate;
+                }
+                return [];
             };
+
+            const mudancasFromApi = extractArrayFromResponse(mainDataJson);
+            const checklistFromApi = extractArrayFromResponse(checklistData, ['registros']);
+
+            state.masterData = {
+                mudancas: mudancasFromApi,
+                checklist: checklistFromApi
+            };
+            state.classificationInfo = catalogClassificationLabels(mudancasFromApi);
+            logClassificationCatalog(state.classificationInfo);
             state.isDataLoaded = true;
             document.getElementById('last-updated-timestamp').textContent = new Date().toLocaleString('pt-BR');
             renderPanel(tabId);
@@ -342,50 +431,87 @@
         }
     }
     
+    function getChangesForTab(mudancas, tabId) {
+        if (!Array.isArray(mudancas) || mudancas.length === 0) return [];
+        const tabClassificationSet = NORMALIZED_TAB_CLASSIFICATION_LABELS[tabId];
+        if (!tabClassificationSet || tabClassificationSet.size === 0) return [];
+        return mudancas.filter(mudanca => classificationMatchesTab(tabId, mudanca.cr9ff_classificao));
+    }
+
+    function applySearchFilter(changes, term) {
+        if (!term || term.trim() === '') {
+            return changes;
+        }
+        const lowerCaseTerm = term.toLowerCase();
+        return changes.filter(change => {
+            return (
+                change.cr9ff_nmero?.toLowerCase().includes(lowerCaseTerm) ||
+                change.cr9ff_descrioresumida?.toLowerCase().includes(lowerCaseTerm) ||
+                change.cr9ff_gerente?.toLowerCase().includes(lowerCaseTerm) ||
+                change.cr9ff_coordenador?.toLowerCase().includes(lowerCaseTerm) ||
+                change.cr9ff_departamento?.toLowerCase().includes(lowerCaseTerm) ||
+                change.cr9ff_solicitante?.toLowerCase().includes(lowerCaseTerm)
+            );
+        });
+    }
+
     function renderPanel(tabId) {
-        const { masterData, activeFilters } = state;
+        const { masterData, activeFilters, classificationInfo, globalSearchTerm } = state;
         const activeFilter = activeFilters[tabId];
         const kpiContainer = document.getElementById(`kpi-${tabId}`);
         const contentContainer = document.getElementById(`content-${tabId}`);
 
+        if (!kpiContainer || !contentContainer) return;
+
         kpiContainer.innerHTML = '';
         contentContainer.innerHTML = '';
-        
-        let tabSpecificChanges;
-        switch(tabId) {
-            case 'aprovadas':
-                tabSpecificChanges = masterData.mudancas.filter(m => m.cr9ff_classificao === 'Report');
-                break;
-            case 'previa':
-                tabSpecificChanges = masterData.mudancas.filter(m => m.cr9ff_classificao === 'Comite');
-                break;
-            case 'temporal':
-                tabSpecificChanges = masterData.mudancas.filter(m => m.cr9ff_classificao === 'Execução');
-                break;
-            default:
-                tabSpecificChanges = [];
-        }
 
-        let enrichedChanges = corrigirEEnriquecerMudancas(tabSpecificChanges, masterData.destinatarios);
-        let allChangesForTab = mergeChangeDataWithChecklist(enrichedChanges, masterData.checklist);
+        const tabSpecificChanges = getChangesForTab(masterData.mudancas, tabId);
         
-        let filteredChanges = allChangesForTab;
+        let transformedChanges = transformApiData(tabSpecificChanges);
+        let allChangesForTab = mergeChangeDataWithChecklist(transformedChanges, masterData.checklist);
+
+        let searchedChanges = applySearchFilter(allChangesForTab, globalSearchTerm);
+        
+        let filteredChanges = searchedChanges;
         if (activeFilter.type !== 'all') {
-            filteredChanges = applyActiveFilter(allChangesForTab, activeFilter);
+            filteredChanges = applyActiveFilter(searchedChanges, activeFilter);
         }
 
-        if (tabId === 'aprovadas' || tabId === 'previa') {
-            renderAprovadasPreviaPanel(kpiContainer, contentContainer, allChangesForTab, filteredChanges, tabId);
+        const unmatchedClassifications = classificationInfo ? classificationInfo.unmatched : {};
+        const showUnmatchedNotice = unmatchedClassifications && Object.keys(unmatchedClassifications).length > 0;
+
+        if (tabId === 'aprovadas' || tabId === 'previa' || tabId === 'superadas') {
+            renderAprovadasPreviaPanel(
+                kpiContainer,
+                contentContainer,
+                allChangesForTab, // KPIs are based on all data for the tab
+                filteredChanges,  // The list is based on filtered data
+                tabId,
+                { unmatchedClassifications, showUnmatchedNotice }
+            );
         } else if (tabId === 'temporal') {
             const mudancasProcessadas = processAtivasData(allChangesForTab);
             const filteredProcessed = processAtivasData(filteredChanges);
-            renderTemporalPanel(kpiContainer, contentContainer, mudancasProcessadas, filteredProcessed, tabId);
+            renderTemporalPanel(
+                kpiContainer,
+                contentContainer,
+                mudancasProcessadas,
+                filteredProcessed,
+                tabId,
+                { unmatchedClassifications, showUnmatchedNotice }
+            );
         }
     }
 
-    function renderAprovadasPreviaPanel(kpiContainer, contentContainer, allChanges, filteredChanges, tabId) {
-        const groupedByManager = groupData(filteredChanges, 'cr9ff_gerente', 'cr9ff_coordenador');
-        
+    function renderAprovadasPreviaPanel(kpiContainer, contentContainer, allChanges, filteredChanges, tabId, options = {}) {
+        const { unmatchedClassifications = null, showUnmatchedNotice = false } = options;
+        if (showUnmatchedNotice) {
+            appendUnmatchedClassificationsNotice(contentContainer, unmatchedClassifications);
+        }
+
+        const groupedByManager = groupData(filteredChanges, 'cr9ff_departamento', 'cr9ff_gerente');
+
         const priorityCounts = countBy(allChanges, m => getPriorityStyle(m.cr9ff_prioridade).text);
         const monthlyCounts = countBy(allChanges, m => getMonthlyCategory(m.createdon));
         const checklistCounts = countBy(allChanges, m => m.checklist ? 'Com Checklist' : 'Sem Checklist');
@@ -406,48 +532,52 @@
         kpis.forEach(kpi => kpiContainer.appendChild(createKpiCard(kpi.label, kpi.value, kpi.color, kpi.filter, tabId, kpi.breakdown, kpi.tooltip)));
         
         if (filteredChanges.length === 0) {
-            contentContainer.innerHTML = '<p class="text-center text-slate-500 dark:text-slate-400 mt-8">Nenhuma mudança encontrada para os filtros selecionados.</p>';
+            const emptyState = document.createElement('p');
+            emptyState.className = 'text-center text-slate-500 dark:text-slate-400 mt-8';
+            emptyState.textContent = 'Nenhuma mudança encontrada para os filtros selecionados.';
+            contentContainer.appendChild(emptyState);
             return;
         }
 
-        for (const managerName in groupedByManager) {
-            const managerData = groupedByManager[managerName];
-            const managerAccordion = createAccordion('manager', managerName, managerData.count);
+        for (const departmentName in groupedByManager) {
+            const departmentData = groupedByManager[departmentName];
+            const managerAccordion = createAccordion('manager', departmentName, departmentData.count);
             const managerContent = managerAccordion.querySelector('.accordion-content');
 
-            for (const coordinatorName in managerData.coordinators) {
-                const coordinatorData = managerData.coordinators[coordinatorName];
-                const coordinatorAccordion = createAccordion('coordinator', coordinatorName, coordinatorData.count);
+            for (const superiorName in departmentData.coordinators) {
+                const superiorData = departmentData.coordinators[superiorName];
+                const coordinatorAccordion = createAccordion('coordinator', superiorName, superiorData.count);
                 const coordinatorContent = coordinatorAccordion.querySelector('.accordion-content');
                 
-                coordinatorData.changes.forEach(m => coordinatorContent.appendChild(createChangeCard(m)));
+                superiorData.changes.forEach(m => coordinatorContent.appendChild(createChangeCard(m)));
                 managerContent.appendChild(coordinatorAccordion);
             }
             contentContainer.appendChild(managerAccordion);
         }
     }
 
-    function renderTemporalPanel(kpiContainer, contentContainer, allChanges, filteredChanges, tabId) {
+    function renderTemporalPanel(kpiContainer, contentContainer, allChanges, filteredChanges, tabId, options = {}) {
+        const { unmatchedClassifications = null, showUnmatchedNotice = false } = options;
+        if (showUnmatchedNotice) {
+            appendUnmatchedClassificationsNotice(contentContainer, unmatchedClassifications);
+        }
+
         const now = new Date();
-        const groupedByManager = groupData(filteredChanges, 'cr9ff_gerente', 'cr9ff_coordenador');
+        const groupedByManager = groupData(filteredChanges, 'cr9ff_departamento', 'cr9ff_gerente');
         
         const monthlyCounts = countBy(allChanges, m => getMonthlyCategory(m.createdon));
         const checklistCounts = countBy(allChanges, m => m.checklist ? 'Com Checklist' : 'Sem Checklist');
         const kpiGroups = { 'Atrasadas': [], 'Futuras': [], 'Em Andamento': [], 'Sem Data': [] };
-        const atrasadasBreakdown = { 'Recém-Atrasadas': [], 'Atrasadas': [], 'Atraso Crítico': [] };
-        const futurasBreakdown = { 'Amanhã': [], 'Esta Semana': [], 'Próxima Semana': [], 'Futuras': [] };
         
         allChanges.forEach(m => {
             const category = getTemporalCategory(m, now);
-            if (category.includes('Atras')) {
+            if (category === 'Atrasadas') {
                 kpiGroups['Atrasadas'].push(m);
-                if (atrasadasBreakdown[category]) atrasadasBreakdown[category].push(m);
             }
             else if (category === 'Em Andamento') kpiGroups['Em Andamento'].push(m);
             else if (category === 'Sem Data') kpiGroups['Sem Data'].push(m);
-            else {
+            else if (['Amanhã', 'Esta Semana', 'Próxima Semana', 'Futuras'].includes(category)) {
                 kpiGroups['Futuras'].push(m);
-                if (futurasBreakdown[category]) futurasBreakdown[category].push(m);
             }
         });
 
@@ -460,50 +590,155 @@
             'Status do Checklist': {
                 'Com Checklist': { value: checklistCounts['Com Checklist'] || 0, color: '#22c55e', filter: {type: 'checklist', value: 'Com Checklist'} },
                 'Sem Checklist': { value: checklistCounts['Sem Checklist'] || 0, color: '#ef4444', filter: {type: 'checklist', value: 'Sem Checklist'} }
-            },
-            'Atrasadas': {
-                'Recém-Atrasadas': { value: atrasadasBreakdown['Recém-Atrasadas'].length, color: '#f97316' },
-                'Atrasadas': { value: atrasadasBreakdown['Atrasadas'].length, color: '#ef4444' },
-                'Atraso Crítico': { value: atrasadasBreakdown['Atraso Crítico'].length, color: '#b91c1c' }
-            },
-            'Futuras': {
-                'Amanhã': { value: futurasBreakdown['Amanhã'].length, color: '#22c55e' },
-                'Esta Semana': { value: futurasBreakdown['Esta Semana'].length, color: '#84cc16' },
-                'Próxima Semana': { value: futurasBreakdown['Próxima Semana'].length, color: '#a3e635' },
-                'Futuras': { value: futurasBreakdown['Futuras'].length, color: '#d9f99d' }
             }
         };
 
         const kpis = [
               { label: 'Total de Mudanças', value: allChanges.length, filter: {type: 'all'}, color: 'border-slate-500', breakdown: kpiBreakdownData['Total de Mudanças'], tooltip: 'Total de mudanças ativas. Clique para limpar filtros.'},
               { label: 'Status do Checklist', value: checklistCounts['Com Checklist'] || 0, filter: {type: 'checklist', value: 'Com Checklist'}, color: 'border-indigo-500', breakdown: kpiBreakdownData['Status do Checklist'], tooltip: 'Status de preenchimento do checklist. Clique em uma legenda para filtrar.'},
-              { label: 'Atrasadas', value: kpiGroups.Atrasadas.length, filter: {type: 'temporal', value: 'Atrasadas'}, color: 'border-red-500', breakdown: kpiBreakdownData.Atrasadas, tooltip: 'Mudanças cujo prazo final já passou. Clique para filtrar.'},
-              { label: 'Futuras', value: kpiGroups.Futuras.length, filter: {type: 'temporal', value: 'Futuras'}, color: 'border-green-500', breakdown: kpiBreakdownData.Futuras, tooltip: 'Mudanças planejadas para iniciar. Clique para filtrar.'},
-              { label: 'Em Andamento', value: kpiGroups['Em Andamento'].length, filter: {type: 'temporal', value: 'Em Andamento'}, color: 'border-blue-500', tooltip: 'Mudanças que estão dentro da janela de execução. Clique para filtrar.'},
+              { label: 'Atrasadas', value: kpiGroups.Atrasadas.length, filter: {type: 'temporal', value: 'Atrasadas'}, color: 'border-red-500', tooltip: 'Mudanças com 7 ou mais dias de atraso. Clique para filtrar.'},
+              { label: 'Futuras', value: kpiGroups.Futuras.length, filter: {type: 'temporal', value: 'Futuras'}, color: 'border-green-500', tooltip: 'Mudanças planejadas para iniciar. Clique para filtrar.'},
+              { label: 'Em Andamento', value: kpiGroups['Em Andamento'].length, filter: {type: 'temporal', value: 'Em Andamento'}, color: 'border-blue-500', tooltip: 'Mudanças na janela de execução ou que terminaram há menos de 7 dias. Clique para filtrar.'},
         ];
 
         kpis.forEach(kpi => kpiContainer.appendChild(createKpiCard(kpi.label, kpi.value, kpi.color, kpi.filter, tabId, kpi.breakdown, kpi.tooltip)));
 
         if (filteredChanges.length === 0) {
-            contentContainer.innerHTML = '<p class="text-center text-slate-500 dark:text-slate-400 mt-8">Nenhuma mudança encontrada para o filtro selecionado.</p>';
+            const emptyState = document.createElement('p');
+            emptyState.className = 'text-center text-slate-500 dark:text-slate-400 mt-8';
+            emptyState.textContent = 'Nenhuma mudança encontrada para os filtros selecionados.';
+            contentContainer.appendChild(emptyState);
             return;
         }
         
-        for (const managerName in groupedByManager) {
-            const managerData = groupedByManager[managerName];
-            const managerAccordion = createAccordion('manager', managerName, managerData.count);
+        for (const departmentName in groupedByManager) {
+            const departmentData = groupedByManager[departmentName];
+            const managerAccordion = createAccordion('manager', departmentName, departmentData.count);
             const managerContent = managerAccordion.querySelector('.accordion-content');
 
-            for (const coordinatorName in managerData.coordinators) {
-                const coordinatorData = managerData.coordinators[coordinatorName];
-                const coordinatorAccordion = createAccordion('coordinator', coordinatorName, coordinatorData.count);
+            for (const superiorName in departmentData.coordinators) {
+                const superiorData = departmentData.coordinators[superiorName];
+                const coordinatorAccordion = createAccordion('coordinator', superiorName, superiorData.count);
                 const coordinatorContent = coordinatorAccordion.querySelector('.accordion-content');
 
-                coordinatorData.changes.forEach(m => coordinatorContent.appendChild(createChangeCard(m, true)));
+                superiorData.changes.forEach(m => coordinatorContent.appendChild(createChangeCard(m, true)));
                 managerContent.appendChild(coordinatorAccordion);
             }
             contentContainer.appendChild(managerAccordion);
         }
+    }
+
+    function appendUnmatchedClassificationsNotice(container, unmatchedClassifications) {
+        if (!container || !unmatchedClassifications) return;
+        const entries = Object.entries(unmatchedClassifications)
+            .sort((a, b) => a[0].localeCompare(b[0], 'pt-BR'));
+        if (entries.length === 0) return;
+
+        const notice = document.createElement('div');
+        notice.className = 'mb-4 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-500 dark:bg-amber-900/30 dark:text-amber-100';
+
+        const title = document.createElement('p');
+        title.className = 'font-semibold';
+        title.textContent = 'Classificações sem aba associada';
+        notice.appendChild(title);
+
+        const description = document.createElement('p');
+        description.className = 'mt-1';
+        description.textContent = 'Registros com as classificações abaixo não serão exibidos até que sejam mapeados para uma aba. Consulte o console para o catálogo completo.';
+        notice.appendChild(description);
+
+        const list = document.createElement('ul');
+        list.className = 'mt-2 list-disc list-inside space-y-1';
+        entries.forEach(([label, count]) => {
+            const item = document.createElement('li');
+            item.textContent = `${label} (${count})`;
+            list.appendChild(item);
+        });
+        notice.appendChild(list);
+
+        container.appendChild(notice);
+    }
+
+    function catalogClassificationLabels(mudancas) {
+        if (!Array.isArray(mudancas) || mudancas.length === 0) {
+            return { counts: {}, unmatched: {} };
+        }
+
+        const counts = {};
+        mudancas.forEach(change => {
+            const rawLabel = typeof change.cr9ff_classificao === 'string' ? change.cr9ff_classificao.trim() : '';
+            const label = rawLabel || 'Não informado';
+            counts[label] = (counts[label] || 0) + 1;
+        });
+
+        const unmatched = {};
+        Object.entries(counts).forEach(([label, count]) => {
+            if (!isClassificationMapped(label)) {
+                unmatched[label] = count;
+            }
+        });
+
+        return { counts, unmatched };
+    }
+
+    function logClassificationCatalog(info) {
+        if (!info || typeof console === 'undefined') return;
+        const { counts, unmatched } = info;
+        const groupLabel = 'Classificações encontradas (cr9ff_classificao)';
+        const hasConsoleGroups = typeof console.groupCollapsed === 'function';
+        if (hasConsoleGroups) {
+            console.groupCollapsed(groupLabel);
+        } else {
+            console.log(groupLabel);
+        }
+
+        if (typeof console.table === 'function') {
+            console.table(counts);
+        } else {
+            Object.entries(counts).forEach(([label, count]) => console.log(`${label}: ${count}`));
+        }
+
+        const unmatchedEntries = Object.entries(unmatched)
+            .sort((a, b) => a[0].localeCompare(b[0], 'pt-BR'));
+        if (unmatchedEntries.length > 0) {
+            const warningMessage = 'Classificações sem correspondência de aba detectadas:';
+            const unmatchedMap = Object.fromEntries(unmatchedEntries);
+            if (typeof console.warn === 'function') {
+                console.warn(warningMessage, unmatchedMap);
+            } else {
+                console.log(warningMessage, unmatchedMap);
+            }
+        }
+
+        if (hasConsoleGroups) {
+            console.groupEnd();
+        }
+    }
+
+    function classificationMatchesTab(tabId, classification) {
+        if (!classification) return false;
+        const normalizedValue = normalizeClassification(classification);
+        if (!normalizedValue) return false;
+        const tabClassificationSet = NORMALIZED_TAB_CLASSIFICATION_LABELS[tabId];
+        if (!tabClassificationSet) return false;
+        return tabClassificationSet.has(normalizedValue);
+    }
+
+    function isClassificationMapped(classification) {
+        const normalizedValue = normalizeClassification(classification);
+        if (!normalizedValue) return false;
+        return KNOWN_CLASSIFICATIONS.has(normalizedValue);
+    }
+
+    function normalizeClassification(label) {
+        if (!label || typeof label !== 'string') return '';
+        const trimmed = label.trim();
+        if (!trimmed) return '';
+        return trimmed
+            .normalize('NFD')
+            .replace(DIACRITICS_REGEX, '')
+            .replace(/[^a-z0-9]/gi, '')
+            .toLowerCase();
     }
     
     // --- FUNÇÕES DE CRIAÇÃO DE ELEMENTOS ---
@@ -563,15 +798,20 @@
         const temporalCategoryName = getTemporalCategory(m, now);
         
         const categoryStyles = {
-            'Atraso Crítico': { color: '#B71C1C', label: 'Atraso Crítico' }, 'Atrasadas': { color: '#D32F2F', label: 'Atrasada' }, 'Recém-Atrasadas': { color: '#E65100', label: 'Recém-Atrasada' },
-            'Em Andamento': { color: '#1976D2', label: 'Em Andamento' }, 'Amanhã': { color: '#388E3C', label: 'Amanhã' }, 'Esta Semana': { color: '#4CAF50', label: 'Esta Semana' },
-            'Próxima Semana': { color: '#8BC34A', label: 'Próxima Semana' }, 'Futuras': { color: '#0097A7', label: 'Futura' }, 'Sem Data': { color: '#616161', label: 'Sem Data' }, 'Indefinida': { color: '#616161', label: 'Indefinida' }
+            'Atrasadas': { color: '#D32F2F', label: 'Atrasada' },
+            'Em Andamento': { color: '#1976D2', label: 'Em Andamento' }, 
+            'Amanhã': { color: '#388E3C', label: 'Amanhã' }, 
+            'Esta Semana': { color: '#4CAF50', label: 'Esta Semana' },
+            'Próxima Semana': { color: '#8BC34A', label: 'Próxima Semana' }, 
+            'Futuras': { color: '#0097A7', label: 'Futura' }, 
+            'Sem Data': { color: '#616161', label: 'Sem Data' }, 
+            'Indefinida': { color: '#616161', label: 'Indefinida' }
         };
         
-        const cardStyle = isTemporalView ? categoryStyles[temporalCategoryName] : prioridade;
+        const cardStyle = isTemporalView && categoryStyles[temporalCategoryName] ? categoryStyles[temporalCategoryName] : prioridade;
         card.style.borderLeftColor = cardStyle.borderColor || cardStyle.color;
 
-        const statusHtml = isTemporalView 
+        const statusHtml = isTemporalView && cardStyle.label
             ? `<div class="absolute top-3 right-3 text-xs font-bold text-white rounded-full px-2 py-1" style="background-color: ${cardStyle.color};">${cardStyle.label}</div>`
             : '';
 
@@ -623,24 +863,15 @@
     }
 
     // --- FUNÇÕES DE PROCESSAMENTO DE DADOS (Helpers) ---
-    function corrigirEEnriquecerMudancas(mudancas, destinatarios) {
-      if (!mudancas || !Array.isArray(mudancas)) return [];
-      if (!destinatarios || destinatarios.length === 0) return mudancas;
-
-      const destinatariosMap = new Map(destinatarios.map(g => [g.cr9ff_grupodeatribuicao, g]));
-      
-      return mudancas.map(mudanca => {
-        const nomeGrupo = mudanca.cr9ff_grupodeatribuio; 
-        if (nomeGrupo && destinatariosMap.has(nomeGrupo)) {
-          const infoGrupo = destinatariosMap.get(nomeGrupo);
-          // Retorna um novo objeto para evitar mutação do estado original
-          return {
-            ...mudanca,
-            cr9ff_gerente: infoGrupo.cr9ff_gerente,
-            cr9ff_coordenador: infoGrupo.cr9ff_coordenador
-          };
-        }
-        return mudanca;
+    function transformApiData(mudancas) {
+      if (!Array.isArray(mudancas)) return [];
+      return mudancas.map(m => {
+        const newChange = { ...m };
+        newChange.cr9ff_gerente = m.gerente;
+        newChange.cr9ff_coordenador = m.coordenador;
+        newChange.cr9ff_departamento = m.departamento;
+        newChange.cr9ff_solicitante = m.cr9ff_abertopor;
+        return newChange;
       });
     }
 
@@ -663,7 +894,7 @@
         document.documentElement.classList.toggle('dark', theme === 'dark');
         const iconName = theme === 'dark' ? 'sun' : 'moon';
         themeToggleBtn.innerHTML = `<i data-lucide="${iconName}" class="h-5 w-5"></i>`;
-        lucide.createIcons();
+        safeCreateIcons('atualização do tema');
     }
     
     function toggleTheme() {
@@ -736,16 +967,11 @@
     function getTemporalCategory(mudanca, now) {
         const { startDateObject, endDateObject } = mudanca;
         if (!startDateObject || !endDateObject) return 'Sem Data';
-        const nowDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        const startDay = new Date(startDateObject.getFullYear(), startDateObject.getMonth(), startDateObject.getDate());
-        if (now > endDateObject) {
-            const daysLate = diffInDays(now, endDateObject);
-            if (daysLate >= 30) return 'Atraso Crítico'; 
-            if (daysLate >= 7) return 'Atrasadas'; 
-            return 'Recém-Atrasadas';
-        }
-        if (now >= startDateObject && now <= endDateObject) return 'Em Andamento';
+
+        // Prioridade 1: Tarefas futuras
         if (now < startDateObject) {
+            const nowDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const startDay = new Date(startDateObject.getFullYear(), startDateObject.getMonth(), startDateObject.getDate());
             const tomorrow = new Date(nowDay); tomorrow.setDate(tomorrow.getDate() + 1);
             if (startDay.getTime() === tomorrow.getTime()) return 'Amanhã';
             const endOfWeek = new Date(nowDay); endOfWeek.setDate(nowDay.getDate() + (6 - nowDay.getDay()));
@@ -754,6 +980,20 @@
             if (startDay <= endOfNextWeek) return 'Próxima Semana';
             return 'Futuras';
         }
+
+        // Prioridade 2: Tarefas que já passaram da data de término
+        if (now > endDateObject) {
+            const daysLate = diffInDays(now, endDateObject);
+            if (daysLate >= 7) {
+                return 'Atrasadas';
+            }
+        }
+        
+        // Prioridade 3: Tarefas dentro da janela de execução ou no período de "graça" (atraso < 7 dias)
+        if (now >= startDateObject) {
+            return 'Em Andamento';
+        }
+        
         return 'Indefinida';
     }
     
@@ -788,7 +1028,7 @@
                     return getPriorityStyle(m.cr9ff_prioridade).text === activeFilter.value;
                 case 'temporal':
                     const category = getTemporalCategory(processAtivasData([m])[0], now);
-                    if (activeFilter.value === 'Atrasadas') return category.includes('Atras');
+                    if (activeFilter.value === 'Atrasadas') return category === 'Atrasadas';
                     if (activeFilter.value === 'Futuras') return ['Amanhã', 'Esta Semana', 'Próxima Semana', 'Futuras'].includes(category);
                     return category === activeFilter.value;
                 case 'checklist':
@@ -863,7 +1103,10 @@
                     <div>
                         <h4 class="font-semibold text-slate-600 dark:text-slate-300 mb-2">Detalhes Principais</h4>
                         <div class="space-y-2">
+                            <p><strong>Solicitante:</strong> ${change.cr9ff_solicitante || 'N/A'}</p>
+                            <p><strong>Superior Imediato:</strong> ${change.cr9ff_gerente || 'N/A'}</p>
                             <p><strong>Coordenador:</strong> ${change.cr9ff_coordenador || 'N/A'}</p>
+                            <p><strong>Departamento:</strong> ${change.cr9ff_departamento || 'N/A'}</p>
                             <p><strong>Item de Configuração:</strong> ${change.cr9ff_itemdeconfigurao || 'N/A'}</p>
                             <p><strong>Período:</strong> ${change['cr9ff_datadeincioplanejada@OData.Community.Display.V1.FormattedValue'] || 'N/A'} - ${change['cr9ff_datadetrminoplanejada@OData.Community.Display.V1.FormattedValue'] || 'N/A'}</p>
                         </div>
@@ -885,11 +1128,10 @@
                 </div>
             </div>
         `;
-        lucide.createIcons();
+        safeCreateIcons('conteúdo do modal de detalhes');
     }
   })();
   </script>
 </body>
 </html>
-
 
